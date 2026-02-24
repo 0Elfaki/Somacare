@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../../theme/app_theme.dart';
+import 'package:go_router/go_router.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -46,8 +46,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _goNext() {
     if (_currentPage == _pages.length - 1) {
-      // TODO: later go to school selection
-      // context.goNamed('schoolSelection');
+      context.goNamed('schoolSelection');
     } else {
       _controller.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -69,7 +68,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               Align(
                 alignment: Alignment.topRight,
                 child: TextButton(
-                  onPressed: _goNext,
+                  onPressed: () => context.goNamed('schoolSelection'),
                   child: const Text('Skip'),
                 ),
               ),
