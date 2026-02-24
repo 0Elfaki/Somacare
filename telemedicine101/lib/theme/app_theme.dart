@@ -11,14 +11,28 @@ class AppColors {
 ThemeData buildAppTheme() {
   final base = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+    brightness: Brightness.light,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: AppColors.primary,
+      brightness: Brightness.light,
+    ),
   );
+
+  final baseText = GoogleFonts.interTextTheme(base.textTheme);
 
   return base.copyWith(
     scaffoldBackgroundColor: AppColors.background,
-    textTheme: GoogleFonts.interTextTheme(base.textTheme).copyWith(
-      titleLarge: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w600),
-      bodyMedium: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w400),
+    textTheme: baseText.copyWith(
+      titleLarge: baseText.titleLarge?.copyWith(
+        fontSize: 22,
+        fontWeight: FontWeight.w600,
+        color: Colors.black,
+      ),
+      bodyMedium: baseText.bodyMedium?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: Colors.black87,
+      ),
     ),
     cardTheme: const CardThemeData(
       shape: RoundedRectangleBorder(
