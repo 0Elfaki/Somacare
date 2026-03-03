@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../features/onboarding/presentation/onboarding_screen.dart';
+import '../../features/auth/presentation/role_selection_screen.dart';
 import '../../features/auth/presentation/school_selection_screen.dart';
 import '../../features/auth/presentation/student_login_screen.dart';
 import '../../features/student/presentation/student_shell.dart';
@@ -21,32 +23,66 @@ import '../../features/student/presentation/profile_screen.dart';
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
+class _SupabaseAuthNotifier extends ChangeNotifier {
+  _SupabaseAuthNotifier() {
+    Supabase.instance.client.auth.onAuthStateChange.listen((_) {
+      notifyListeners();
+    });
+  }
+}
+
+final _authNotifier = _SupabaseAuthNotifier();
+
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/onboarding',
+  refreshListenable: _authNotifier,
+
+  redirect: (context, state) {
+    final session = Supabase.instance.client.auth.currentSession;
+    final loggedIn = session != null;
+    final loc = state.matchedLocation;
+
+    // ✅ Always allow school selection in both flows
+    if (loc == '/school-selection') return null;
+
+    final authRoutes = [
+      '/onboarding',
+      '/role-selection',
+      '/student-login',
+      '/doctor-login',
+    ];
+    final isAuthRoute = authRoutes.contains(loc);
+
+    if (loggedIn && isAuthRoute) return '/student-dashboard';
+    if (!loggedIn && !isAuthRoute) return '/onboarding';
+
+    return null;
+  },
 
   routes: [
-    // ── Auth / Onboarding (no bottom nav) ─────────────────────
     GoRoute(path: '/onboarding', builder: (c, s) => const OnboardingScreen()),
     GoRoute(
-      path: '/school-selection',
-      builder: (c, s) => const SchoolSelectionScreen(),
+      path: '/role-selection',
+      builder: (c, s) => const RoleSelectionScreen(),
     ),
     GoRoute(
       path: '/student-login',
       builder: (c, s) => const StudentLoginScreen(),
     ),
-
-    // ── Sub-screens pushed on top with back arrow ──────────────
+    GoRoute(
+      path: '/doctor-login',
+      builder: (c, s) => const StudentLoginScreen(),
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/school-selection',
+      builder: (c, s) => const SchoolSelectionScreen(),
+    ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/book-appointment',
       builder: (c, s) => const BookAppointmentScreen(),
-    ),
-    GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
-      path: '/my-appointments',
-      builder: (c, s) => const MyAppointmentsScreen(),
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
@@ -83,8 +119,6 @@ final GoRouter appRouter = GoRouter(
       path: '/records',
       builder: (c, s) => const RecordsScreen(),
     ),
-
-    // ── Shell (bottom nav tabs only) ───────────────────────────
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) => StudentShell(child: child),
@@ -96,6 +130,10 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/symptom-check',
           builder: (c, s) => const SymptomCheckScreen(),
+        ),
+        GoRoute(
+          path: '/my-appointments',
+          builder: (c, s) => const MyAppointmentsScreen(),
         ),
         GoRoute(path: '/profile', builder: (c, s) => const ProfileScreen()),
       ],

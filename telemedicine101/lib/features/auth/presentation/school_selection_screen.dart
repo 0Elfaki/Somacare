@@ -15,11 +15,18 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
   String? _selectedSchool;
   List<String> _schools = [];
   bool _isLoading = true;
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
     _loadSchools();
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _loadSchools() async {
@@ -51,16 +58,46 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    _searchCtrl.dispose();
-    super.dispose();
-  }
-
   List<String> get _filtered {
     final q = _searchCtrl.text.trim().toLowerCase();
     if (q.isEmpty) return _schools;
     return _schools.where((s) => s.toLowerCase().contains(q)).toList();
+  }
+
+  Future<void> _confirmSchool() async {
+    if (_selectedSchool == null || _isSaving) return;
+    setState(() => _isSaving = true);
+
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+
+      if (userId != null) {
+        // Logged in — save to DB then navigate
+        await Supabase.instance.client
+            .from('profiles')
+            .upsert({'id': userId, 'school': _selectedSchool})
+            .select('id');
+
+        if (mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) context.go('/student-dashboard');
+          });
+        }
+      } else {
+        // Not logged in — pop back to login screen with school name
+        if (mounted) Navigator.pop(context, _selectedSchool);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Failed: $e'),
+            backgroundColor: const Color(0xFFDC2626),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -78,13 +115,20 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
                 alignment: Alignment.centerLeft,
               ),
               const SizedBox(height: 6),
-              Text(
-                'Select School',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+              const Text(
+                'Select Your School',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF0F172A),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 4),
+              const Text(
+                'Choose the university or school you belong to',
+                style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+              ),
+              const SizedBox(height: 16),
               TextField(
                 controller: _searchCtrl,
                 onChanged: (_) => setState(() {}),
@@ -120,7 +164,7 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
                         )
                       : ListView.separated(
                           itemCount: _filtered.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               Divider(color: Colors.grey.shade200),
                           itemBuilder: (context, i) {
                             final s = _filtered[i];
@@ -152,11 +196,31 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
               SizedBox(
                 height: 56,
                 child: FilledButton(
-                  onPressed: _selectedSchool != null
-                      ? () =>
-                            context.go('/student-login', extra: _selectedSchool)
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onPressed: (_selectedSchool != null && !_isSaving)
+                      ? _confirmSchool
                       : null,
-                  child: const Text('Continue'),
+                  child: _isSaving
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : const Text(
+                          'Confirm School',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                 ),
               ),
             ],

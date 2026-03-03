@@ -64,20 +64,11 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   Map<String, dynamic>? _upcomingAppointment;
   String _studentName = 'Student';
   bool _loadingAppointment = true;
-  bool _initialized = false; // ✅ prevents repeated calls
 
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_initialized) {
-      _initialized = true;
-      _loadDashboardData();
-    }
+    _loadDashboardData();
   }
 
   Future<void> _loadDashboardData() async {
@@ -91,23 +82,37 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     }
 
     try {
+      // ✅ Load name only
       final profile = await Supabase.instance.client
           .from('profiles')
           .select('full_name')
           .eq('id', userId)
           .maybeSingle();
 
+      // ✅ Only select columns that actually exist in your schema
+      final today = DateTime.now().toIso8601String().split('T').first;
       final appointments = await Supabase.instance.client
           .from('appointments')
-          .select()
+          .select('id, date, time, status, doctor_id, notes')
           .eq('student_id', userId)
           .inFilter('status', ['pending', 'confirmed'])
+          .gte('date', today)
           .order('date', ascending: true)
           .limit(1);
 
       if (mounted) {
         setState(() {
-          _studentName = profile?['full_name'] ?? 'Student';
+          final raw = profile?['full_name'];
+          if (raw != null && raw.toString().trim().isNotEmpty) {
+            _studentName = raw.toString().trim();
+          } else {
+            final email =
+                Supabase.instance.client.auth.currentUser?.email ?? '';
+            _studentName = email.isNotEmpty
+                ? email.split('@').first
+                : 'Student';
+          }
+
           _upcomingAppointment = (appointments as List).isNotEmpty
               ? appointments.first
               : null;
@@ -115,6 +120,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
         });
       }
     } catch (e) {
+      debugPrint('Dashboard load error: $e'); // ✅ visible in console
       if (mounted) {
         setState(() {
           _upcomingAppointment = null;
@@ -129,10 +135,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: RefreshIndicator(
-        onRefresh: () async {
-          _initialized = false; // ✅ allow reload on pull-to-refresh
-          await _loadDashboardData();
-        },
+        onRefresh: _loadDashboardData,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
@@ -274,22 +277,32 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     left: 16,
                     right: 16,
                     bottom: -77,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: _loadingAppointment
-                          ? const SizedBox(
-                              height: 80,
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                          : _upcomingAppointment == null
-                          ? _NoAppointmentCard(
-                              onBook: () => context.push('/book-appointment'),
-                            )
-                          : _UpcomingCard(
-                              appointment: _upcomingAppointment!,
-                              onJoin: () => context.push('/consult'),
+                    child: _loadingAppointment
+                        ? Container(
+                            height: 80,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(18),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.07),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
                             ),
-                    ),
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        : _upcomingAppointment == null
+                        ? _NoAppointmentCard(
+                            onBook: () => context.push('/book-appointment'),
+                          )
+                        : _UpcomingCard(
+                            appointment: _upcomingAppointment!,
+                            onJoin: () => context.push('/consult'),
+                          ),
                   ),
                 ],
               ),
@@ -341,12 +354,13 @@ class _UpcomingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final status = appointment['status'] as String;
+    final status = appointment['status'] as String? ?? 'pending';
     final isConfirmed = status == 'confirmed';
-    final doctorName = appointment['doctor_name'] ?? 'Doctor';
-    final specialty = appointment['doctor_specialty'] ?? '';
-    final date = appointment['date'] ?? '';
-    final time = appointment['time'] ?? '';
+    // ✅ doctor_name doesn't exist in schema — use fallback safely
+    final doctorName = appointment['doctor_name'] as String? ?? 'Doctor';
+    final specialty = appointment['doctor_specialty'] as String? ?? '';
+    final date = appointment['date'] as String? ?? '';
+    final time = appointment['time'] as String? ?? '';
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -394,7 +408,9 @@ class _UpcomingCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$doctorName · $specialty',
+                      specialty.isNotEmpty
+                          ? '$doctorName · $specialty'
+                          : doctorName,
                       style: const TextStyle(
                         fontSize: 11,
                         color: Color(0xFF64748B),
@@ -434,7 +450,7 @@ class _UpcomingCard extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                '$date · $time',
+                time.isNotEmpty ? '$date · $time' : date,
                 style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
               ),
             ],

@@ -53,7 +53,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeOut,
       );
     } else {
-      context.go('/school-selection');
+      context.go('/role-selection'); // ✅ fixed
     }
   }
 
@@ -66,16 +66,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
           child: Column(
             children: [
+              // ── Skip button ───────────────────────────
               Row(
                 children: [
                   const Spacer(),
                   TextButton(
-                    onPressed: () => context.go('/school-selection'),
+                    onPressed: () => context.go('/role-selection'), // ✅ fixed
                     child: const Text('Skip'),
                   ),
                 ],
               ),
               const SizedBox(height: 6),
+
+              // ── Slides ────────────────────────────────
               Expanded(
                 child: PageView.builder(
                   controller: _pageCtrl,
@@ -125,6 +128,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   },
                 ),
               ),
+
+              // ── Dots ──────────────────────────────────
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -145,6 +150,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 }),
               ),
               const SizedBox(height: 14),
+
+              // ── Next / Get Started ────────────────────
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -159,24 +166,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                   child: Text(
-                    _index == _slides.length - 1 ? 'Get started' : 'Next',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () => context.go('/student-login'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                    _index == _slides.length - 1 ? 'Get Started' : 'Next',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
                     ),
                   ),
-                  child: const Text('I already have an account'),
                 ),
               ),
+              // ✅ "I already have an account" REMOVED
+              const SizedBox(height: 10),
             ],
           ),
         ),

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 
-const _groqApiKey = String.fromEnvironment('GROQ_KEY');
-const _model = 'llama3-8b-8192';
+const _groqApiKey = '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';
+const _model = 'llama-3.3-70b-versatile';
 
 const _systemPrompt = '''
 You are a compassionate and professional medical assistant for university students.
@@ -38,7 +38,6 @@ class _SymptomCheckScreenState extends State<SymptomCheckScreen> {
   @override
   void initState() {
     super.initState();
-    // Opening message
     _messages.add(
       const _Msg(
         role: 'assistant',
@@ -79,28 +78,29 @@ class _SymptomCheckScreenState extends State<SymptomCheckScreen> {
     _scrollToBottom();
 
     try {
-      // Build message history for context
       final history = _messages
           .where((m) => m.role != 'typing')
           .map((m) => {'role': m.role, 'content': m.text})
           .toList();
 
-      final response = await http.post(
-        Uri.parse('https://api.groq.com/openai/v1/chat/completions'),
-        headers: {
-          'Authorization': 'Bearer $_groqApiKey',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'model': _model,
-          'messages': [
-            {'role': 'system', 'content': _systemPrompt},
-            ...history,
-          ],
-          'temperature': 0.7,
-          'max_tokens': 512,
-        }),
-      );
+      final response = await http
+          .post(
+            Uri.parse('https://api.groq.com/openai/v1/chat/completions'),
+            headers: {
+              'Authorization': 'Bearer $_groqApiKey',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({
+              'model': _model,
+              'messages': [
+                {'role': 'system', 'content': _systemPrompt},
+                ...history,
+              ],
+              'temperature': 0.7,
+              'max_tokens': 512,
+            }),
+          )
+          .timeout(const Duration(seconds: 30)); // ✅ timeout added
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -113,18 +113,16 @@ class _SymptomCheckScreenState extends State<SymptomCheckScreen> {
           _scrollToBottom();
         }
       } else {
-        throw Exception('Status ${response.statusCode}');
+        // ✅ show real HTTP error
+        throw Exception('HTTP ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           _isTyping = false;
+          // ✅ show real error in chat so we can debug
           _messages.add(
-            const _Msg(
-              role: 'assistant',
-              text:
-                  '⚠️ Sorry, I couldn\'t process that. Please check your connection and try again.',
-            ),
+            _Msg(role: 'assistant', text: '⚠️ Error: ${e.toString()}'),
           );
         });
         _scrollToBottom();
@@ -218,8 +216,8 @@ class _SymptomCheckScreenState extends State<SymptomCheckScreen> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             color: const Color(0xFFFFFBEB),
-            child: Row(
-              children: const [
+            child: const Row(
+              children: [
                 Icon(Icons.info_outline, size: 14, color: Color(0xFFD97706)),
                 SizedBox(width: 6),
                 Expanded(
@@ -246,8 +244,7 @@ class _SymptomCheckScreenState extends State<SymptomCheckScreen> {
                 if (_isTyping && i == _messages.length) {
                   return const _TypingBubble();
                 }
-                final msg = _messages[i];
-                return _ChatBubble(msg: msg);
+                return _ChatBubble(msg: _messages[i]);
               },
             ),
           ),
@@ -288,9 +285,9 @@ class _SymptomCheckScreenState extends State<SymptomCheckScreen> {
               16,
               MediaQuery.of(context).padding.bottom + 10,
             ),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
-              border: Border(top: BorderSide(color: const Color(0xFFF1F5F9))),
+              border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
             ),
             child: Row(
               children: [
@@ -397,7 +394,7 @@ class _ChatBubble extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -465,7 +462,7 @@ class _TypingBubble extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -558,7 +555,7 @@ class _SuggestionChip extends StatelessWidget {
           border: Border.all(color: const Color(0xFFE2E8F0)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
