@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -10,142 +9,174 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  final _controller = PageController();
-  int _currentPage = 0;
+  final _pageCtrl = PageController();
+  int _index = 0;
 
-  final _pages = const [
-    _OnboardingPageData(
+  static const _slides = <_Slide>[
+    _Slide(
       title: 'Instant Doctor Access',
-      description:
-          'Connect with school-approved doctors anytime directly from your phone.',
+      subtitle: 'Book and join consultations quickly when you need help.',
+      icon: Icons.video_call_outlined,
     ),
-    _OnboardingPageData(
+    _Slide(
       title: 'AI Symptom Check',
-      description:
-          'Describe symptoms and get safe AI triage guidance for your child.',
+      subtitle: 'Answer a few questions and get a risk level with next steps.',
+      icon: Icons.psychology_outlined,
     ),
-    _OnboardingPageData(
+    _Slide(
       title: 'Medical History Tracking',
-      description: 'Keep visits, labs, and prescriptions in one secure place.',
+      subtitle: 'Keep your visits, notes, and prescriptions organized.',
+      icon: Icons.folder_open_outlined,
     ),
-    _OnboardingPageData(
-      title: 'Emergency Ambulance',
-      description: 'Trigger ambulance support when high-risk cases appear.',
+    _Slide(
+      title: 'Emergency Support',
+      subtitle: 'Quick emergency access when symptoms are serious.',
+      icon: Icons.emergency_outlined,
     ),
-    _OnboardingPageData(
+    _Slide(
       title: 'Medication Reminders',
-      description: 'Set calm reminders so students never miss medications.',
+      subtitle: 'Stay on track with your medications and schedules.',
+      icon: Icons.medication_outlined,
     ),
   ];
 
   @override
   void dispose() {
-    _controller.dispose();
+    _pageCtrl.dispose();
     super.dispose();
   }
 
-  void _goNext() {
-    if (_currentPage == _pages.length - 1) {
-      context.goNamed('schoolSelection');
-    } else {
-      _controller.nextPage(
-        duration: const Duration(milliseconds: 300),
+  void _nextOrFinish() {
+    if (_index < _slides.length - 1) {
+      _pageCtrl.nextPage(
+        duration: const Duration(milliseconds: 250),
         curve: Curves.easeOut,
       );
+    } else {
+      context.go('/school-selection');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
           child: Column(
             children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: TextButton(
-                  onPressed: () => context.goNamed('schoolSelection'),
-                  child: const Text('Skip'),
-                ),
+              Row(
+                children: [
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () => context.go('/school-selection'),
+                    child: const Text('Skip'),
+                  ),
+                ],
               ),
+              const SizedBox(height: 6),
               Expanded(
                 child: PageView.builder(
-                  controller: _controller,
-                  itemCount: _pages.length,
-                  onPageChanged: (index) {
-                    setState(() => _currentPage = index);
-                  },
-                  itemBuilder: (context, index) {
-                    final data = _pages[index];
+                  controller: _pageCtrl,
+                  itemCount: _slides.length,
+                  onPageChanged: (i) => setState(() => _index = i),
+                  itemBuilder: (_, i) {
+                    final s = _slides[i];
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          height: 200,
-                          width: double.infinity,
+                          width: 110,
+                          height: 110,
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(24),
+                            color: const Color(0xFFEFF6FF),
+                            borderRadius: BorderRadius.circular(28),
                           ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.health_and_safety,
-                              size: 80,
-                              color: AppColors.primary,
-                            ),
+                          child: Icon(
+                            s.icon,
+                            size: 54,
+                            color: const Color(0xFF3B82F6),
                           ),
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 22),
                         Text(
-                          data.title,
-                          style: theme.textTheme.titleLarge,
+                          s.title,
                           textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF0F172A),
+                          ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 10),
                         Text(
-                          data.description,
-                          style: theme.textTheme.bodyMedium,
+                          s.subtitle,
                           textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            height: 1.35,
+                            color: Color(0xFF64748B),
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ],
                     );
                   },
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(_pages.length, (index) {
-                  final isActive = index == _currentPage;
+                children: List.generate(_slides.length, (i) {
+                  final active = i == _index;
                   return AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    duration: const Duration(milliseconds: 180),
+                    width: active ? 18 : 8,
                     height: 8,
-                    width: isActive ? 20 : 8,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
-                      color: isActive
-                          ? AppColors.primary
-                          : Colors.grey.shade400,
-                      borderRadius: BorderRadius.circular(12),
+                      color: active
+                          ? const Color(0xFF3B82F6)
+                          : const Color(0xFFE2E8F0),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   );
                 }),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 14),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
-                  onPressed: _goNext,
+                child: ElevatedButton(
+                  onPressed: _nextOrFinish,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3B82F6),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
                   child: Text(
-                    _currentPage == _pages.length - 1 ? 'Get Started' : 'Next',
+                    _index == _slides.length - 1 ? 'Get started' : 'Next',
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => context.go('/student-login'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text('I already have an account'),
+                ),
+              ),
             ],
           ),
         ),
@@ -154,8 +185,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 }
 
-class _OnboardingPageData {
+class _Slide {
   final String title;
-  final String description;
-  const _OnboardingPageData({required this.title, required this.description});
+  final String subtitle;
+  final IconData icon;
+  const _Slide({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+  });
 }

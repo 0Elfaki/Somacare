@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/app_theme.dart';
 
 class StudentLoginScreen extends StatefulWidget {
@@ -10,39 +11,66 @@ class StudentLoginScreen extends StatefulWidget {
 }
 
 class _StudentLoginScreenState extends State<StudentLoginScreen> {
-  final _studentIdController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _obscurePassword = true;
   String? _selectedSchool;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _selectedSchool = GoRouterState.of(context).extra as String?;
+    final extra = GoRouterState.of(context).extra;
+    _selectedSchool = (extra is String) ? extra : null;
   }
 
   Future<void> _login() async {
-    if (_studentIdController.text.isEmpty || _passwordController.text.isEmpty) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please enter Student ID and Password')),
-        );
-      }
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      _showError('Please enter your email and password');
       return;
     }
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() => _isLoading = false);
 
-    if (context.mounted) {
-      context.goNamed('studentDashboard');
+    try {
+      final response = await Supabase.instance.client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+
+      if (!mounted) return;
+
+      if (response.user != null) {
+        context.go('/student-dashboard');
+      } else {
+        _showError('Login failed. Please check your credentials.');
+      }
+    } on AuthException catch (e) {
+      if (!mounted) return;
+      _showError(e.message);
+    } catch (e) {
+      if (!mounted) return;
+      _showError('Something went wrong. Please try again.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: const Color(0xFFDC2626),
+      ),
+    );
   }
 
   @override
   void dispose() {
-    _studentIdController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -53,7 +81,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -61,7 +89,10 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
               IconButton(
                 icon: const Icon(Icons.arrow_back_ios, size: 20),
                 onPressed: () => context.pop(),
+                alignment: Alignment.centerLeft,
               ),
+
+              // ── School badge ───────────────────────────
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -101,6 +132,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                 ),
               ),
               const SizedBox(height: 32),
+
               Text(
                 'Student Login',
                 style: theme.textTheme.headlineSmall?.copyWith(
@@ -109,16 +141,21 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Enter student credentials to continue',
+                'Enter your credentials to continue',
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 32),
-              Text('Student ID', style: theme.textTheme.titleMedium),
+
+              // ── Email field ────────────────────────────
+              Text('Email', style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
               TextField(
-                controller: _studentIdController,
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                autocorrect: false,
                 decoration: InputDecoration(
-                  hintText: 'Enter student ID',
+                  hintText: 'student1@somacare.app',
+                  prefixIcon: const Icon(Icons.email_outlined),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -127,16 +164,27 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                     vertical: 16,
                   ),
                 ),
-                keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 20),
+
+              // ── Password field ─────────────────────────
               Text('Password', style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
               TextField(
                 controller: _passwordController,
-                obscureText: true,
+                obscureText: _obscurePassword,
                 decoration: InputDecoration(
                   hintText: 'Enter password',
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -147,6 +195,8 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                 ),
               ),
               const SizedBox(height: 8),
+
+              // ── Forgot links ───────────────────────────
               Align(
                 alignment: Alignment.centerRight,
                 child: Column(
@@ -157,45 +207,19 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              'Contact $_selectedSchool admin for password reset',
-                            ),
-                            action: SnackBarAction(
-                              label: 'Call',
-                              onPressed: () =>
-                                  print('Calling $_selectedSchool admin'),
+                              'Contact ${_selectedSchool ?? "school"} admin for password reset',
                             ),
                           ),
                         );
                       },
                       child: const Text('Forgot password?'),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Contact $_selectedSchool admin for Student ID lookup',
-                            ),
-                            action: SnackBarAction(
-                              label: 'Email',
-                              onPressed: () =>
-                                  print('Emailing $_selectedSchool admin'),
-                            ),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        'Forgot Student ID?',
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 32),
+
+              // ── Login button ───────────────────────────
               SizedBox(
                 height: 56,
                 child: FilledButton(
@@ -211,7 +235,46 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                             ),
                           ),
                         )
-                      : const Text('Login'),
+                      : const Text(
+                          'Login',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                ),
+              ),
+
+              // ── Test credentials hint ──────────────────
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFBBF7D0)),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '🧪 Test Credentials',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF15803D),
+                        fontSize: 13,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Email: student1@somacare.app\nPassword: Student@1234',
+                      style: TextStyle(
+                        color: Color(0xFF166534),
+                        fontSize: 12,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
