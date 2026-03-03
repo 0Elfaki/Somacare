@@ -11,6 +11,11 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+push.bat
+run.bat
+*.env
+
+
 
 # IntelliJ related
 *.iml

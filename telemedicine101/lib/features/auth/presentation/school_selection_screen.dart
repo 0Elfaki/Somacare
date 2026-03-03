@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/app_theme.dart';
 
 class SchoolSelectionScreen extends StatefulWidget {
@@ -10,35 +11,97 @@ class SchoolSelectionScreen extends StatefulWidget {
 }
 
 class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
-  final _schoolController = TextEditingController();
+  final _searchCtrl = TextEditingController();
   String? _selectedSchool;
-  final List<String> _schools = [
-    'Al Salam International School',
-    'British International School Riyadh',
-    'Dar Al Fikr Schools',
-    'International Schools Group',
-    'King Abdulaziz University Prep School',
-    'Modern International School',
-    'Rabigh Schools',
-    'Saudi Aramco Expat Schools',
-    'Thamer International School',
-    'Western International School',
-  ];
+  List<String> _schools = [];
+  bool _isLoading = true;
+  bool _isSaving = false;
 
-  void _onSchoolSelected(String school) {
-    setState(() => _selectedSchool = school);
+  @override
+  void initState() {
+    super.initState();
+    _loadSchools();
   }
 
   @override
   void dispose() {
-    _schoolController.dispose();
+    _searchCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadSchools() async {
+    try {
+      final data = await Supabase.instance.client
+          .from('schools')
+          .select('name')
+          .order('name', ascending: true);
+
+      final names = (data as List).map((e) => e['name'] as String).toList();
+
+      if (mounted) {
+        setState(() {
+          _schools = names;
+          _selectedSchool = names.isNotEmpty ? names.first : null;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load schools: $e'),
+            backgroundColor: const Color(0xFFDC2626),
+          ),
+        );
+      }
+    }
+  }
+
+  List<String> get _filtered {
+    final q = _searchCtrl.text.trim().toLowerCase();
+    if (q.isEmpty) return _schools;
+    return _schools.where((s) => s.toLowerCase().contains(q)).toList();
+  }
+
+  Future<void> _confirmSchool() async {
+    if (_selectedSchool == null || _isSaving) return;
+    setState(() => _isSaving = true);
+
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+
+      if (userId != null) {
+        // Logged in — save to DB then navigate
+        await Supabase.instance.client
+            .from('profiles')
+            .upsert({'id': userId, 'school': _selectedSchool})
+            .select('id');
+
+        if (mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) context.go('/student-dashboard');
+          });
+        }
+      } else {
+        // Not logged in — pop back to login screen with school name
+        if (mounted) Navigator.pop(context, _selectedSchool);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Failed: $e'),
+            backgroundColor: const Color(0xFFDC2626),
+          ),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -46,92 +109,119 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header
-              Text(
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios, size: 20),
+                onPressed: () => context.pop(),
+                alignment: Alignment.centerLeft,
+              ),
+              const SizedBox(height: 6),
+              const Text(
                 'Select Your School',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF0F172A),
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Choose your school to access approved doctors and services.',
-                style: theme.textTheme.bodyMedium,
+              const SizedBox(height: 4),
+              const Text(
+                'Choose the university or school you belong to',
+                style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
               ),
-              const SizedBox(height: 40),
-
-              // Search field
+              const SizedBox(height: 16),
               TextField(
-                controller: _schoolController,
+                controller: _searchCtrl,
+                onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
-                  labelText: 'Search schools...',
+                  hintText: 'Search school name',
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  suffixIcon: _schoolController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _schoolController.clear();
-                            setState(() => _selectedSchool = null);
-                          },
-                        )
-                      : null,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                 ),
-                onChanged: (value) => setState(() {}),
               ),
-              const SizedBox(height: 20),
-
-              // Schools list
+              const SizedBox(height: 14),
               Expanded(
-                child: ListView.builder(
-                  itemCount: _schools.length,
-                  itemBuilder: (context, index) {
-                    final school = _schools[index];
-                    final matchesSearch = school.toLowerCase().contains(
-                      _schoolController.text.toLowerCase(),
-                    );
-
-                    if (!matchesSearch) return const SizedBox.shrink();
-
-                    final isSelected = _selectedSchool == school;
-
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 0,
-                        vertical: 8,
-                      ),
-                      leading: isSelected
-                          ? const Icon(
-                              Icons.radio_button_checked,
-                              color: AppColors.primary,
-                            )
-                          : const Icon(Icons.radio_button_unchecked),
-                      title: Text(
-                        school,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.normal,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.black12),
+                  ),
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _schools.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'No schools found',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        )
+                      : ListView.separated(
+                          itemCount: _filtered.length,
+                          separatorBuilder: (_, _) =>
+                              Divider(color: Colors.grey.shade200),
+                          itemBuilder: (context, i) {
+                            final s = _filtered[i];
+                            final selected = s == _selectedSchool;
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(
+                                s,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              trailing: selected
+                                  ? const Icon(
+                                      Icons.check_circle,
+                                      color: AppColors.primary,
+                                    )
+                                  : const Icon(
+                                      Icons.circle_outlined,
+                                      color: Colors.grey,
+                                    ),
+                              onTap: () => setState(() => _selectedSchool = s),
+                            );
+                          },
                         ),
-                      ),
-                      onTap: () => _onSchoolSelected(school),
-                    );
-                  },
                 ),
               ),
-
-              // Continue button
-              const SizedBox(height: 24),
-              FilledButton(
-                onPressed: _selectedSchool != null
-                    ? () => context.pushNamed(
-                        'studentLogin',
-                        extra: _selectedSchool!,
-                      )
-                    : null,
-                child: const Text('Continue'),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 56,
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onPressed: (_selectedSchool != null && !_isSaving)
+                      ? _confirmSchool
+                      : null,
+                  child: _isSaving
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : const Text(
+                          'Confirm School',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                ),
               ),
             ],
           ),
