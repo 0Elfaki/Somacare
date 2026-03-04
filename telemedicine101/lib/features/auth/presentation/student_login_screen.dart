@@ -25,7 +25,11 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
       if (!mounted) return;
       final extra = GoRouterState.of(context).extra;
       if (extra is Map<String, dynamic>) {
-        setState(() => _selectedSchool = extra['school'] as String?);
+        setState(() {
+          // ✅ Auto-select Doctor tab if navigated from doctor card
+          if (extra['role'] == 'doctor') _role = 'doctor';
+          _selectedSchool = extra['school'] as String?;
+        });
       } else if (extra is String) {
         setState(() => _selectedSchool = extra);
       }
@@ -56,29 +60,53 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
 
       if (!mounted) return;
 
-      if (response.user != null) {
-        if (_role == 'student' && _selectedSchool != null) {
-          await Supabase.instance.client
-              .from('profiles')
-              .upsert({'id': response.user!.id, 'school': _selectedSchool})
-              .select('id');
-        }
-
-        if (!mounted) return;
-
-        // ✅ KEY FIX: defer navigation to next frame to avoid navigator dispose crash
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          if (_role == 'doctor') {
-            context.go('/doctor-dashboard');
-          } else {
-            context.go('/student-dashboard');
-          }
-        });
-      } else {
+      if (response.user == null) {
         _showError('Login failed. Please check your credentials.');
         setState(() => _isLoading = false);
+        return;
       }
+
+      final userId = response.user!.id;
+
+      // ✅ Fetch role from DB and validate against selected tab
+      final profile = await Supabase.instance.client
+          .from('profiles')
+          .select('role')
+          .eq('id', userId)
+          .maybeSingle();
+
+      if (!mounted) return;
+
+      final dbRole = (profile?['role'] as String?) ?? 'student';
+
+      if (dbRole != _role) {
+        // ✅ Sign out immediately — wrong role
+        await Supabase.instance.client.auth.signOut();
+        if (mounted) {
+          _showError('This account is registered as a $dbRole, not a $_role.');
+          setState(() => _isLoading = false);
+        }
+        return;
+      }
+
+      // ✅ Save school for students
+      if (_role == 'student' && _selectedSchool != null) {
+        await Supabase.instance.client
+            .from('profiles')
+            .upsert({'id': userId, 'school': _selectedSchool})
+            .select('id');
+      }
+
+      if (!mounted) return;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (_role == 'doctor') {
+          context.go('/doctor-dashboard');
+        } else {
+          context.go('/student-dashboard');
+        }
+      });
     } on AuthException catch (e) {
       if (mounted) {
         _showError(e.message);
@@ -310,7 +338,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          'Contact ${_selectedSchool ?? "school"} admin for password reset',
+                          'Contact ${_selectedSchool ?? "admin"} for password reset',
                         ),
                       ),
                     );

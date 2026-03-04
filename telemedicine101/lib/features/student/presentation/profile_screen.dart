@@ -671,32 +671,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ── Delete Account ────────────────────────────────────────────────────────
-  void _confirmDeleteAccount(BuildContext ctx) {
-    showDialog(
+  // ── About SOMA CARE ────────────────────────────────────────────────────────
+  void _showAboutSheet(BuildContext ctx) {
+    showModalBottomSheet(
       context: ctx,
-      builder: (dCtx) => AlertDialog(
-        title: const Text('Delete Account'),
-        content: const Text(
-          'This will permanently delete your account and all data. Are you sure?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dCtx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(dCtx);
-              await Supabase.instance.client.auth.signOut();
-              if (mounted) context.go('/onboarding');
-            },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Color(0xFFDC2626)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFCBD5E1),
+                borderRadius: BorderRadius.circular(999),
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF5B8CFF), Color(0xFF8B5CF6)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Icon(Icons.favorite, color: Colors.white, size: 40),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'SOMA CARE',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Version 1.0.0',
+              style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Your trusted telemedicine companion for student health and wellness.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Color(0xFF475569)),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              '© 2024 SOMA CARE',
+              style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
@@ -1126,11 +1162,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const _HDivider(),
                         _SettingsTile(
-                          icon: Icons.delete_outline,
-                          label: 'Delete Account',
-                          color: const Color(0xFFDC2626),
-                          labelColor: const Color(0xFFDC2626),
-                          onTap: () => _confirmDeleteAccount(context),
+                          icon: Icons.info_outline,
+                          label: 'About SOMA CARE',
+                          color: const Color(0xFF3B82F6),
+                          labelColor: const Color(0xFF3B82F6),
+                          onTap: () => _showAboutSheet(context),
                         ),
                       ],
                     ),

@@ -58,7 +58,7 @@ class RoleSelectionScreen extends StatelessWidget {
               ),
               const SizedBox(height: 48),
 
-              // ✅ push keeps stack so school selection can pop back to login
+              // ✅ Student — push to student-login, no extra needed
               _RoleCard(
                 icon: Icons.school_rounded,
                 title: 'Student',
@@ -68,6 +68,8 @@ class RoleSelectionScreen extends StatelessWidget {
                 onTap: () => context.push('/student-login'),
               ),
               const SizedBox(height: 16),
+
+              // ✅ Doctor — pass role:'doctor' so login screen auto-selects Doctor tab
               _RoleCard(
                 icon: Icons.medical_services_rounded,
                 title: 'Doctor',
@@ -75,7 +77,10 @@ class RoleSelectionScreen extends StatelessWidget {
                     'Manage appointments,\nview patient records & consult',
                 color: const Color(0xFF059669),
                 bgColor: const Color(0xFFF0FDF4),
-                onTap: () => context.push('/doctor-login'),
+                onTap: () => context.push(
+                  '/doctor-login',
+                  extra: const {'role': 'doctor'},
+                ),
               ),
 
               const Spacer(),
