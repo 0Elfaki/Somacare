@@ -323,12 +323,13 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
           for (final prescription in prescriptionState.activePrescriptions) {
             for (final reminder in prescription.reminders) {
               if (reminder.isEnabled && reminder.time != null) {
+                final medName = reminder.medicationName;
+                final presName = prescription.medicationName;
                 reminders.add(
                   _DashboardReminder(
-                    name:
-                        reminder.medicationName ??
-                        prescription.medicationName ??
-                        'Prescription',
+                    name: medName != null && medName.isNotEmpty
+                        ? medName
+                        : (presName.isNotEmpty ? presName : 'Prescription'),
                     time: reminder.time!,
                     isPast: _isTimePast(reminder.time!),
                   ),
@@ -625,7 +626,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
       appointmentTime = now.add(const Duration(hours: 2));
     }
 
-    final formattedTimeStr = _formatAppointmentTime(appointmentTime);
     final canJoin =
         status == 'confirmed' &&
         appointmentTime.difference(now).inMinutes <= 15;
@@ -784,6 +784,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     );
   }
 
+  // ignore: unused_element
   String _formatAppointmentTime(DateTime time) {
     final hour = time.hour;
     final minute = time.minute;

@@ -80,10 +80,15 @@ class ProfileRepository {
   }
 
   /// Persist changes and update the local cache optimistically.
-  Future<void> save(StudentProfile profile) async {
-    await _client.from('profiles').upsert(profile.toUpsertMap());
-    _cached = profile;
-    _cachedAt = DateTime.now();
+  Future<bool> save(StudentProfile profile) async {
+    try {
+      await _client.from('profiles').upsert(profile.toUpsertMap());
+      _cached = profile;
+      _cachedAt = DateTime.now();
+      return true;
+    } catch (e) {
+      return false; // Return false instead of crashing
+    }
   }
 
   /// Invalidate the cache so the next [fetch] hits the network.

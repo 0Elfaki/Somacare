@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../providers/medical_history_provider.dart';
 
@@ -85,15 +84,15 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
     // Only initialize once when history data is available
     if (state.history != null && !_controllersInitialized) {
       final history = state.history!;
-      _chronicConditionsController.text = history.chronicConditions ?? '';
-      _pastIllnessesController.text = history.pastIllnesses ?? '';
-      _hospitalizationsController.text = history.hospitalizations ?? '';
-      _familyConditionsController.text = history.familyConditions ?? '';
-      _surgicalHistoryController.text = history.surgicalHistory ?? '';
-      _allergiesController.text = history.allergies ?? '';
-      _immunizationsController.text = history.immunizations ?? '';
-      _socialHistoryController.text = history.socialHistory ?? '';
-      _reviewOfSystemsController.text = history.reviewOfSystems ?? '';
+      _chronicConditionsController.text = history.chronicConditions;
+      _pastIllnessesController.text = history.pastIllnesses;
+      _hospitalizationsController.text = history.hospitalizations;
+      _familyConditionsController.text = history.familyConditions;
+      _surgicalHistoryController.text = history.surgicalHistory;
+      _allergiesController.text = history.allergies;
+      _immunizationsController.text = history.immunizations;
+      _socialHistoryController.text = history.socialHistory;
+      _reviewOfSystemsController.text = history.reviewOfSystems;
       _controllersInitialized = true;
     }
   }
@@ -107,7 +106,6 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(medicalHistoryProvider);
-    final notifier = ref.read(medicalHistoryProvider.notifier);
 
     // Initialize controllers when data loads
     if (state.history != null && !state.isLoading) {
@@ -1085,7 +1083,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
             socialHistory: _socialHistoryController.text,
             reviewOfSystems: _reviewOfSystemsController.text,
           ) ??
-          ref.read(medicalHistoryProvider.notifier).state.history;
+          ref.read(medicalHistoryProvider).history;
 
       // Update the provider
       if (updatedHistory != null) {

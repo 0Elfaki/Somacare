@@ -380,40 +380,6 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // ── Test Credentials ──────────────────────
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0FDF4),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFBBF7D0)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '🧪 Test Credentials',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF15803D),
-                        fontSize: 13,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      isDoctor
-                          ? 'Email: doctor1@somacare.app\nPassword: Doctor@1234'
-                          : 'Email: student1@somacare.app\nPassword: Student@1234',
-                      style: const TextStyle(
-                        color: Color(0xFF166534),
-                        fontSize: 12,
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),

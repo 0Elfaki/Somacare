@@ -32,10 +32,14 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen>
     setState(() => _isLoading = true);
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) {
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
       final data = await Supabase.instance.client
           .from('appointments')
           .select()
-          .eq('student_id', userId!)
+          .eq('student_id', userId)
           .order('date', ascending: true);
 
       if (mounted) {

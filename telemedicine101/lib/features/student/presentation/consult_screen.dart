@@ -3,12 +3,16 @@ import 'package:go_router/go_router.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-const String _appId = '7031dcb380c84fd69ca29d062503b024';
-const String _channel = 'consultation';
+const String _appId = String.fromEnvironment('AGORA_APP_ID', defaultValue: '');
+const String _defaultChannel = 'consultation';
 const String _token = '';
 
 class ConsultScreen extends StatefulWidget {
-  const ConsultScreen({super.key});
+  /// Optional channel override — pass via GoRouter extra:
+  /// `context.push('/consult', extra: {'channelId': 'appointment_xyz'})`
+  final String? channelId;
+
+  const ConsultScreen({super.key, this.channelId});
 
   @override
   State<ConsultScreen> createState() => _ConsultScreenState();
@@ -21,6 +25,8 @@ class _ConsultScreenState extends State<ConsultScreen> {
   bool _micMuted = false;
   bool _camOff = false;
   bool _isLoading = true;
+
+  String get _channelId => widget.channelId ?? _defaultChannel;
 
   @override
   void initState() {
@@ -57,7 +63,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
     await _engine.startPreview();
     await _engine.joinChannel(
       token: _token,
-      channelId: _channel,
+      channelId: _channelId,
       uid: 0,
       options: const ChannelMediaOptions(
         clientRoleType: ClientRoleType.clientRoleBroadcaster,
@@ -109,7 +115,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
                     controller: VideoViewController.remote(
                       rtcEngine: _engine,
                       canvas: VideoCanvas(uid: _remoteUid),
-                      connection: const RtcConnection(channelId: _channel),
+                      connection: RtcConnection(channelId: _channelId),
                     ),
                   )
                 : Center(
