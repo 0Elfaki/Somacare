@@ -25,8 +25,24 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 class _SupabaseAuthNotifier extends ChangeNotifier {
+  String? _cachedRole;
+  String? get cachedRole => _cachedRole;
+
+  void setCachedRole(String? role) {
+    _cachedRole = role;
+    notifyListeners();
+  }
+
+  void clearCachedRole() {
+    _cachedRole = null;
+  }
+
   _SupabaseAuthNotifier() {
-    Supabase.instance.client.auth.onAuthStateChange.listen((_) {
+    Supabase.instance.client.auth.onAuthStateChange.listen((event) {
+      // Clear cached role on sign out
+      if (event == AuthChangeEvent.signedOut) {
+        _cachedRole = null;
+      }
       notifyListeners();
     });
   }
@@ -59,14 +75,25 @@ final GoRouter appRouter = GoRouter(
     final isAuthRoute = authRoutes.contains(loc);
 
     if (loggedIn && isAuthRoute) {
-      // ✅ Check role to redirect to correct dashboard
-      final userId = session.user.id;
-      final profile = await Supabase.instance.client
-          .from('profiles')
-          .select('role')
-          .eq('id', userId)
-          .maybeSingle();
-      final role = (profile?['role'] as String?) ?? 'student';
+      // Use cached role to avoid slow database call
+      String role = _authNotifier.cachedRole ?? 'student';
+
+      // Only fetch from DB if role not cached
+      if (_authNotifier.cachedRole == null) {
+        final userId = session.user.id;
+        try {
+          final profile = await Supabase.instance.client
+              .from('profiles')
+              .select('role')
+              .eq('id', userId)
+              .maybeSingle();
+          role = (profile?['role'] as String?) ?? 'student';
+          _authNotifier.setCachedRole(role);
+        } catch (e) {
+          role = 'student';
+        }
+      }
+
       return role == 'doctor' ? '/doctor-dashboard' : '/student-dashboard';
     }
 
