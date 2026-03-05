@@ -6,6 +6,7 @@ import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/auth/presentation/role_selection_screen.dart';
 import '../../features/auth/presentation/school_selection_screen.dart';
 import '../../features/auth/presentation/student_login_screen.dart';
+import '../../features/doctor/presentation/doctor_dashboard_screen.dart';
 import '../../features/student/presentation/student_shell.dart';
 import '../../features/student/presentation/student_dashboard_screen.dart';
 import '../../features/student/presentation/symptom_check_screen.dart';
@@ -24,8 +25,24 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 class _SupabaseAuthNotifier extends ChangeNotifier {
+  String? _cachedRole;
+  String? get cachedRole => _cachedRole;
+
+  void setCachedRole(String? role) {
+    _cachedRole = role;
+    notifyListeners();
+  }
+
+  void clearCachedRole() {
+    _cachedRole = null;
+  }
+
   _SupabaseAuthNotifier() {
-    Supabase.instance.client.auth.onAuthStateChange.listen((_) {
+    Supabase.instance.client.auth.onAuthStateChange.listen((event) {
+      // Clear cached role on sign out
+      if (event == AuthChangeEvent.signedOut) {
+        _cachedRole = null;
+      }
       notifyListeners();
     });
   }
@@ -38,13 +55,16 @@ final GoRouter appRouter = GoRouter(
   initialLocation: '/onboarding',
   refreshListenable: _authNotifier,
 
-  redirect: (context, state) {
+  redirect: (context, state) async {
     final session = Supabase.instance.client.auth.currentSession;
     final loggedIn = session != null;
     final loc = state.matchedLocation;
 
-    // ✅ Always allow school selection in both flows
+    // Always allow school selection in both flows
     if (loc == '/school-selection') return null;
+
+    // Doctor dashboard bypasses student redirect
+    if (loc == '/doctor-dashboard') return null;
 
     final authRoutes = [
       '/onboarding',
@@ -54,7 +74,29 @@ final GoRouter appRouter = GoRouter(
     ];
     final isAuthRoute = authRoutes.contains(loc);
 
-    if (loggedIn && isAuthRoute) return '/student-dashboard';
+    if (loggedIn && isAuthRoute) {
+      // Use cached role to avoid slow database call
+      String role = _authNotifier.cachedRole ?? 'student';
+
+      // Only fetch from DB if role not cached
+      if (_authNotifier.cachedRole == null) {
+        final userId = session.user.id;
+        try {
+          final profile = await Supabase.instance.client
+              .from('profiles')
+              .select('role')
+              .eq('id', userId)
+              .maybeSingle();
+          role = (profile?['role'] as String?) ?? 'student';
+          _authNotifier.setCachedRole(role);
+        } catch (e) {
+          role = 'student';
+        }
+      }
+
+      return role == 'doctor' ? '/doctor-dashboard' : '/student-dashboard';
+    }
+
     if (!loggedIn && !isAuthRoute) return '/onboarding';
 
     return null;
@@ -74,6 +116,14 @@ final GoRouter appRouter = GoRouter(
       path: '/doctor-login',
       builder: (c, s) => const StudentLoginScreen(),
     ),
+
+    // ✅ Doctor dashboard — top-level route, outside shell
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/doctor-dashboard',
+      builder: (c, s) => const DoctorDashboardScreen(),
+    ),
+
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/school-selection',
@@ -119,6 +169,8 @@ final GoRouter appRouter = GoRouter(
       path: '/records',
       builder: (c, s) => const RecordsScreen(),
     ),
+
+    // ── Student shell (bottom nav) ─────────────────────────────
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) => StudentShell(child: child),
@@ -140,10 +192,7 @@ final GoRouter appRouter = GoRouter(
     ),
   ],
 
-  errorBuilder: (context, state) => Scaffold(
-    appBar: AppBar(title: const Text('Page Not Found')),
-    body: Center(
-      child: Text(state.error?.toString() ?? 'No route for this location'),
-    ),
-  ),
+  onException: (context, state, router) {
+    router.go('/onboarding');
+  },
 );
