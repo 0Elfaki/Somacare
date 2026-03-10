@@ -27,9 +27,11 @@ class SOMACAREApp extends StatelessWidget {
       routerConfig: appRouter,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF3884FF)),
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: const Color(0xFF3884FF)),
         fontFamily: 'Lexend',
       ),
     );
   }
 }
+

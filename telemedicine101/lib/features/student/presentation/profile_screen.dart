@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../theme/app_theme.dart';
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -70,12 +72,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _profile = data;
           _height = int.tryParse(data?['height']?.toString() ?? '') ?? 170;
           _weight = int.tryParse(data?['weight']?.toString() ?? '') ?? 70;
-          _bloodType = data?['blood_type'] ?? 'A+';
+          _bloodType = data?['blood_type'] as String? ?? 'A+';
           final bp = (data?['blood_pressure'] ?? '120/80').toString();
           final parts = bp.split('/');
           _systolic = int.tryParse(parts.isNotEmpty ? parts[0] : '120') ?? 120;
           _diastolic = int.tryParse(parts.length > 1 ? parts[1] : '80') ?? 80;
-          _allergiesCtrl.text = data?['allergies'] ?? '';
+          _allergiesCtrl.text = data?['allergies'] as String? ?? '';
           _isLoading = false;
         });
       }
@@ -102,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✅ Profile updated!'),
-            backgroundColor: Color(0xFF22C55E),
+            backgroundColor: AppColors.success,
           ),
         );
         _loadProfile();
@@ -112,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('❌ Failed to save: $e'),
-            backgroundColor: const Color(0xFFDC2626),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -223,7 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFCBD5E1),
+                  color: AppColors.textTertiary,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -237,7 +239,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF0F172A),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     TextButton(
@@ -253,7 +255,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 15,
-                          color: Color(0xFF3B82F6),
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
@@ -272,7 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textTertiary,
                           ),
                         ),
                       ),
@@ -285,7 +287,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textTertiary,
                           ),
                         ),
                       ),
@@ -320,7 +322,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF0F172A),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     Expanded(
@@ -382,7 +384,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFCBD5E1),
+                  color: AppColors.textTertiary,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -393,7 +395,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF0F172A),
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 16),
@@ -403,13 +405,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               decoration: InputDecoration(
                 hintText: hint,
                 filled: true,
-                fillColor: const Color(0xFFF8FAFC),
+                fillColor: AppColors.surfaceVariant,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mdAll,
                   borderSide: BorderSide(color: color),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.mdAll,
                   borderSide: BorderSide(color: color, width: 2),
                 ),
               ),
@@ -474,7 +476,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFCBD5E1),
+                  color: AppColors.textTertiary,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -485,7 +487,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF0F172A),
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 16),
@@ -523,12 +525,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ScaffoldMessenger.of(ctx).showSnackBar(
                     const SnackBar(
                       content: Text('✅ Card added!'),
-                      backgroundColor: Color(0xFF1A56DB),
+                      backgroundColor: AppColors.info,
                     ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1A56DB),
+                  backgroundColor: AppColors.info,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -549,16 +551,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   InputDecoration _cardDeco(String hint, IconData icon) => InputDecoration(
     hintText: hint,
-    prefixIcon: Icon(icon, size: 18, color: const Color(0xFF94A3B8)),
+    prefixIcon: Icon(icon, size: 18, color: AppColors.textTertiary),
     filled: true,
-    fillColor: const Color(0xFFF8FAFC),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+    fillColor: AppColors.surfaceVariant,
+    border: const OutlineInputBorder(
+      borderRadius: AppRadius.mdAll,
+      borderSide: BorderSide(color: AppColors.border),
     ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: Color(0xFF1A56DB), width: 2),
+    focusedBorder: const OutlineInputBorder(
+      borderRadius: AppRadius.mdAll,
+      borderSide: BorderSide(color: AppColors.info, width: 2),
     ),
   );
 
@@ -586,7 +588,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFCBD5E1),
+                  color: AppColors.textTertiary,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -597,27 +599,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF0F172A),
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: ctrl,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'New Password',
                 filled: true,
-                fillColor: const Color(0xFFF8FAFC),
+                fillColor: AppColors.surfaceVariant,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  borderRadius: AppRadius.mdAll,
+                  borderSide: BorderSide(color: AppColors.border),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFFD97706),
-                    width: 2,
-                  ),
+                  borderRadius: AppRadius.mdAll,
+                  borderSide: BorderSide(color: AppColors.warning, width: 2),
                 ),
               ),
             ),
@@ -636,7 +635,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('✅ Password updated!'),
-                          backgroundColor: Color(0xFF22C55E),
+                          backgroundColor: AppColors.success,
                         ),
                       );
                     }
@@ -645,14 +644,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('❌ $e'),
-                          backgroundColor: const Color(0xFFDC2626),
+                          backgroundColor: AppColors.error,
                         ),
                       );
                     }
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD97706),
+                  backgroundColor: AppColors.warning,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -687,7 +686,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFCBD5E1),
+                color: AppColors.textTertiary,
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
@@ -697,7 +696,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 80,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF5B8CFF), Color(0xFF8B5CF6)],
+                  colors: [AppColors.primary, AppColors.secondary],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -711,24 +710,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF0F172A),
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
             const Text(
-              'Version 1.0.0',
-              style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+              'Version 2.0.0',
+              style: TextStyle(fontSize: 14, color: AppColors.textTertiary),
             ),
             const SizedBox(height: 16),
             const Text(
               'Your trusted telemedicine companion for student health and wellness.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Color(0xFF475569)),
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 24),
             const Text(
-              '© 2024 SOMA CARE',
-              style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+              '© 2026 SOMACARE',
+              style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
             ),
             const SizedBox(height: 16),
           ],
@@ -742,6 +741,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
         title: const Text('Sign Out'),
         content: const Text('Are you sure you want to sign out?'),
         actions: [
@@ -753,7 +753,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text(
               'Sign Out',
-              style: TextStyle(color: Color(0xFFDC2626)),
+              style: TextStyle(color: AppColors.error),
             ),
           ),
         ],
@@ -769,501 +769,579 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final user = Supabase.instance.client.auth.currentUser;
-    final name = _profile?['full_name'] ?? user?.email ?? 'Student';
+    final name = _profile?['full_name'] as String? ?? user?.email ?? 'Student';
     final email = user?.email ?? '';
-    final school = _profile?['school'] ?? 'University';
+    final school = _profile?['school'] as String? ?? 'University';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : CustomScrollView(
-              slivers: [
-                // ── Header ──────────────────────────────
-                SliverToBoxAdapter(
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF5B8CFF), Color(0xFF8B5CF6)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(32),
-                        bottomRight: Radius.circular(32),
-                      ),
-                    ),
-                    padding: EdgeInsets.fromLTRB(
-                      20,
-                      MediaQuery.of(context).padding.top + 16,
-                      20,
-                      28,
-                    ),
-                    child: Column(
-                      children: [
-                        Stack(
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                final isTablet = constraints.maxWidth > 600;
+                final maxContentWidth = isTablet ? 600.0 : double.infinity;
+
+                return CustomScrollView(
+                  slivers: [
+                    // ── Header ──────────────────────────────
+                    SliverToBoxAdapter(
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [AppColors.primary, AppColors.secondary],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(32),
+                            bottomRight: Radius.circular(32),
+                          ),
+                        ),
+                        padding: EdgeInsets.fromLTRB(
+                          isTablet ? 40 : 20,
+                          MediaQuery.of(context).padding.top + 16,
+                          isTablet ? 40 : 20,
+                          32,
+                        ),
+                        child: Column(
                           children: [
-                            Container(
-                              width: 88,
-                              height: 88,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 3,
+                            Stack(
+                              children: [
+                                Container(
+                                  width: 96,
+                                  height: 96,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.2),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 3,
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.person,
+                                    color: Colors.white,
+                                    size: 52,
+                                  ),
                                 ),
-                              ),
-                              child: const Icon(
-                                Icons.person,
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [AppShadows.sm],
+                                    ),
+                                    child: const Icon(
+                                      Icons.camera_alt,
+                                      size: 16,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              name,
+                              style: const TextStyle(
                                 color: Colors.white,
-                                size: 48,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
                               ),
                             ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                width: 28,
-                                height: 28,
-                                decoration: const BoxDecoration(
+                            const SizedBox(height: 4),
+                            Text(
+                              email,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.18),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                school,
+                                style: const TextStyle(
                                   color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.camera_alt,
-                                  size: 14,
-                                  color: Color(0xFF5B8CFF),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          email,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            school,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
 
-                // ── Personal Info Header ─────────────────
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Personal Information',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF0F172A),
+                    // ── Personal Info Header ─────────────────
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          isTablet ? 24 : 16,
+                          24,
+                          isTablet ? 24 : 16,
+                          0,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Personal Information',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                if (_isEditing) {
+                                  _saveProfile();
+                                } else {
+                                  setState(() => _isEditing = true);
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _isEditing
+                                      ? AppColors.success
+                                      : AppColors.primaryLight.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      _isEditing ? Icons.check : Icons.edit,
+                                      size: 16,
+                                      color: _isEditing
+                                          ? Colors.white
+                                          : AppColors.primary,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      _isEditing ? 'Save' : 'Edit',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: _isEditing
+                                            ? Colors.white
+                                            : AppColors.primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // ── Info Fields ──────────────────────────
+                    SliverToBoxAdapter(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: maxContentWidth,
+                          ),
+                          child: _Card(
+                            child: Column(
+                              children: [
+                                _PickerRow(
+                                  icon: Icons.height,
+                                  label: 'Height',
+                                  value: '$_height cm',
+                                  editing: _isEditing,
+                                  onTap: _pickHeight,
+                                ),
+                                const _HDivider(),
+                                _PickerRow(
+                                  icon: Icons.monitor_weight_outlined,
+                                  label: 'Weight',
+                                  value: '$_weight kg',
+                                  editing: _isEditing,
+                                  onTap: _pickWeight,
+                                ),
+                                const _HDivider(),
+                                _PickerRow(
+                                  icon: Icons.bloodtype_outlined,
+                                  label: 'Blood Type',
+                                  value: _bloodType,
+                                  editing: _isEditing,
+                                  onTap: _pickBloodType,
+                                ),
+                                const _HDivider(),
+                                _PickerRow(
+                                  icon: Icons.favorite_outline,
+                                  label: 'Blood Pressure',
+                                  value: '$_systolic / $_diastolic mmHg',
+                                  editing: _isEditing,
+                                  onTap: _pickBP,
+                                ),
+                                const _HDivider(),
+                                _TypedRow(
+                                  icon: Icons.warning_amber_outlined,
+                                  label: 'Allergies',
+                                  ctrl: _allergiesCtrl,
+                                  editing: _isEditing,
+                                  hint: 'e.g. Penicillin',
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            if (_isEditing) {
-                              _saveProfile();
-                            } else {
-                              setState(() => _isEditing = true);
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _isEditing
-                                  ? const Color(0xFF22C55E)
-                                  : const Color(0xFFEFF6FF),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Row(
+                      ),
+                    ),
+
+                    // ── Quick Access ─────────────────────────
+                    _SectionLabel('Quick Access', isTablet: isTablet),
+                    SliverToBoxAdapter(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: maxContentWidth,
+                          ),
+                          child: _Card(
+                            child: Column(
                               children: [
-                                Icon(
-                                  _isEditing ? Icons.check : Icons.edit,
-                                  size: 14,
-                                  color: _isEditing
-                                      ? Colors.white
-                                      : const Color(0xFF3B82F6),
+                                _MenuTile(
+                                  icon: Icons.calendar_today_outlined,
+                                  color: AppColors.info,
+                                  label: 'My Appointments',
+                                  onTap: () => context.go('/my-appointments'),
                                 ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  _isEditing ? 'Save' : 'Edit',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w800,
-                                    color: _isEditing
-                                        ? Colors.white
-                                        : const Color(0xFF3B82F6),
+                                const _HDivider(),
+                                _MenuTile(
+                                  icon: Icons.inventory_2_outlined,
+                                  color: const Color(0xFFDB2777),
+                                  label: 'My Prescriptions',
+                                  onTap: () => context.push('/prescriptions'),
+                                ),
+                                const _HDivider(),
+                                _MenuTile(
+                                  icon: Icons.folder_open_outlined,
+                                  color: AppColors.warning,
+                                  label: 'My Medical History',
+                                  onTap: () => context.push('/medical-history'),
+                                ),
+                                const _HDivider(),
+                                _MenuTile(
+                                  icon: Icons.medication_outlined,
+                                  color: AppColors.secondary,
+                                  label: 'My Medications',
+                                  onTap: () => context.push('/my-medications'),
+                                ),
+                                const _HDivider(),
+                                _MenuTile(
+                                  icon: Icons.description_outlined,
+                                  color: AppColors.success,
+                                  label: 'My Records',
+                                  onTap: () => context.push('/records'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // ── Payment Methods ───────────────────────
+                    _SectionLabel('Payment Methods', isTablet: isTablet),
+                    SliverToBoxAdapter(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: maxContentWidth,
+                          ),
+                          child: _Card(
+                            child: Column(
+                              children: [
+                                _PaymentTile(
+                                  logo: '📱',
+                                  name: 'MTN Mobile Money',
+                                  subtitle: 'Link your MTN MoMo number',
+                                  color: const Color(0xFFFFCC00),
+                                  onTap: () => _showPaymentSheet(
+                                    context,
+                                    'MTN Mobile Money',
+                                    'Enter MTN number (e.g. 077X XXX XXX)',
+                                    const Color(0xFFFFAA00),
+                                  ),
+                                ),
+                                const _HDivider(),
+                                _PaymentTile(
+                                  logo: '📱',
+                                  name: 'Airtel Money',
+                                  subtitle: 'Link your Airtel number',
+                                  color: const Color(0xFFDC2626),
+                                  onTap: () => _showPaymentSheet(
+                                    context,
+                                    'Airtel Money',
+                                    'Enter Airtel number (e.g. 075X XXX XXX)',
+                                    const Color(0xFFDC2626),
+                                  ),
+                                ),
+                                const _HDivider(),
+                                _PaymentTile(
+                                  logo: '💳',
+                                  name: 'Visa / Mastercard',
+                                  subtitle: 'Add a debit or credit card',
+                                  color: AppColors.info,
+                                  onTap: () => _showCardSheet(context),
+                                ),
+                                const _HDivider(),
+                                _PaymentTile(
+                                  logo: '🏦',
+                                  name: 'Bank Transfer',
+                                  subtitle: 'Stanbic · DFCU · Centenary Bank',
+                                  color: AppColors.success,
+                                  onTap: () => _showPaymentSheet(
+                                    context,
+                                    'Bank Transfer',
+                                    'Enter bank account number',
+                                    AppColors.success,
                                   ),
                                 ),
                               ],
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
 
-                // ── Info Fields ──────────────────────────
-                SliverToBoxAdapter(
-                  child: _Card(
-                    child: Column(
-                      children: [
-                        _PickerRow(
-                          icon: Icons.height,
-                          label: 'Height',
-                          value: '$_height cm',
-                          editing: _isEditing,
-                          onTap: _pickHeight,
-                        ),
-                        const _HDivider(),
-                        _PickerRow(
-                          icon: Icons.monitor_weight_outlined,
-                          label: 'Weight',
-                          value: '$_weight kg',
-                          editing: _isEditing,
-                          onTap: _pickWeight,
-                        ),
-                        const _HDivider(),
-                        _PickerRow(
-                          icon: Icons.bloodtype_outlined,
-                          label: 'Blood Type',
-                          value: _bloodType,
-                          editing: _isEditing,
-                          onTap: _pickBloodType,
-                        ),
-                        const _HDivider(),
-                        _PickerRow(
-                          icon: Icons.favorite_outline,
-                          label: 'Blood Pressure',
-                          value: '$_systolic / $_diastolic mmHg',
-                          editing: _isEditing,
-                          onTap: _pickBP,
-                        ),
-                        const _HDivider(),
-                        _TypedRow(
-                          icon: Icons.warning_amber_outlined,
-                          label: 'Allergies',
-                          ctrl: _allergiesCtrl,
-                          editing: _isEditing,
-                          hint: 'e.g. Penicillin',
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // ── Quick Access ─────────────────────────
-                _SectionLabel('Quick Access'),
-                SliverToBoxAdapter(
-                  child: _Card(
-                    child: Column(
-                      children: [
-                        _MenuTile(
-                          icon: Icons.calendar_today_outlined,
-                          color: const Color(0xFF3B82F6),
-                          label: 'My Appointments',
-                          onTap: () => context.go('/my-appointments'),
-                        ),
-                        const _HDivider(),
-                        _MenuTile(
-                          icon: Icons.inventory_2_outlined,
-                          color: const Color(0xFFDB2777),
-                          label: 'My Prescriptions',
-                          onTap: () => context.push('/prescriptions'),
-                        ),
-                        const _HDivider(),
-                        _MenuTile(
-                          icon: Icons.folder_open_outlined,
-                          color: const Color(0xFFD97706),
-                          label: 'My Medical History',
-                          onTap: () => context.push('/medical-history'),
-                        ),
-                        const _HDivider(),
-                        _MenuTile(
-                          icon: Icons.medication_outlined,
-                          color: const Color(0xFF7C3AED),
-                          label: 'My Medications',
-                          onTap: () => context.push('/my-medications'),
-                        ),
-                        const _HDivider(),
-                        _MenuTile(
-                          icon: Icons.description_outlined,
-                          color: const Color(0xFF059669),
-                          label: 'My Records',
-                          onTap: () => context.push('/records'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // ── Payment Methods ───────────────────────
-                _SectionLabel('Payment Methods'),
-                SliverToBoxAdapter(
-                  child: _Card(
-                    child: Column(
-                      children: [
-                        _PaymentTile(
-                          logo: '📱',
-                          name: 'MTN Mobile Money',
-                          subtitle: 'Link your MTN MoMo number',
-                          color: const Color(0xFFFFCC00),
-                          onTap: () => _showPaymentSheet(
-                            context,
-                            'MTN Mobile Money',
-                            'Enter MTN number (e.g. 077X XXX XXX)',
-                            const Color(0xFFFFAA00),
+                    // ── Settings ──────────────────────────────
+                    _SectionLabel('Settings', isTablet: isTablet),
+                    SliverToBoxAdapter(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: maxContentWidth,
                           ),
-                        ),
-                        const _HDivider(),
-                        _PaymentTile(
-                          logo: '📱',
-                          name: 'Airtel Money',
-                          subtitle: 'Link your Airtel number',
-                          color: const Color(0xFFDC2626),
-                          onTap: () => _showPaymentSheet(
-                            context,
-                            'Airtel Money',
-                            'Enter Airtel number (e.g. 075X XXX XXX)',
-                            const Color(0xFFDC2626),
-                          ),
-                        ),
-                        const _HDivider(),
-                        _PaymentTile(
-                          logo: '💳',
-                          name: 'Visa / Mastercard',
-                          subtitle: 'Add a debit or credit card',
-                          color: const Color(0xFF1A56DB),
-                          onTap: () => _showCardSheet(context),
-                        ),
-                        const _HDivider(),
-                        _PaymentTile(
-                          logo: '🏦',
-                          name: 'Bank Transfer',
-                          subtitle: 'Stanbic · DFCU · Centenary Bank',
-                          color: const Color(0xFF059669),
-                          onTap: () => _showPaymentSheet(
-                            context,
-                            'Bank Transfer',
-                            'Enter bank account number',
-                            const Color(0xFF059669),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // ── Settings ──────────────────────────────
-                _SectionLabel('Settings'),
-                SliverToBoxAdapter(
-                  child: _Card(
-                    child: Column(
-                      children: [
-                        _SettingsTile(
-                          icon: Icons.notifications_outlined,
-                          label: 'Notifications',
-                          color: const Color(0xFF3B82F6),
-                          trailing: Switch(
-                            value: _notificationsEnabled,
-                            activeThumbColor: const Color(0xFF3B82F6),
-                            onChanged: (v) =>
-                                setState(() => _notificationsEnabled = v),
-                          ),
-                        ),
-                        const _HDivider(),
-                        _SettingsTile(
-                          icon: Icons.dark_mode_outlined,
-                          label: 'Dark Mode',
-                          color: const Color(0xFF7C3AED),
-                          trailing: Switch(
-                            value: _darkMode,
-                            activeThumbColor: const Color(0xFF7C3AED),
-                            onChanged: (v) => setState(() => _darkMode = v),
-                          ),
-                        ),
-                        const _HDivider(),
-                        _SettingsTile(
-                          icon: Icons.language_outlined,
-                          label: 'Language',
-                          color: const Color(0xFF059669),
-                          trailing: DropdownButton<String>(
-                            value: _language,
-                            underline: const SizedBox(),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F172A),
-                            ),
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'English',
-                                child: Text('English'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Luganda',
-                                child: Text('Luganda'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Swahili',
-                                child: Text('Swahili'),
-                              ),
-                            ],
-                            onChanged: (v) =>
-                                setState(() => _language = v ?? 'English'),
-                          ),
-                        ),
-                        const _HDivider(),
-                        _SettingsTile(
-                          icon: Icons.lock_outline,
-                          label: 'Change Password',
-                          color: const Color(0xFFD97706),
-                          onTap: () => _showChangePasswordSheet(context),
-                        ),
-                        const _HDivider(),
-                        _SettingsTile(
-                          icon: Icons.info_outline,
-                          label: 'About SOMA CARE',
-                          color: const Color(0xFF3B82F6),
-                          labelColor: const Color(0xFF3B82F6),
-                          onTap: () => _showAboutSheet(context),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // ── Help & Support ────────────────────────
-                _SectionLabel('Help & Support'),
-                SliverToBoxAdapter(
-                  child: _Card(
-                    child: Column(
-                      children: [
-                        _MenuTile(
-                          icon: Icons.chat_bubble_outline,
-                          color: const Color(0xFF3B82F6),
-                          label: 'Live Chat Support',
-                          onTap: () =>
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Opening live chat...'),
+                          child: _Card(
+                            child: Column(
+                              children: [
+                                _SettingsTile(
+                                  icon: Icons.notifications_outlined,
+                                  label: 'Notifications',
+                                  color: AppColors.info,
+                                  trailing: Switch(
+                                    value: _notificationsEnabled,
+                                    activeThumbColor: AppColors.info,
+                                    onChanged: (v) => setState(
+                                      () => _notificationsEnabled = v,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                        ),
-                        const _HDivider(),
-                        _MenuTile(
-                          icon: Icons.help_outline,
-                          color: const Color(0xFF7C3AED),
-                          label: 'FAQs',
-                          onTap: () =>
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Coming soon')),
-                              ),
-                        ),
-                        const _HDivider(),
-                        _MenuTile(
-                          icon: Icons.privacy_tip_outlined,
-                          color: const Color(0xFF059669),
-                          label: 'Privacy Policy',
-                          onTap: () =>
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Coming soon')),
-                              ),
-                        ),
-                        const _HDivider(),
-                        _MenuTile(
-                          icon: Icons.description_outlined,
-                          color: const Color(0xFFD97706),
-                          label: 'Terms of Service',
-                          onTap: () =>
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Coming soon')),
-                              ),
-                        ),
-                        const _HDivider(),
-                        _MenuTile(
-                          icon: Icons.info_outline,
-                          color: const Color(0xFF64748B),
-                          label: 'App Version 1.0.0',
-                          onTap: () {},
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // ── Sign Out ─────────────────────────────
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: OutlinedButton.icon(
-                        onPressed: _logout,
-                        icon: const Icon(
-                          Icons.logout,
-                          color: Color(0xFFDC2626),
-                        ),
-                        label: const Text(
-                          'Sign Out',
-                          style: TextStyle(
-                            color: Color(0xFFDC2626),
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFFDC2626)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                                const _HDivider(),
+                                _SettingsTile(
+                                  icon: Icons.dark_mode_outlined,
+                                  label: 'Dark Mode',
+                                  color: AppColors.secondary,
+                                  trailing: Switch(
+                                    value: _darkMode,
+                                    activeThumbColor: AppColors.secondary,
+                                    onChanged: (v) =>
+                                        setState(() => _darkMode = v),
+                                  ),
+                                ),
+                                const _HDivider(),
+                                _SettingsTile(
+                                  icon: Icons.language_outlined,
+                                  label: 'Language',
+                                  color: AppColors.success,
+                                  trailing: DropdownButton<String>(
+                                    value: _language,
+                                    underline: const SizedBox(),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                    items: const [
+                                      DropdownMenuItem(
+                                        value: 'English',
+                                        child: Text('English'),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'Luganda',
+                                        child: Text('Luganda'),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'Swahili',
+                                        child: Text('Swahili'),
+                                      ),
+                                    ],
+                                    onChanged: (v) => setState(
+                                      () => _language = v ?? 'English',
+                                    ),
+                                  ),
+                                ),
+                                const _HDivider(),
+                                _SettingsTile(
+                                  icon: Icons.lock_outline,
+                                  label: 'Change Password',
+                                  color: AppColors.warning,
+                                  onTap: () =>
+                                      _showChangePasswordSheet(context),
+                                ),
+                                const _HDivider(),
+                                _SettingsTile(
+                                  icon: Icons.info_outline,
+                                  label: 'About SOMA CARE',
+                                  color: AppColors.info,
+                                  labelColor: AppColors.info,
+                                  onTap: () => _showAboutSheet(context),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ],
+
+                    // ── Help & Support ────────────────────────
+                    _SectionLabel('Help & Support', isTablet: isTablet),
+                    SliverToBoxAdapter(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: maxContentWidth,
+                          ),
+                          child: _Card(
+                            child: Column(
+                              children: [
+                                _MenuTile(
+                                  icon: Icons.chat_bubble_outline,
+                                  color: AppColors.info,
+                                  label: 'Live Chat Support',
+                                  onTap: () => ScaffoldMessenger.of(context)
+                                      .showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Opening live chat...'),
+                                        ),
+                                      ),
+                                ),
+                                const _HDivider(),
+                                _MenuTile(
+                                  icon: Icons.help_outline,
+                                  color: AppColors.secondary,
+                                  label: 'FAQs',
+                                  onTap: () => ScaffoldMessenger.of(context)
+                                      .showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Coming soon'),
+                                        ),
+                                      ),
+                                ),
+                                const _HDivider(),
+                                _MenuTile(
+                                  icon: Icons.privacy_tip_outlined,
+                                  color: AppColors.success,
+                                  label: 'Privacy Policy',
+                                  onTap: () => ScaffoldMessenger.of(context)
+                                      .showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Coming soon'),
+                                        ),
+                                      ),
+                                ),
+                                const _HDivider(),
+                                _MenuTile(
+                                  icon: Icons.description_outlined,
+                                  color: AppColors.warning,
+                                  label: 'Terms of Service',
+                                  onTap: () => ScaffoldMessenger.of(context)
+                                      .showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Coming soon'),
+                                        ),
+                                      ),
+                                ),
+                                const _HDivider(),
+                                _MenuTile(
+                                  icon: Icons.info_outline,
+                                  color: AppColors.textTertiary,
+                                  label: 'App Version 2.0.0',
+                                  onTap: () {},
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // ── Sign Out ─────────────────────────────
+                    SliverToBoxAdapter(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: maxContentWidth,
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              isTablet ? 24 : 16,
+                              24,
+                              isTablet ? 24 : 16,
+                              32,
+                            ),
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: OutlinedButton.icon(
+                                onPressed: _logout,
+                                icon: const Icon(
+                                  Icons.logout,
+                                  color: AppColors.error,
+                                ),
+                                label: const Text(
+                                  'Sign Out',
+                                  style: TextStyle(
+                                    color: AppColors.error,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                    color: AppColors.error,
+                                    width: 1.5,
+                                  ),
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: AppRadius.mdAll,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
     );
   }
@@ -1272,16 +1350,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 // ── Section Label ─────────────────────────────────────────────────────────────
 
 class _SectionLabel extends SliverToBoxAdapter {
-  _SectionLabel(String text)
+  final String text;
+  final bool isTablet;
+
+  _SectionLabel(this.text, {this.isTablet = false})
     : super(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+          padding: EdgeInsets.fromLTRB(
+            isTablet ? 24 : 16,
+            24,
+            isTablet ? 24 : 16,
+            0,
+          ),
           child: Text(
             text,
             style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w900,
-              color: Color(0xFF0F172A),
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
             ),
           ),
         ),
@@ -1299,18 +1385,12 @@ class _Card extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppColors.surface,
+        borderRadius: AppRadius.lgAll,
+        border: Border.all(color: AppColors.surfaceVariant),
+        boxShadow: AppShadows.card,
       ),
-      child: child,
+      child: ClipRRect(borderRadius: AppRadius.lgAll, child: child),
     );
   }
 }
@@ -1334,52 +1414,66 @@ class _PickerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: editing ? onTap : null,
-      borderRadius: BorderRadius.circular(18),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(
-          children: [
-            Icon(icon, size: 18, color: const Color(0xFF64748B)),
-            const SizedBox(width: 12),
-            SizedBox(
-              width: 120,
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF475569),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: editing ? onTap : null,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                child: Icon(icon, size: 20, color: AppColors.primary),
               ),
-            ),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    value.isEmpty ? '—' : value,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: editing
-                          ? const Color(0xFF3B82F6)
-                          : const Color(0xFF0F172A),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textTertiary,
+                      ),
                     ),
-                  ),
-                  if (editing) ...[
-                    const SizedBox(width: 6),
-                    const Icon(
-                      Icons.expand_more,
-                      size: 16,
-                      color: Color(0xFF3B82F6),
+                    const SizedBox(height: 2),
+                    Text(
+                      value.isEmpty ? '—' : value,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: editing
+                            ? AppColors.primary
+                            : AppColors.textPrimary,
+                      ),
                     ),
                   ],
-                ],
+                ),
               ),
-            ),
-          ],
+              if (editing)
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.expand_more,
+                    size: 20,
+                    color: AppColors.primary,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -1406,53 +1500,76 @@ class _TypedRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: const Color(0xFF64748B)),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF475569),
-              ),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppColors.warningLight.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(12),
             ),
+            child: Icon(icon, size: 20, color: AppColors.warning),
           ),
+          const SizedBox(width: 16),
           Expanded(
-            child: editing
-                ? TextField(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textTertiary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                if (editing)
+                  TextField(
                     controller: ctrl,
                     style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF0F172A),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
                     ),
                     decoration: InputDecoration(
                       hintText: hint,
                       isDense: true,
                       contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
+                        horizontal: 12,
+                        vertical: 10,
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Color(0xFF3B82F6)),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: AppColors.primary),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: AppColors.border),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: AppColors.primary,
+                          width: 2,
+                        ),
                       ),
                     ),
                   )
-                : Text(
+                else
+                  Text(
                     ctrl.text.isEmpty ? '—' : ctrl.text,
                     style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF0F172A),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
                     ),
-                    textAlign: TextAlign.right,
                   ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1484,7 +1601,7 @@ class _PickerSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: const Color(0xFFCBD5E1),
+              color: AppColors.textTertiary,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -1498,7 +1615,7 @@ class _PickerSheet extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF0F172A),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 TextButton(
@@ -1511,7 +1628,7 @@ class _PickerSheet extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 15,
-                      color: Color(0xFF3B82F6),
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
@@ -1543,26 +1660,44 @@ class _MenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      leading: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 22),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right,
+                color: AppColors.textTertiary,
+                size: 24,
+              ),
+            ],
+          ),
         ),
-        child: Icon(icon, color: color, size: 18),
       ),
-      title: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-          color: Color(0xFF0F172A),
-        ),
-      ),
-      trailing: const Icon(Icons.chevron_right, color: Color(0xFFCBD5E1)),
     );
   }
 }
@@ -1586,41 +1721,56 @@ class _PaymentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      leading: Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(child: Text(logo, style: const TextStyle(fontSize: 20))),
-      ),
-      title: Text(
-        name,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-          color: Color(0xFF0F172A),
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
-      ),
-      trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          'Link',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: color,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Center(
+                  child: Text(logo, style: const TextStyle(fontSize: 24)),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right,
+                color: AppColors.textTertiary,
+                size: 24,
+              ),
+            ],
           ),
         ),
       ),
@@ -1649,40 +1799,57 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      leading: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 22),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: labelColor ?? AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              ?trailing,
+              if (onTap != null && trailing == null)
+                const Icon(
+                  Icons.chevron_right,
+                  color: AppColors.textTertiary,
+                  size: 24,
+                ),
+            ],
+          ),
         ),
-        child: Icon(icon, color: color, size: 18),
       ),
-      title: Text(
-        label,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-          color: labelColor ?? const Color(0xFF0F172A),
-        ),
-      ),
-      trailing:
-          trailing ??
-          (onTap != null
-              ? const Icon(Icons.chevron_right, color: Color(0xFFCBD5E1))
-              : null),
     );
   }
 }
 
-// ── Divider ───────────────────────────────────────────────────────────────────
+// ── Divider ──────────────────────────────────────────────────────────────────
 
 class _HDivider extends StatelessWidget {
   const _HDivider();
 
   @override
-  Widget build(BuildContext context) =>
-      const Divider(height: 1, indent: 16, endIndent: 16);
+  Widget build(BuildContext context) {
+    return const Divider(height: 1, thickness: 1, indent: 76, endIndent: 16);
+  }
 }

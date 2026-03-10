@@ -468,13 +468,13 @@ class _TypingBubble extends StatelessWidget {
                 ),
               ],
             ),
-            child: Row(
+            child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 _Dot(delay: 0),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 _Dot(delay: 200),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 _Dot(delay: 400),
               ],
             ),

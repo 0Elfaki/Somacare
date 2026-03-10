@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
+import '../data/medical_history_repository.dart';
+import '../data/medical_history_model.dart';
 import '../providers/medical_history_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 /// Comprehensive Medical History Template
 ///
@@ -52,6 +56,12 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
   // Track whether controllers have been initialized from state
   bool _controllersInitialized = false;
 
+  // Check if user can edit (doctor or school staff)
+  bool get _canEdit {
+    // Student view is read-only
+    return false;
+  }
+
   // Initialize all sections as expanded
   @override
   void initState() {
@@ -85,15 +95,15 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
     // Only initialize once when history data is available
     if (state.history != null && !_controllersInitialized) {
       final history = state.history!;
-      _chronicConditionsController.text = history.chronicConditions ?? '';
-      _pastIllnessesController.text = history.pastIllnesses ?? '';
-      _hospitalizationsController.text = history.hospitalizations ?? '';
-      _familyConditionsController.text = history.familyConditions ?? '';
-      _surgicalHistoryController.text = history.surgicalHistory ?? '';
-      _allergiesController.text = history.allergies ?? '';
-      _immunizationsController.text = history.immunizations ?? '';
-      _socialHistoryController.text = history.socialHistory ?? '';
-      _reviewOfSystemsController.text = history.reviewOfSystems ?? '';
+      _chronicConditionsController.text = history.chronicConditions;
+      _pastIllnessesController.text = history.pastIllnesses;
+      _hospitalizationsController.text = history.hospitalizations;
+      _familyConditionsController.text = history.familyConditions;
+      _surgicalHistoryController.text = history.surgicalHistory;
+      _allergiesController.text = history.allergies;
+      _immunizationsController.text = history.immunizations;
+      _socialHistoryController.text = history.socialHistory;
+      _reviewOfSystemsController.text = history.reviewOfSystems;
       _controllersInitialized = true;
     }
   }
@@ -107,7 +117,6 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(medicalHistoryProvider);
-    final notifier = ref.read(medicalHistoryProvider.notifier);
 
     // Initialize controllers when data loads
     if (state.history != null && !state.isLoading) {
@@ -490,7 +499,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
                   hint: 'e.g., COVID-19, Flu shot, Tetanus',
                   helperText: 'Include any recent vaccines.',
                   example:
-                      'Example: COVID-19 Booster - January 2024, Flu shot - October 2023',
+                      'Example: COVID-19 Booster - January 2026, Flu shot - October 2025',
                   followUp: const [
                     'When was your last flu shot?',
                     'Are you up to date with COVID-19 vaccinations?',
@@ -665,46 +674,65 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
 
             const SizedBox(height: 24),
 
-            // Submit Button
-            ElevatedButton(
-              onPressed: _saveMedicalHistory,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3A86FF),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 32,
+            // Submit Button - hidden for student
+            if (_canEdit)
+              ElevatedButton(
+                onPressed: _saveMedicalHistory,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3A86FF),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 32,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                child: const Text(
+                  'Save Medical History',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
-                elevation: 2,
               ),
-              child: const Text(
-                'Save Medical History',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-            ),
 
             const SizedBox(height: 16),
 
-            // Export/Print Option
-            OutlinedButton.icon(
-              onPressed: _exportHistory,
-              icon: const Icon(Icons.print),
-              label: const Text('Export as PDF'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF3A86FF),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 14,
-                  horizontal: 24,
-                ),
-                side: const BorderSide(color: Color(0xFF3A86FF)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            // Approve/Revoke Button (only for doctors/school staff)
+            if (_canEdit) _buildApprovalButtons(),
+
+            const SizedBox(height: 16),
+
+            // Export/Print Option - only shown if approved
+            if (state.history?.isApproved == true)
+              OutlinedButton.icon(
+                onPressed: () => _exportHistory(state.history!),
+                icon: const Icon(Icons.picture_as_pdf),
+                label: const Text('Download Approved PDF'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF3A86FF),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 24,
+                  ),
+                  side: const BorderSide(color: Color(0xFF3A86FF)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
-            ),
+            
+            if (state.history?.isApproved == false && !_canEdit)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Your medical history is pending doctor approval to be downloaded as a PDF.',
+                    style: TextStyle(color: Colors.orange, fontStyle: FontStyle.italic),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
 
             const SizedBox(height: 32),
           ],
@@ -804,12 +832,13 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
           TextFormField(
             controller: controller,
             onChanged: onChanged,
+            readOnly: !_canEdit,
             maxLines: example != null ? 3 : 2,
             decoration: InputDecoration(
               hintText: hint,
               helperText: helperText,
               filled: true,
-              fillColor: Colors.white,
+              fillColor: !_canEdit ? Colors.grey.shade100 : Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: Colors.grey),
@@ -1042,6 +1071,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
           const SizedBox(height: 8),
           TextFormField(
             maxLines: 1,
+            readOnly: !_canEdit,
             decoration: InputDecoration(
               hintText: 'Add any other $category symptoms...',
               filled: true,
@@ -1085,7 +1115,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
             socialHistory: _socialHistoryController.text,
             reviewOfSystems: _reviewOfSystemsController.text,
           ) ??
-          ref.read(medicalHistoryProvider.notifier).state.history;
+          ref.read(medicalHistoryProvider).history;
 
       // Update the provider
       if (updatedHistory != null) {
@@ -1128,12 +1158,66 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
     }
   }
 
-  void _exportHistory() {
+  void _exportHistory(MedicalHistory history) async {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Preparing PDF export...'),
+        content: Text('Generating Approved PDF...'),
         backgroundColor: Color(0xFF3A86FF),
       ),
+    );
+
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (pw.Context context) {
+          return pw.Padding(
+            padding: const pw.EdgeInsets.all(24),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('Approved Medical History', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 20),
+                _buildPdfSection('Chronic Conditions', history.chronicConditions),
+                _buildPdfSection('Past Illnesses', history.pastIllnesses),
+                _buildPdfSection('Hospitalizations', history.hospitalizations),
+                _buildPdfSection('Family Medical Conditions', history.familyConditions),
+                _buildPdfSection('Surgical History', history.surgicalHistory),
+                _buildPdfSection('Allergies', history.allergies),
+                _buildPdfSection('Immunizations', history.immunizations),
+                _buildPdfSection('Social History', history.socialHistory),
+                _buildPdfSection('Review of Systems', history.reviewOfSystems),
+                pw.SizedBox(height: 30),
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(10),
+                  decoration: pw.BoxDecoration(
+                    border: pw.Border.all(color: PdfColors.green),
+                  ),
+                  child: pw.Text('VERIFIED & APPROVED BY DOCTOR', style: pw.TextStyle(color: PdfColors.green, fontWeight: pw.FontWeight.bold)),
+                )
+              ],
+            )
+          );
+        },
+      ),
+    );
+
+    await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdf.save());
+  }
+
+  pw.Widget _buildPdfSection(String title, String content) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.only(bottom: 12),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(title, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.blue800)),
+          pw.SizedBox(height: 4),
+          pw.Text(content.isEmpty ? 'None reported' : content, style: const pw.TextStyle(fontSize: 12)),
+        ]
+      )
     );
   }
 
@@ -1206,6 +1290,153 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
         ],
       ),
     );
+  }
+
+  // Build approval buttons for doctors/school staff
+  Widget _buildApprovalButtons() {
+    final state = ref.read(medicalHistoryProvider);
+    final history = state.history;
+
+    if (history == null) {
+      return const SizedBox.shrink();
+    }
+
+    final isApproved = history.isApproved;
+
+    if (isApproved) {
+      // Show Revoke button
+      return Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2ECC71).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF2ECC71).withValues(alpha: 0.3),
+              ),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.verified, color: Color(0xFF2ECC71), size: 20),
+                SizedBox(width: 8),
+                Text(
+                  'Approved',
+                  style: TextStyle(
+                    color: Color(0xFF2ECC71),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Revoke Approval?'),
+                  content: const Text(
+                    'Are you sure you want to revoke approval? '
+                    'The student will no longer be able to download the PDF until approved again.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                      child: const Text('Revoke'),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirm == true && mounted) {
+                await MedicalHistoryRepository.instance.revokeApproval(
+                  history.id,
+                );
+                ref.invalidate(medicalHistoryProvider);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Approval revoked'),
+                      backgroundColor: Color(0xFFE74C3C),
+                    ),
+                  );
+                }
+              }
+            },
+            icon: const Icon(Icons.cancel, size: 18),
+            label: const Text('Revoke Approval'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      // Show Approve button
+      return ElevatedButton.icon(
+        onPressed: () async {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Approve Medical History?'),
+              content: const Text(
+                'By approving, you confirm that the medical information is accurate '
+                'and the student will be able to download the PDF.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2ECC71),
+                  ),
+                  child: const Text('Approve'),
+                ),
+              ],
+            ),
+          );
+
+          if (confirm == true && mounted) {
+            await MedicalHistoryRepository.instance.approve(history.id);
+            ref.invalidate(medicalHistoryProvider);
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Medical history approved!'),
+                  backgroundColor: Color(0xFF2ECC71),
+                ),
+              );
+            }
+          }
+        },
+        icon: const Icon(Icons.verified, size: 20),
+        label: const Text('Approve Medical History'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF2ECC71),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+    }
   }
 }
 

@@ -86,7 +86,7 @@ class RoleSelectionScreen extends StatelessWidget {
               const Spacer(),
               const Center(
                 child: Text(
-                  'Powered by SOMACARE v1.0',
+                  'Powered by SOMACARE v2.0',
                   style: TextStyle(
                     fontSize: 12,
                     color: Color(0xFFCBD5E1),

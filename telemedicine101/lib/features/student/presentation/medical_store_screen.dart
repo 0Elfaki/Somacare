@@ -880,20 +880,163 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             child: Row(
               children: [
                 Expanded(
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text('View Details'),
+                  child: TextButton.icon(
+                    icon: const Icon(Icons.visibility_outlined, size: 16),
+                    onPressed: () {
+                      _showOrderDetails(order);
+                    },
+                    label: const Text('View Details'),
                   ),
                 ),
                 Container(width: 1, height: 20, color: const Color(0xFFF1F5F9)),
                 Expanded(
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text('Reorder'),
+                  child: TextButton.icon(
+                    icon: const Icon(Icons.replay_outlined, size: 16),
+                    onPressed: () {
+                      _reorderItems(order);
+                    },
+                    label: const Text('Reorder'),
                   ),
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showOrderDetails(OrderModel order) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.5,
+        minChildSize: 0.3,
+        maxChildSize: 0.8,
+        expand: false,
+        builder: (ctx, scrollController) => ListView(
+          controller: scrollController,
+          padding: const EdgeInsets.all(20),
+          children: [
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Order #${order.id.substring(0, 8)}',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Placed on ${_formatDate(order.createdAt)}',
+              style: TextStyle(color: Colors.grey[500]),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Status: ${order.status.toUpperCase()}',
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF5B8CFF),
+              ),
+            ),
+            const Divider(height: 24),
+            ...order.items.map(
+              (item) => ListTile(
+                leading: const Text('💊', style: TextStyle(fontSize: 24)),
+                title: Text(item.productName),
+                subtitle: Text('Qty: ${item.quantity}'),
+                trailing: Text(
+                  '\$${item.total.toStringAsFixed(2)}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            const Divider(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Total',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  '\$${order.totalAmount.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF5B8CFF),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _reorderItems(OrderModel order) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Reorder Items'),
+        content: Text(
+          'Add ${order.items.length} item(s) from this order to your cart? '
+          'The store will be notified of your reorder.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              for (final item in order.items) {
+                await ref.read(storeProvider.notifier).addToCart(
+                  Product(
+                    id: item.productId,
+                    name: item.productName,
+                    description: '', price: item.price,
+                    image: '💊', category: ProductCategory.medicines,
+                    inStock: true, rating: 0, reviewCount: 0,
+                    prescriptionRequired: false,
+                  ),
+                  quantity: item.quantity,
+                );
+              }
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      '✅ Reorder placed! The store has been notified.',
+                    ),
+                    backgroundColor: const Color(0xFF22C55E),
+                    action: SnackBarAction(
+                      label: 'VIEW CART',
+                      textColor: Colors.white,
+                      onPressed: () {
+                        setState(() => _showCart = true);
+                      },
+                    ),
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF5B8CFF),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Reorder'),
           ),
         ],
       ),

@@ -97,6 +97,12 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
             .select('id');
       }
 
+      // ✅ Cache the role for router redirect
+      await Supabase.instance.client
+          .from('profiles')
+          .upsert({'id': userId, 'role': _role})
+          .select('id');
+
       if (!mounted) return;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -285,6 +291,8 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 autocorrect: false,
+                autofocus: false,
+                cursorColor: Colors.black,
                 decoration: InputDecoration(
                   hintText: isDoctor
                       ? 'doctor@somacare.app'
@@ -292,6 +300,17 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                   prefixIcon: const Icon(Icons.email_outlined),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 2,
+                    ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -307,6 +326,8 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
               TextField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
+                autofocus: false,
+                cursorColor: Colors.black,
                 decoration: InputDecoration(
                   hintText: 'Enter password',
                   prefixIcon: const Icon(Icons.lock_outline),
@@ -321,6 +342,17 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 2,
+                    ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -380,40 +412,6 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // ── Test Credentials ──────────────────────
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0FDF4),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFBBF7D0)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '🧪 Test Credentials',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF15803D),
-                        fontSize: 13,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      isDoctor
-                          ? 'Email: doctor1@somacare.app\nPassword: Doctor@1234'
-                          : 'Email: student1@somacare.app\nPassword: Student@1234',
-                      style: const TextStyle(
-                        color: Color(0xFF166534),
-                        fontSize: 12,
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),

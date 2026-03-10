@@ -6,12 +6,6 @@ import 'package:intl/intl.dart';
 import '../data/medication_models.dart';
 import '../providers/prescription_provider.dart';
 
-// Empty list - will be populated from provider
-final List<Prescription> _mockPrescriptions = [];
-
-// Empty reminders - will be populated from provider
-final List<MedicationReminder> _upcomingReminders = [];
-
 class PrescriptionsScreen extends ConsumerStatefulWidget {
   const PrescriptionsScreen({super.key});
 
@@ -881,11 +875,12 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                             final notifier = ref.read(
                               prescriptionProvider.notifier,
                             );
+                            final messenger = ScaffoldMessenger.of(context);
                             final success = await notifier.requestRefill(
                               prescription.id,
                             );
-                            if (success && context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                            if (success) {
+                              messenger.showSnackBar(
                                 SnackBar(
                                   content: Text(
                                     'Refill request submitted for ${prescription.medicationName}',
