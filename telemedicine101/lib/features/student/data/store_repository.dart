@@ -127,7 +127,7 @@ class StoreRepository {
         await _client
             .from('cart_items')
             .update({'quantity': currentQty + quantity})
-            .eq('id', existing['id']);
+            .eq('id', existing['id'] as Object);
       } else {
         // Insert new cart item
         await _client.from('cart_items').insert({

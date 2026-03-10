@@ -16,6 +16,11 @@ import '../../features/doctor/presentation/appointment_detail_screen.dart';
 import '../../features/doctor/presentation/doctor_consult_screen.dart';
 import '../../features/doctor/presentation/student_profile_screen.dart';
 import '../../features/doctor/presentation/prescription_writer_screen.dart';
+import '../../features/doctor/presentation/doctor_finances_screen.dart';
+import '../../features/doctor/presentation/doctor_patients_screen.dart';
+
+import '../../features/doctor/presentation/notifications_screen.dart';
+import '../../features/doctor/presentation/doctor_medical_history_management_screen.dart';
 
 // ── Student imports ───────────────────────────────────────────────────────────
 import '../../features/student/presentation/student_shell.dart';
@@ -24,6 +29,7 @@ import '../../features/student/presentation/symptom_check_screen.dart';
 import '../../features/student/presentation/book_appointment_screen.dart';
 import '../../features/student/presentation/my_appointments_screen.dart';
 import '../../features/student/presentation/medical_history_screen.dart';
+import '../../features/student/presentation/student_medical_history_view.dart';
 import '../../features/student/presentation/prescriptions_screen.dart';
 import '../../features/student/presentation/medical_store_screen.dart';
 import '../../features/student/presentation/my_medications_screen.dart';
@@ -32,9 +38,13 @@ import '../../features/student/presentation/consult_screen.dart';
 import '../../features/student/presentation/records_screen.dart';
 import '../../features/student/presentation/profile_screen.dart';
 
-final _rootNavigatorKey = GlobalKey<NavigatorState>();
-final _shellNavigatorKey = GlobalKey<NavigatorState>();
-final _doctorShellNavigatorKey = GlobalKey<NavigatorState>();
+final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+final _shellNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'studentShell',
+);
+final _doctorShellNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'doctorShell',
+);
 
 class _SupabaseAuthNotifier extends ChangeNotifier {
   String? _cachedRole;
@@ -47,20 +57,58 @@ class _SupabaseAuthNotifier extends ChangeNotifier {
 
   void clearCachedRole() {
     _cachedRole = null;
+    notifyListeners();
+  }
+
+  Future<void> refreshRole() async {
+    final session = Supabase.instance.client.auth.currentSession;
+    if (session == null) {
+      _cachedRole = null;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      final profile = await Supabase.instance.client
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .maybeSingle();
+
+      final newRole = profile?['role'] as String?;
+
+      // Only update if we got a valid role from DB
+      // Keep existing cached role if DB returns null
+      if (newRole != null && newRole.isNotEmpty) {
+        _cachedRole = newRole;
+      }
+      // If DB returns null but we have a cached role, keep it
+    } catch (e) {
+      // On error, keep existing cached role
+    }
+    notifyListeners();
   }
 
   _SupabaseAuthNotifier() {
-    Supabase.instance.client.auth.onAuthStateChange.listen((event) {
+    Supabase.instance.client.auth.onAuthStateChange.listen((event) async {
       // Clear cached role on sign out
       if (event.event == AuthChangeEvent.signedOut) {
         _cachedRole = null;
+      }
+      // Refresh role on sign in or token refresh
+      if (event.event == AuthChangeEvent.signedIn ||
+          event.event == AuthChangeEvent.tokenRefreshed) {
+        await refreshRole();
       }
       notifyListeners();
     });
   }
 }
 
-final _authNotifier = _SupabaseAuthNotifier();
+/// Lazy-initialised so no network calls fire until the router is actually used.
+_SupabaseAuthNotifier? __authNotifier;
+_SupabaseAuthNotifier get _authNotifier =>
+    __authNotifier ??= _SupabaseAuthNotifier();
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
@@ -86,8 +134,32 @@ final GoRouter appRouter = GoRouter(
     // Redirect unauthenticated users to onboarding first
     if (!loggedIn && !isAuthRoute) return '/onboarding';
 
+    // Route guards: prevent wrong role from accessing wrong dashboard
+    if (loggedIn) {
+      final role = _authNotifier.cachedRole ?? '';
+      // If a student tries to access doctor routes, redirect to student dashboard
+      if (role == 'student' &&
+          (loc.startsWith('/doctor-') ||
+              loc == '/appointment-detail' ||
+              loc == '/prescription-writer')) {
+        return '/student-dashboard';
+      }
+      // If a doctor tries to access student routes, redirect to doctor dashboard
+      if (role == 'doctor' &&
+          (loc.startsWith('/student-') ||
+              loc == '/book-appointment' ||
+              loc == '/my-appointments' ||
+              loc == '/medical-history' ||
+              loc == '/prescriptions' ||
+              loc == '/medical-store' ||
+              loc == '/my-medications' ||
+              loc == '/emergency' ||
+              loc == '/symptom-check')) {
+        return '/doctor-dashboard';
+      }
+    }
+
     // Doctor routes bypass the student-specific redirect below
-    // (only reached if loggedIn == true due to check above)
     if (loc.startsWith('/doctor-')) return null;
     if (loc == '/appointment-detail') return null;
     if (loc == '/doctor-consult') return null;
@@ -95,17 +167,17 @@ final GoRouter appRouter = GoRouter(
     if (loc == '/prescription-writer') return null;
 
     if (loggedIn && isAuthRoute) {
-      // Use cached role to avoid slow database call
-      String role = _authNotifier.cachedRole ?? 'student';
+      // Use cached role if available
+      String role = _authNotifier.cachedRole ?? '';
 
-      // Only fetch from DB if role not cached
-      if (_authNotifier.cachedRole == null) {
-        final userId = session.user.id;
+      // Only fetch from DB if we don't have a cached role yet
+      // This is necessary for initial route determination
+      if (role.isEmpty) {
         try {
           final profile = await Supabase.instance.client
               .from('profiles')
               .select('role')
-              .eq('id', userId)
+              .eq('id', session.user.id)
               .maybeSingle();
           role = (profile?['role'] as String?) ?? 'student';
           _authNotifier.setCachedRole(role);
@@ -121,18 +193,33 @@ final GoRouter appRouter = GoRouter(
   },
 
   routes: [
-    GoRoute(path: '/onboarding', builder: (c, s) => const OnboardingScreen()),
+    GoRoute(
+      path: '/onboarding',
+      pageBuilder: (c, s) => const MaterialPage(
+        key: ValueKey('onboarding'),
+        child: OnboardingScreen(),
+      ),
+    ),
     GoRoute(
       path: '/role-selection',
-      builder: (c, s) => const RoleSelectionScreen(),
+      pageBuilder: (c, s) => const MaterialPage(
+        key: ValueKey('role-selection'),
+        child: RoleSelectionScreen(),
+      ),
     ),
     GoRoute(
       path: '/student-login',
-      builder: (c, s) => const StudentLoginScreen(),
+      pageBuilder: (c, s) => const MaterialPage(
+        key: ValueKey('student-login'),
+        child: StudentLoginScreen(),
+      ),
     ),
     GoRoute(
       path: '/doctor-login',
-      builder: (c, s) => const StudentLoginScreen(),
+      pageBuilder: (c, s) => const MaterialPage(
+        key: ValueKey('doctor-login'),
+        child: StudentLoginScreen(),
+      ),
     ),
 
     // ── Doctor shell (bottom nav) ──────────────────────────────────────────
@@ -142,115 +229,242 @@ final GoRouter appRouter = GoRouter(
       routes: [
         GoRoute(
           path: '/doctor-dashboard',
-          builder: (c, s) => const DoctorDashboardScreen(),
+          pageBuilder: (c, s) => const MaterialPage(
+            key: ValueKey('doctor-dashboard'),
+            child: DoctorDashboardScreen(),
+          ),
         ),
         GoRoute(
           path: '/doctor-appointments',
-          builder: (c, s) => const DoctorAppointmentsScreen(),
+          pageBuilder: (c, s) => const MaterialPage(
+            key: ValueKey('doctor-appointments'),
+            child: DoctorAppointmentsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/doctor-finances',
+          pageBuilder: (c, s) => const MaterialPage(
+            key: ValueKey('doctor-finances'),
+            child: DoctorFinancesScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/doctor-patients',
+          pageBuilder: (c, s) => const MaterialPage(
+            key: ValueKey('doctor-patients'),
+            child: DoctorPatientsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/doctor/student/:id',
+          pageBuilder: (c, s) {
+            final id = s.pathParameters['id'];
+            final extra = s.extra as Map<String, dynamic>? ?? {};
+            return MaterialPage(
+              key: ValueKey('doctor-student-$id'),
+              child: StudentProfileScreen(
+                extra: {
+                  ...extra,
+                  'studentId': id,
+                },
+              ),
+            );
+          },
+        ),
+
+        GoRoute(
+          path: '/doctor-medical-history/:studentId?',
+          pageBuilder: (c, s) {
+            final studentId = s.pathParameters['studentId'];
+            return MaterialPage(
+              key: ValueKey('doctor-medical-history-${studentId ?? 'none'}'),
+              child: DoctorMedicalHistoryManagementScreen(studentId: studentId),
+            );
+          },
         ),
         GoRoute(
           path: '/doctor-profile',
-          builder: (c, s) => const DoctorProfileScreen(),
+          pageBuilder: (c, s) => const MaterialPage(
+            key: ValueKey('doctor-profile'),
+            child: DoctorProfileScreen(),
+          ),
         ),
       ],
+    ),
+
+    // Notifications - outside shell for full-screen
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/notifications',
+      pageBuilder: (c, s) => const MaterialPage(
+        key: ValueKey('notifications'),
+        child: NotificationsScreen(),
+      ),
     ),
 
     // ── Doctor full-screen sub-routes (outside shell) ──────────────────────
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/appointment-detail',
-      builder: (c, s) {
+      pageBuilder: (c, s) {
         final extra = s.extra;
         final appt = extra is Map<String, dynamic>
             ? extra
             : <String, dynamic>{};
-        return AppointmentDetailScreen(appointment: appt);
+        final apptId = appt['id'] as String? ?? '';
+        return MaterialPage(
+          key: ValueKey(
+            'appointment-detail-${apptId.isEmpty ? 'none' : apptId}',
+          ),
+          child: AppointmentDetailScreen(appointment: appt),
+        );
       },
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/doctor-consult',
-      builder: (c, s) {
+      pageBuilder: (c, s) {
         final extra = s.extra;
         final data = extra is Map<String, dynamic>
             ? extra
             : <String, dynamic>{};
-        return DoctorConsultScreen(extra: data);
+        final apptId = data['appointmentId'] as String? ?? '';
+        return MaterialPage(
+          key: ValueKey('doctor-consult-${apptId.isEmpty ? 'none' : apptId}'),
+          child: DoctorConsultScreen(extra: data),
+        );
       },
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/student-profile',
-      builder: (c, s) {
+      pageBuilder: (c, s) {
         final extra = s.extra;
         final data = extra is Map<String, dynamic>
             ? extra
             : <String, dynamic>{};
-        return StudentProfileScreen(extra: data);
+        final studentId = data['studentId'] as String? ?? '';
+        return MaterialPage(
+          key: ValueKey(
+            'student-profile-${studentId.isEmpty ? 'none' : studentId}',
+          ),
+          child: StudentProfileScreen(extra: data),
+        );
       },
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/prescription-writer',
-      builder: (c, s) {
+      pageBuilder: (c, s) {
         final extra = s.extra;
         final data = extra is Map<String, dynamic>
             ? extra
             : <String, dynamic>{};
-        return PrescriptionWriterScreen(extra: data);
+        final apptId = data['appointmentId'] as String? ?? '';
+        return MaterialPage(
+          key: ValueKey(
+            'prescription-writer-${apptId.isEmpty ? 'none' : apptId}',
+          ),
+          child: PrescriptionWriterScreen(extra: data),
+        );
+      },
+    ),
+
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/doctor/student/:studentId',
+      pageBuilder: (c, s) {
+        final studentId = s.pathParameters['studentId'] ?? '';
+        return MaterialPage(
+          key: ValueKey('doctor-student-$studentId'),
+          child: StudentProfileScreen(extra: {'studentId': studentId}),
+        );
       },
     ),
 
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/school-selection',
-      builder: (c, s) => const SchoolSelectionScreen(),
+      pageBuilder: (c, s) => const MaterialPage(
+        key: ValueKey('school-selection'),
+        child: SchoolSelectionScreen(),
+      ),
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/book-appointment',
-      builder: (c, s) => const BookAppointmentScreen(),
+      pageBuilder: (c, s) => const MaterialPage(
+        key: ValueKey('book-appointment'),
+        child: BookAppointmentScreen(),
+      ),
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/medical-history',
-      builder: (c, s) => const MedicalHistoryScreen(),
+      pageBuilder: (c, s) => const MaterialPage(
+        key: ValueKey('medical-history'),
+        child: StudentMedicalHistoryView(),
+      ),
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/medical-history-edit',
+      pageBuilder: (c, s) => const MaterialPage(
+        key: ValueKey('medical-history-edit'),
+        child: MedicalHistoryScreen(),
+      ),
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/prescriptions',
-      builder: (c, s) => const PrescriptionsScreen(),
+      pageBuilder: (c, s) => const MaterialPage(
+        key: ValueKey('prescriptions'),
+        child: PrescriptionsScreen(),
+      ),
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/medical-store',
-      builder: (c, s) => const MedicalStoreScreen(),
+      pageBuilder: (c, s) => const MaterialPage(
+        key: ValueKey('medical-store'),
+        child: MedicalStoreScreen(),
+      ),
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/my-medications',
-      builder: (c, s) => const MyMedicationsScreen(),
+      pageBuilder: (c, s) => const MaterialPage(
+        key: ValueKey('my-medications'),
+        child: MyMedicationsScreen(),
+      ),
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/emergency',
-      builder: (c, s) => const EmergencyScreen(),
+      pageBuilder: (c, s) => const MaterialPage(
+        key: ValueKey('emergency'),
+        child: EmergencyScreen(),
+      ),
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/consult',
-      builder: (c, s) {
+      pageBuilder: (c, s) {
         final extra = s.extra;
         final channelId = extra is Map<String, dynamic>
             ? extra['channelId'] as String?
             : null;
-        return ConsultScreen(channelId: channelId);
+        return MaterialPage(
+          key: ValueKey('consult-${channelId ?? 'none'}'),
+          child: ConsultScreen(channelId: channelId),
+        );
       },
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/records',
-      builder: (c, s) => const RecordsScreen(),
+      pageBuilder: (c, s) =>
+          const MaterialPage(key: ValueKey('records'), child: RecordsScreen()),
     ),
 
     // ── Student shell (bottom nav) ─────────────────────────────────────────
@@ -260,17 +474,32 @@ final GoRouter appRouter = GoRouter(
       routes: [
         GoRoute(
           path: '/student-dashboard',
-          builder: (c, s) => const StudentDashboardScreen(),
+          pageBuilder: (c, s) => const MaterialPage(
+            key: ValueKey('student-dashboard'),
+            child: StudentDashboardScreen(),
+          ),
         ),
         GoRoute(
           path: '/symptom-check',
-          builder: (c, s) => const SymptomCheckScreen(),
+          pageBuilder: (c, s) => const MaterialPage(
+            key: ValueKey('symptom-check'),
+            child: SymptomCheckScreen(),
+          ),
         ),
         GoRoute(
           path: '/my-appointments',
-          builder: (c, s) => const MyAppointmentsScreen(),
+          pageBuilder: (c, s) => const MaterialPage(
+            key: ValueKey('my-appointments'),
+            child: MyAppointmentsScreen(),
+          ),
         ),
-        GoRoute(path: '/profile', builder: (c, s) => const ProfileScreen()),
+        GoRoute(
+          path: '/profile',
+          pageBuilder: (c, s) => const MaterialPage(
+            key: ValueKey('profile'),
+            child: ProfileScreen(),
+          ),
+        ),
       ],
     ),
   ],

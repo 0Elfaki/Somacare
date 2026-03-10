@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -16,27 +17,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _Slide(
       title: 'Instant Doctor Access',
       subtitle: 'Book and join consultations quickly when you need help.',
-      icon: Icons.video_call_outlined,
+      imagePath: 'assets/images/onboarding_video_call.svg',
     ),
     _Slide(
       title: 'AI Symptom Check',
       subtitle: 'Answer a few questions and get a risk level with next steps.',
-      icon: Icons.psychology_outlined,
+      imagePath: 'assets/images/onboarding_ai.svg',
     ),
     _Slide(
       title: 'Medical History Tracking',
       subtitle: 'Keep your visits, notes, and prescriptions organized.',
-      icon: Icons.folder_open_outlined,
+      imagePath: 'assets/images/onboarding_history.svg',
     ),
     _Slide(
       title: 'Emergency Support',
       subtitle: 'Quick emergency access when symptoms are serious.',
-      icon: Icons.emergency_outlined,
+      imagePath: 'assets/images/onboarding_emergency.svg',
     ),
     _Slide(
       title: 'Medication Reminders',
       subtitle: 'Stay on track with your medications and schedules.',
-      icon: Icons.medication_outlined,
+      imagePath: 'assets/images/onboarding_medication.svg',
     ),
   ];
 
@@ -89,19 +90,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          width: 110,
-                          height: 110,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEFF6FF),
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                          child: Icon(
-                            s.icon,
-                            size: 54,
-                            color: const Color(0xFF3B82F6),
-                          ),
-                        ),
+                        SvgPicture.asset(s.imagePath, width: 140, height: 140),
                         const SizedBox(height: 22),
                         Text(
                           s.title,
@@ -187,10 +176,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 class _Slide {
   final String title;
   final String subtitle;
-  final IconData icon;
+  final String imagePath;
   const _Slide({
     required this.title,
     required this.subtitle,
-    required this.icon,
+    required this.imagePath,
   });
 }
+
+// To use your custom illustrations:
+// 1. Place your image files in: assets/images/
+// 2. Name them as: onboarding_video_call.svg, onboarding_ai.svg, onboarding_history.svg, onboarding_emergency.svg, onboarding_medication.svg
+// 3. Run: flutter pub get
+// 4. Restart the app to load the new assets

@@ -7,7 +7,21 @@ class DoctorShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: child, bottomNavigationBar: const _DoctorBottomNav());
+    final loc = GoRouterState.of(context).matchedLocation;
+    final isHome = loc.startsWith('/doctor-dashboard');
+
+    return PopScope(
+      canPop: isHome,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && !isHome) {
+          context.go('/doctor-dashboard');
+        }
+      },
+      child: Scaffold(
+        body: child,
+        bottomNavigationBar: const _DoctorBottomNav(),
+      ),
+    );
   }
 }
 

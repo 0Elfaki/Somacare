@@ -156,16 +156,23 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         (_appointment['school'] as String?) ??
         '';
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          context.go('/doctor-dashboard');
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
+            onPressed: () => context.go('/doctor-dashboard'),
+          ),
+          title: const Text(
           'Appointment Details',
           style: TextStyle(
             color: Color(0xFF0F172A),
@@ -465,10 +472,10 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                       ),
                     ),
 
-                  const SizedBox(height: 24),
                 ],
               ),
             ),
+      ),
     );
   }
 }

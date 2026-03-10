@@ -14,6 +14,13 @@ class MedicalHistory {
   final String immunizations;
   final String socialHistory;
   final String reviewOfSystems;
+  final String currentMedications; // NEW: Track prescribed medications
+  final bool isApproved; // NEW: Doctor approval status
+  final String? approvedBy; // NEW: Doctor who approved
+  final DateTime? approvedAt; // NEW: When it was approved
+  final String? denialReason; // NEW: Reason if denied
+  final String? deniedBy; // NEW: Doctor who denied
+  final DateTime? deniedAt; // NEW: When it was denied
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -29,6 +36,13 @@ class MedicalHistory {
     this.immunizations = '',
     this.socialHistory = '',
     this.reviewOfSystems = '',
+    this.currentMedications = '',
+    this.isApproved = false, // Default to not approved
+    this.approvedBy,
+    this.approvedAt,
+    this.denialReason,
+    this.deniedBy,
+    this.deniedAt,
     this.createdAt,
     this.updatedAt,
   });
@@ -42,17 +56,28 @@ class MedicalHistory {
       return MedicalHistory(studentId: userId);
     }
     return MedicalHistory(
-      id: data['id'] ?? '',
-      studentId: data['student_id'] ?? userId,
-      chronicConditions: data['chronic_conditions'] ?? '',
-      pastIllnesses: data['past_illnesses'] ?? '',
-      hospitalizations: data['hospitalizations'] ?? '',
-      familyConditions: data['family_conditions'] ?? '',
-      surgicalHistory: data['surgical_history'] ?? '',
-      allergies: data['allergies'] ?? '',
-      immunizations: data['immunizations'] ?? '',
-      socialHistory: data['social_history'] ?? '',
-      reviewOfSystems: data['review_of_systems'] ?? '',
+      id: data['id'] as String? ?? '',
+      studentId: data['student_id'] as String? ?? userId,
+      chronicConditions: data['chronic_conditions'] as String? ?? '',
+      pastIllnesses: data['past_illnesses'] as String? ?? '',
+      hospitalizations: data['hospitalizations'] as String? ?? '',
+      familyConditions: data['family_conditions'] as String? ?? '',
+      surgicalHistory: data['surgical_history'] as String? ?? '',
+      allergies: data['allergies'] as String? ?? '',
+      immunizations: data['immunizations'] as String? ?? '',
+      socialHistory: data['social_history'] as String? ?? '',
+      reviewOfSystems: data['review_of_systems'] as String? ?? '',
+      currentMedications: data['current_medications'] as String? ?? '',
+      isApproved: data['is_approved'] as bool? ?? false,
+      approvedBy: data['approved_by'] as String?,
+      approvedAt: data['approved_at'] != null
+          ? DateTime.tryParse(data['approved_at'].toString())
+          : null,
+      denialReason: data['denial_reason'] as String?,
+      deniedBy: data['denied_by'] as String?,
+      deniedAt: data['denied_at'] != null
+          ? DateTime.tryParse(data['denied_at'].toString())
+          : null,
       createdAt: data['created_at'] != null
           ? DateTime.tryParse(data['created_at'].toString())
           : null,
@@ -76,6 +101,13 @@ class MedicalHistory {
       'immunizations': immunizations,
       'social_history': socialHistory,
       'review_of_systems': reviewOfSystems,
+      'current_medications': currentMedications,
+      'is_approved': isApproved,
+      'approved_by': approvedBy,
+      'approved_at': approvedAt?.toIso8601String(),
+      'denial_reason': denialReason,
+      'denied_by': deniedBy,
+      'denied_at': deniedAt?.toIso8601String(),
     };
   }
 
@@ -92,6 +124,13 @@ class MedicalHistory {
     String? immunizations,
     String? socialHistory,
     String? reviewOfSystems,
+    String? currentMedications,
+    bool? isApproved,
+    String? approvedBy,
+    DateTime? approvedAt,
+    String? denialReason,
+    String? deniedBy,
+    DateTime? deniedAt,
   }) {
     return MedicalHistory(
       id: id ?? this.id,
@@ -105,6 +144,13 @@ class MedicalHistory {
       immunizations: immunizations ?? this.immunizations,
       socialHistory: socialHistory ?? this.socialHistory,
       reviewOfSystems: reviewOfSystems ?? this.reviewOfSystems,
+      currentMedications: currentMedications ?? this.currentMedications,
+      isApproved: isApproved ?? this.isApproved,
+      approvedBy: approvedBy ?? this.approvedBy,
+      approvedAt: approvedAt ?? this.approvedAt,
+      denialReason: denialReason ?? this.denialReason,
+      deniedBy: deniedBy ?? this.deniedBy,
+      deniedAt: deniedAt ?? this.deniedAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

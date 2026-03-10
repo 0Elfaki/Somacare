@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../doctor/data/notification_service.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
   const BookAppointmentScreen({super.key});
@@ -17,6 +18,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   Map<String, dynamic>? _selectedDoctor;
   DateTime _selectedDate = DateTime.now();
   String? _selectedTime;
+  bool _isEmergency = false; // Emergency/immediate appointment flag
 
   final List<String> _times = const [
     '09:00 AM',
@@ -43,10 +45,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
   Future<void> _loadDoctors() async {
     try {
+      // Fetch doctors from profiles table with role='doctor' to get the correct profile IDs
       final response = await Supabase.instance.client
-          .from('doctors')
+          .from('profiles')
           .select()
-          .eq('available', true);
+          .eq('role', 'doctor');
 
       if (mounted) {
         setState(() {
@@ -79,7 +82,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
   bool get _canConfirm =>
       _selectedDoctor != null &&
-      _selectedTime != null &&
+      (_isEmergency || _selectedTime != null) &&
       _reasonCtrl.text.trim().isNotEmpty &&
       !_isLoading;
 
@@ -90,27 +93,75 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id;
 
+      // For emergency appointments, set to immediate start
+      final appointmentDate = _isEmergency
+          ? DateTime.now().toIso8601String().split('T').first
+          : _selectedDate.toIso8601String().split('T').first;
+      final appointmentTime = _isEmergency ? 'Immediate' : _selectedTime;
+
       await Supabase.instance.client.from('appointments').insert({
         'student_id': userId,
-        'doctor_id': _selectedDoctor!['id'],
+        'doctor_id': _selectedDoctor!['id'], // This is now the profile ID
         'doctor_name': _selectedDoctor!['full_name'],
-        'doctor_specialty': _selectedDoctor!['specialty'],
-        'date': _selectedDate.toIso8601String().split('T').first,
-        'time': _selectedTime,
+        'doctor_specialty':
+            _selectedDoctor!['specialization'] ??
+            _selectedDoctor!['specialty'] ??
+            'General Practice',
+        'date': appointmentDate,
+        'time': appointmentTime,
         'reason': _reasonCtrl.text.trim(),
-        'status': 'pending',
+        'status': 'pending', // Emergency appointments need doctor approval
+        'is_emergency': _isEmergency,
         'created_at': DateTime.now().toIso8601String(),
       });
+
+      // Send notification to doctor
+      final studentName =
+          Supabase.instance.client.auth.currentUser?.email ?? 'Student';
+      final doctorId = _selectedDoctor!['id'] as String;
+      if (_isEmergency) {
+        await NotificationService.notifyEmergency(
+          doctorId: doctorId,
+          studentName: studentName,
+          reason: _reasonCtrl.text.trim(),
+        );
+      } else {
+        await NotificationService.notifyNewBooking(
+          doctorId: doctorId,
+          studentName: studentName,
+          date: appointmentDate,
+          time: appointmentTime ?? '',
+        );
+      }
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✅ Appointment booked successfully!'),
-          backgroundColor: Color(0xFF22C55E),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(
+            _isEmergency
+                ? '🚨 Emergency appointment started! Doctor has been notified.'
+                : '✅ Appointment booked successfully!',
+          ),
+          backgroundColor: const Color(0xFF22C55E),
+          duration: Duration(seconds: _isEmergency ? 4 : 2),
         ),
       );
+
+      // For emergency, show waiting message and go to dashboard
+      if (_isEmergency && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              '⏳ Emergency request sent! Waiting for doctor to accept.',
+            ),
+            backgroundColor: Color(0xFFF59E0B),
+            duration: Duration(seconds: 4),
+          ),
+        );
+        context.go('/student-dashboard');
+        return;
+      }
 
       context.pop();
     } catch (e) {
@@ -128,17 +179,22 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        title: const Text('Book Appointment'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop()
-              ? context.pop()
-              : context.go('/student-dashboard'),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          context.go('/student-dashboard');
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
+        appBar: AppBar(
+          title: const Text('Book Appointment'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.go('/student-dashboard'),
+          ),
         ),
-      ),
       body: _loadingDoctors
           ? const Center(child: CircularProgressIndicator())
           : _doctors.isEmpty
@@ -177,13 +233,13 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         ),
                         const SizedBox(height: 10),
                         DropdownButtonFormField<Map<String, dynamic>>(
-                          value: _selectedDoctor,
+                          initialValue: _selectedDoctor,
                           items: _doctors
                               .map(
                                 (d) => DropdownMenuItem(
                                   value: d,
                                   child: Text(
-                                    '${d['full_name']} · ${d['specialty']}',
+                                    '${d['full_name']} · ${d['specialization'] ?? 'General Practice'}',
                                   ),
                                 ),
                               )
@@ -201,128 +257,153 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _Card(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Select date',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w900,
+                  if (!_isEmergency) ...[
+                    _Card(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Select date',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF8FAFC),
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(
-                                    color: const Color(0xFFE2E8F0),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
                                   ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.calendar_today_outlined,
-                                      size: 18,
-                                      color: Color(0xFF475569),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF8FAFC),
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                      color: const Color(0xFFE2E8F0),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      _fmtDate(_selectedDate),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        color: Color(0xFF0F172A),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.calendar_today_outlined,
+                                        size: 18,
+                                        color: Color(0xFF475569),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            ElevatedButton(
-                              onPressed: () async {
-                                final now = DateTime.now();
-                                final picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: _selectedDate,
-                                  firstDate: DateTime(
-                                    now.year,
-                                    now.month,
-                                    now.day,
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        _fmtDate(_selectedDate),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xFF0F172A),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  lastDate: DateTime(now.year + 1, 12, 31),
-                                );
-                                if (picked != null) {
-                                  setState(() => _selectedDate = picked);
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF3B82F6),
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: const Text('Pick'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _Card(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Select time',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w900,
+                              const SizedBox(width: 10),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final now = DateTime.now();
+                                  final picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: _selectedDate,
+                                    firstDate: DateTime(
+                                      now.year,
+                                      now.month,
+                                      now.day,
+                                    ),
+                                    lastDate: DateTime(now.year + 1, 12, 31),
+                                  );
+                                  if (picked != null) {
+                                    setState(() => _selectedDate = picked);
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF3B82F6),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text('Pick'),
+                              ),
+                            ],
                           ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  if (!_isEmergency) ...[
+                    _Card(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Select time',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _times.map((t) {
+                              final selected = t == _selectedTime;
+                              return ChoiceChip(
+                                label: Text(t),
+                                selected: selected,
+                                onSelected: (_) =>
+                                    setState(() => _selectedTime = t),
+                                selectedColor: const Color(0xFFEFF6FF),
+                                labelStyle: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  color: selected
+                                      ? const Color(0xFF2563EB)
+                                      : const Color(0xFF0F172A),
+                                ),
+                                side: BorderSide(
+                                  color: selected
+                                      ? const Color(0xFFBFDBFE)
+                                      : const Color(0xFFE2E8F0),
+                                ),
+                                backgroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  _Card(
+                    child: SwitchListTile(
+                      title: const Text(
+                        'Emergency Appointment',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
                         ),
-                        const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _times.map((t) {
-                            final selected = t == _selectedTime;
-                            return ChoiceChip(
-                              label: Text(t),
-                              selected: selected,
-                              onSelected: (_) =>
-                                  setState(() => _selectedTime = t),
-                              selectedColor: const Color(0xFFEFF6FF),
-                              labelStyle: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                color: selected
-                                    ? const Color(0xFF2563EB)
-                                    : const Color(0xFF0F172A),
-                              ),
-                              side: BorderSide(
-                                color: selected
-                                    ? const Color(0xFFBFDBFE)
-                                    : const Color(0xFFE2E8F0),
-                              ),
-                              backgroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
+                      ),
+                      subtitle: const Text(
+                        'Get immediate consultation',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      value: _isEmergency,
+                      onChanged: (value) =>
+                          setState(() => _isEmergency = value),
+                      activeThumbColor: const Color(0xFFDC2626),
+                      contentPadding: EdgeInsets.zero,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -386,6 +467,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                 ],
               ),
             ),
+      ),
     );
   }
 }

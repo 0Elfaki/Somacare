@@ -63,15 +63,15 @@ class StudentProfile {
     final parts = bp.split('/');
     return StudentProfile(
       id: userId,
-      fullName: data['full_name'] ?? '',
+      fullName: data['full_name'] as String? ?? '',
       email: userEmail ?? '',
-      school: data['school'] ?? '',
+      school: data['school'] as String? ?? '',
       height: int.tryParse(data['height']?.toString() ?? '') ?? 170,
       weight: int.tryParse(data['weight']?.toString() ?? '') ?? 70,
-      bloodType: data['blood_type'] ?? 'A+',
+      bloodType: data['blood_type'] as String? ?? 'A+',
       systolic: int.tryParse(parts.isNotEmpty ? parts[0] : '120') ?? 120,
       diastolic: int.tryParse(parts.length > 1 ? parts[1] : '80') ?? 80,
-      allergies: data['allergies'] ?? '',
+      allergies: data['allergies'] as String? ?? '',
     );
   }
 

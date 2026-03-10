@@ -35,7 +35,7 @@ class ProfileRepository {
         '[ProfileRepository] No authenticated user, returning default profile',
       );
       // Return a default profile instead of throwing - allows UI to show placeholder
-      final defaultProfile = StudentProfile(
+      const defaultProfile = StudentProfile(
         id: '',
         email: '',
         fullName: 'Student',

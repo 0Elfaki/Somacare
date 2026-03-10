@@ -25,6 +25,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
   bool _micMuted = false;
   bool _camOff = false;
   bool _isLoading = true;
+  bool _isEndingCall = false;
 
   String get _channelId => widget.channelId ?? _defaultChannel;
 
@@ -72,11 +73,22 @@ class _ConsultScreenState extends State<ConsultScreen> {
     );
   }
 
-  Future<void> _endCall() async {
-    await _engine.leaveChannel();
-    await _engine.release();
-    if (mounted) {
-      context.canPop() ? context.pop() : context.go('/student-dashboard');
+  void _endCall() async {
+    if (_isEndingCall) return;
+    setState(() => _isEndingCall = true);
+
+    try {
+      await _engine.leaveChannel().timeout(const Duration(milliseconds: 500), onTimeout: () {});
+    } catch (_) {}
+    try {
+      await _engine.release().timeout(const Duration(milliseconds: 500), onTimeout: () {});
+    } catch (_) {}
+
+    if (!mounted) return;
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/student-dashboard');
     }
   }
 
@@ -92,8 +104,8 @@ class _ConsultScreenState extends State<ConsultScreen> {
 
   @override
   void dispose() {
-    _engine.leaveChannel();
-    _engine.release();
+    _engine.leaveChannel().catchError((_) {});
+    _engine.release().catchError((_) {});
     super.dispose();
   }
 

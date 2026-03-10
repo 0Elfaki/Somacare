@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'doctor_medical_history_management_screen.dart';
 
 class StudentProfileScreen extends StatefulWidget {
   final Map<String, dynamic> extra;
@@ -114,36 +115,50 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
     final allergies = (_profile?['allergies'] as String?) ?? '';
     final bmiVal = _bmi(height, weight);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          fullName,
-          style: const TextStyle(
-            color: Color(0xFF0F172A),
-            fontWeight: FontWeight.w800,
-            fontSize: 18,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
+            onPressed: () => context.pop(),
+          ),
+          title: Text(
+            fullName,
+            style: const TextStyle(
+              color: Color(0xFF0F172A),
+              fontWeight: FontWeight.w800,
+              fontSize: 18,
+            ),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh, color: Color(0xFF059669)),
+              onPressed: _loadData,
+            ),
+          ],
+          bottom: const TabBar(
+            labelColor: Color(0xFF059669),
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: Color(0xFF059669),
+            tabs: [
+              Tab(text: 'Overview'),
+              Tab(text: 'Medical History'),
+            ],
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Color(0xFF059669)),
-            onPressed: _loadData,
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF059669)),
-            )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+        body: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFF059669)),
+              )
+            : TabBarView(
+                children: [
+                  // Tab 1: Overview
+                  SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -329,10 +344,21 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                     ..._pastAppointments.map(
                       (appt) => _PastAppointmentRow(appointment: appt),
                     ),
+                  const SizedBox(height: 20),
+
+                  // ── Medical History Button ─────────────────
                   const SizedBox(height: 24),
                 ],
               ),
             ),
+            // Tab 2: Medical History
+            DoctorMedicalHistoryManagementScreen(
+              studentId: _studentId,
+              isEmbedded: true,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

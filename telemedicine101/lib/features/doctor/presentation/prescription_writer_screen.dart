@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class PrescriptionWriterScreen extends StatefulWidget {
   final Map<String, dynamic> extra;
 
-  const PrescriptionWriterScreen({super.key, required this.extra});
+  const PrescriptionWriterScreen({super.key, this.extra = const {}});
 
   @override
   State<PrescriptionWriterScreen> createState() =>
@@ -23,6 +23,7 @@ class _PrescriptionWriterScreenState extends State<PrescriptionWriterScreen> {
   int _durationDays = 7;
   int _refills = 0;
   bool _isLoading = false;
+  String? _errorMessage;
   String _doctorName = '';
 
   static const _frequencies = [
@@ -37,9 +38,25 @@ class _PrescriptionWriterScreenState extends State<PrescriptionWriterScreen> {
   ];
 
   static const _durations = [3, 5, 7, 10, 14, 21, 30, 60, 90];
-  String get _studentId => (widget.extra['studentId'] as String?) ?? '';
-  String get _studentName =>
-      (widget.extra['studentName'] as String?) ?? 'Patient';
+
+  String get _studentId {
+    try {
+      final value = widget.extra['studentId'];
+      return value?.toString() ?? '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  String get _studentName {
+    try {
+      final value = widget.extra['studentName'];
+      return value?.toString() ?? 'Patient';
+    } catch (e) {
+      return 'Patient';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -69,7 +86,9 @@ class _PrescriptionWriterScreenState extends State<PrescriptionWriterScreen> {
           _doctorName = (profile?['full_name'] as String?) ?? '';
         });
       }
-    } catch (_) {}
+    } catch (e) {
+      // Silently handle error - doctor name is optional
+    }
   }
 
   Future<void> _submit() async {
@@ -91,6 +110,7 @@ class _PrescriptionWriterScreenState extends State<PrescriptionWriterScreen> {
       final now = DateTime.now();
       final expiryDate = now.add(Duration(days: _durationDays));
 
+      // First, create the prescription
       await Supabase.instance.client.from('prescriptions').insert({
         'student_id': _studentId,
         'doctor_id': userId,
@@ -112,6 +132,43 @@ class _PrescriptionWriterScreenState extends State<PrescriptionWriterScreen> {
         'created_at': now.toIso8601String(),
         'updated_at': now.toIso8601String(),
       });
+
+      // Try to add to medical history (optional — table may not exist yet)
+      try {
+        final medicationEntry =
+            '''
+Prescription: ${_medicationCtrl.text.trim()}
+Dosage: ${_dosageCtrl.text.trim()}
+Frequency: $_frequency
+Duration: $_durationDays days
+Doctor: Dr. $_doctorName
+Prescribed: ${now.toIso8601String().split('T').first}
+''';
+
+        final existingHistory = await Supabase.instance.client
+            .from('medical_histories')
+            .select('current_medications')
+            .eq('student_id', _studentId)
+            .maybeSingle();
+
+        String existingMeds = '';
+        if (existingHistory != null &&
+            existingHistory['current_medications'] != null) {
+          existingMeds = existingHistory['current_medications'] as String;
+        }
+
+        final updatedMeds = existingMeds.isEmpty
+            ? medicationEntry
+            : '$existingMeds\n\n---\n\n$medicationEntry';
+
+        await Supabase.instance.client.from('medical_histories').upsert({
+          'student_id': _studentId,
+          'current_medications': updatedMeds,
+          'updated_at': now.toIso8601String(),
+        }, onConflict: 'student_id');
+      } catch (_) {
+        // medical_histories table may not exist yet — that's OK
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -138,6 +195,62 @@ class _PrescriptionWriterScreenState extends State<PrescriptionWriterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Show error screen if there was an initialization error
+    if (_errorMessage != null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
+            onPressed: () => context.pop(),
+          ),
+          title: const Text(
+            'Error',
+            style: TextStyle(
+              color: Color(0xFF0F172A),
+              fontWeight: FontWeight.w800,
+              fontSize: 18,
+            ),
+          ),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: Color(0xFFDC2626),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _errorMessage!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFF374151),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => context.pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF059669),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Go Back'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -208,7 +321,7 @@ class _PrescriptionWriterScreenState extends State<PrescriptionWriterScreen> {
               const SizedBox(height: 20),
 
               // ── Medication Name ───────────────────────
-              _FieldLabel(label: 'Medication Name *'),
+              const _FieldLabel(label: 'Medication Name *'),
               const SizedBox(height: 6),
               _FormField(
                 controller: _medicationCtrl,
@@ -219,7 +332,7 @@ class _PrescriptionWriterScreenState extends State<PrescriptionWriterScreen> {
               const SizedBox(height: 16),
 
               // ── Dosage ────────────────────────────────
-              _FieldLabel(label: 'Dosage *'),
+              const _FieldLabel(label: 'Dosage *'),
               const SizedBox(height: 6),
               _FormField(
                 controller: _dosageCtrl,
@@ -230,7 +343,7 @@ class _PrescriptionWriterScreenState extends State<PrescriptionWriterScreen> {
               const SizedBox(height: 16),
 
               // ── Frequency ─────────────────────────────
-              _FieldLabel(label: 'Frequency *'),
+              const _FieldLabel(label: 'Frequency *'),
               const SizedBox(height: 6),
               Container(
                 width: double.infinity,
@@ -264,7 +377,7 @@ class _PrescriptionWriterScreenState extends State<PrescriptionWriterScreen> {
               const SizedBox(height: 16),
 
               // ── Duration ──────────────────────────────
-              _FieldLabel(label: 'Duration (days) *'),
+              const _FieldLabel(label: 'Duration (days) *'),
               const SizedBox(height: 6),
               Container(
                 width: double.infinity,
@@ -303,7 +416,7 @@ class _PrescriptionWriterScreenState extends State<PrescriptionWriterScreen> {
               const SizedBox(height: 16),
 
               // ── Refills ───────────────────────────────
-              _FieldLabel(label: 'Refills Allowed'),
+              const _FieldLabel(label: 'Refills Allowed'),
               const SizedBox(height: 6),
               Row(
                 children: [
@@ -344,7 +457,7 @@ class _PrescriptionWriterScreenState extends State<PrescriptionWriterScreen> {
               const SizedBox(height: 16),
 
               // ── Pharmacy ──────────────────────────────
-              _FieldLabel(label: 'Pharmacy (optional)'),
+              const _FieldLabel(label: 'Pharmacy (optional)'),
               const SizedBox(height: 6),
               _FormField(
                 controller: _pharmacyCtrl,
@@ -353,7 +466,7 @@ class _PrescriptionWriterScreenState extends State<PrescriptionWriterScreen> {
               const SizedBox(height: 16),
 
               // ── Instructions ──────────────────────────
-              _FieldLabel(label: 'Special Instructions (optional)'),
+              const _FieldLabel(label: 'Special Instructions (optional)'),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _instructionsCtrl,

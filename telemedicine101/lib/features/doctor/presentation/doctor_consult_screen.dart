@@ -22,6 +22,7 @@ class _DoctorConsultScreenState extends State<DoctorConsultScreen> {
   bool _micMuted = false;
   bool _camOff = false;
   bool _isLoading = true;
+  bool _isEndingCall = false;
 
   String get _channelId {
     final appointmentId = widget.extra['appointmentId'] as String?;
@@ -78,11 +79,23 @@ class _DoctorConsultScreenState extends State<DoctorConsultScreen> {
     );
   }
 
-  Future<void> _endCall() async {
-    await _engine.leaveChannel();
-    await _engine.release();
-    if (mounted) {
-      context.canPop() ? context.pop() : context.go('/doctor-dashboard');
+  void _endCall() async {
+    if (_isEndingCall) return;
+    setState(() => _isEndingCall = true);
+
+    // Quick cleanup — don't block navigation
+    try {
+      await _engine.leaveChannel().timeout(const Duration(milliseconds: 500), onTimeout: () {});
+    } catch (_) {}
+    try {
+      await _engine.release().timeout(const Duration(milliseconds: 500), onTimeout: () {});
+    } catch (_) {}
+
+    if (!mounted) return;
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/doctor-dashboard');
     }
   }
 
@@ -98,195 +111,200 @@ class _DoctorConsultScreenState extends State<DoctorConsultScreen> {
 
   @override
   void dispose() {
-    // Fire-and-forget: dispose() cannot be async.
-    // _endCall() is the primary cleanup path when the user taps End Call.
-    _engine.leaveChannel();
-    _engine.release();
+    _engine.leaveChannel().catchError((_) {});
+    _engine.release().catchError((_) {});
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          // ── Remote video (full screen) ────────────────
-          if (_remoteUid != null)
-            AgoraVideoView(
-              controller: VideoViewController.remote(
-                rtcEngine: _engine,
-                canvas: VideoCanvas(uid: _remoteUid),
-                connection: RtcConnection(channelId: _channelId),
-              ),
-            )
-          else
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.person_outline,
-                      color: Colors.white54,
-                      size: 40,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    _isLoading
-                        ? 'Connecting...'
-                        : 'Waiting for $_studentName...',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (_isLoading) ...[
-                    const SizedBox(height: 16),
-                    const CircularProgressIndicator(color: Colors.white54),
-                  ],
-                ],
-              ),
-            ),
-
-          // ── Local video (picture-in-picture) ──────────
-          if (_localJoined && !_camOff)
-            Positioned(
-              top: 60,
-              right: 16,
-              width: 100,
-              height: 140,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: AgoraVideoView(
-                  controller: VideoViewController(
-                    rtcEngine: _engine,
-                    canvas: const VideoCanvas(uid: 0),
-                  ),
+    // PopScope intercepts Android hardware back button
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _endCall();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            // ── Remote video (full screen) ────────────────
+            if (_remoteUid != null)
+              AgoraVideoView(
+                controller: VideoViewController.remote(
+                  rtcEngine: _engine,
+                  canvas: VideoCanvas(uid: _remoteUid),
+                  connection: RtcConnection(channelId: _channelId),
                 ),
-              ),
-            ),
-
-          // ── Top bar ───────────────────────────────────
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: Row(
+              )
+            else
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
+                      width: 80,
+                      height: 80,
                       decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
                       ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.medical_services_outlined,
-                            color: Color(0xFF059669),
-                            size: 16,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Consulting: $_studentName',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                      child: const Icon(
+                        Icons.person_outline,
+                        color: Colors.white54,
+                        size: 40,
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _isLoading
+                          ? 'Connecting...'
+                          : 'Waiting for $_studentName...',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (_isLoading) ...[
+                      const SizedBox(height: 16),
+                      const CircularProgressIndicator(color: Colors.white54),
+                    ],
                   ],
                 ),
               ),
-            ),
-          ),
 
-          // ── Controls ──────────────────────────────────
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 20,
-                  horizontal: 32,
+            // ── Local video (picture-in-picture) ──────────
+            if (_localJoined && !_camOff)
+              Positioned(
+                top: 60,
+                right: 16,
+                width: 100,
+                height: 140,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AgoraVideoView(
+                    controller: VideoViewController(
+                      rtcEngine: _engine,
+                      canvas: const VideoCanvas(uid: 0),
+                    ),
+                  ),
                 ),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      Colors.black.withValues(alpha: 0.8),
-                      Colors.transparent,
+              ),
+
+            // ── Top bar ───────────────────────────────────
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.medical_services_outlined,
+                              color: Color(0xFF059669),
+                              size: 16,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Consulting: $_studentName',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Mute mic
-                    _ControlButton(
-                      icon: _micMuted ? Icons.mic_off : Icons.mic,
-                      label: _micMuted ? 'Unmute' : 'Mute',
-                      onTap: _toggleMic,
-                      isActive: !_micMuted,
-                    ),
+              ),
+            ),
 
-                    // End call
-                    GestureDetector(
-                      onTap: _endCall,
-                      child: Container(
-                        width: 64,
-                        height: 64,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFDC2626),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.call_end,
-                          color: Colors.white,
-                          size: 28,
+            // ── Controls ──────────────────────────────────
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 20,
+                    horizontal: 32,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.black.withValues(alpha: 0.8),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Mute mic
+                      _ControlButton(
+                        icon: _micMuted ? Icons.mic_off : Icons.mic,
+                        label: _micMuted ? 'Unmute' : 'Mute',
+                        onTap: _toggleMic,
+                        isActive: !_micMuted,
+                      ),
+
+                      // End call
+                      GestureDetector(
+                        onTap: _endCall,
+                        child: Container(
+                          width: 64,
+                          height: 64,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFDC2626),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.call_end,
+                            color: Colors.white,
+                            size: 28,
+                          ),
                         ),
                       ),
-                    ),
 
-                    // Toggle camera
-                    _ControlButton(
-                      icon: _camOff ? Icons.videocam_off : Icons.videocam,
-                      label: _camOff ? 'Cam On' : 'Cam Off',
-                      onTap: _toggleCam,
-                      isActive: !_camOff,
-                    ),
-                  ],
+                      // Toggle camera
+                      _ControlButton(
+                        icon: _camOff ? Icons.videocam_off : Icons.videocam,
+                        label: _camOff ? 'Cam On' : 'Cam Off',
+                        onTap: _toggleCam,
+                        isActive: !_camOff,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      ), // closes Scaffold
+    ); // closes PopScope
   }
 }
 

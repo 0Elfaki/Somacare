@@ -7,7 +7,21 @@ class StudentShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: child, bottomNavigationBar: const _SomaBottomNav());
+    final loc = GoRouterState.of(context).matchedLocation;
+    final isHome = loc.startsWith('/student-dashboard');
+
+    return PopScope(
+      canPop: isHome,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && !isHome) {
+          context.go('/student-dashboard');
+        }
+      },
+      child: Scaffold(
+        body: child,
+        bottomNavigationBar: const _SomaBottomNav(),
+      ),
+    );
   }
 }
 
