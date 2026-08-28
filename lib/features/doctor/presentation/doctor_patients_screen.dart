@@ -118,8 +118,8 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen> {
           ? ListView.separated(
               padding: const EdgeInsets.all(AppSpacing.gutter),
               itemCount: 5,
-              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
-              itemBuilder: (_, __) => const AppSkeletonRow(),
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+              itemBuilder: (_, _) => const AppSkeletonRow(),
             )
           : _error != null
               ? Padding(
@@ -158,7 +158,7 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen> {
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(color: AppColors.border),
+                            side: const BorderSide(color: AppColors.border),
                           ),
                           child: ListTile(
                             contentPadding: const EdgeInsets.symmetric(

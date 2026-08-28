@@ -54,7 +54,7 @@ void main() {
       };
       sizes.forEach((name, size) {
         expect(size, isNotNull, reason: '$name has no size');
-        expect(size!, greaterThanOrEqualTo(11.0), reason: '$name is $size px');
+        expect(size, greaterThanOrEqualTo(11.0), reason: '$name is $size px');
       });
     });
 

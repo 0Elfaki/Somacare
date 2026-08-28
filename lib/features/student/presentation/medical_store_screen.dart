@@ -267,7 +267,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
         },
         decoration: InputDecoration(
           hintText: 'Search medicines, supplements...',
-          hintStyle: TextStyle(color: AppColors.textMuted),
+          hintStyle: const TextStyle(color: AppColors.textMuted),
           prefixIcon: const Icon(Icons.search, color: AppColors.primary),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
@@ -568,7 +568,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                       ),
                       Text(
                         ' (${product.reviewCount})',
-                        style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                        style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
                       ),
                     ],
                   ),
@@ -585,7 +585,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                           if (product.originalPrice != null)
                             Text(
                               '\$${product.originalPrice!.toStringAsFixed(2)}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 11,
                                 color: AppColors.textMuted,
                                 decoration: TextDecoration.lineThrough,
@@ -697,7 +697,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
         ),
         subtitle: Text(
           '$categoryTotal products${categoryProducts.isNotEmpty ? ' from \$${categoryProducts.reduce((a, b) => a.price < b.price ? a : b).price.toStringAsFixed(2)}' : ''}',
-          style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+          style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
         ),
         trailing: const Icon(
           Icons.arrow_forward_ios,
@@ -732,7 +732,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
           ),
         ),
         const SizedBox(height: 8),
-        Text(
+        const Text(
           'Track and manage your orders',
           style: TextStyle(color: AppColors.textMuted, fontSize: 14),
         ),
@@ -815,7 +815,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                 const SizedBox(height: 8),
                 Text(
                   'Ordered on ${_formatDate(order.createdAt)}',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
                 ),
                 const Divider(height: 24),
                 ...order.items.map(
@@ -838,7 +838,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                               ),
                               Text(
                                 'Qty: ${item.quantity}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: AppColors.textMuted,
                                   fontSize: 12,
                                 ),
@@ -944,7 +944,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             const SizedBox(height: 4),
             Text(
               'Placed on ${_formatDate(order.createdAt)}',
-              style: TextStyle(color: AppColors.textMuted),
+              style: const TextStyle(color: AppColors.textMuted),
             ),
             const SizedBox(height: 4),
             Text(
@@ -1077,7 +1077,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             ),
           ),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             'Start shopping to see your orders here',
             style: TextStyle(fontSize: 14, color: AppColors.textMuted),
           ),
@@ -1115,7 +1115,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             ),
           ),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             'Try adjusting your search or filters',
             style: TextStyle(fontSize: 14, color: AppColors.textMuted),
           ),
@@ -1204,7 +1204,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             ),
           ),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             'Add items to get started',
             style: TextStyle(fontSize: 14, color: AppColors.textMuted),
           ),
@@ -1519,7 +1519,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             const SizedBox(height: 8),
             Text(
               'Your order ID: ${orderId.substring(0, 8)}',
-              style: TextStyle(color: AppColors.textSecondary),
+              style: const TextStyle(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 8),
             const Text(

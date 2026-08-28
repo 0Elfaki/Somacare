@@ -178,7 +178,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       // Title
                       Text(
                         _slides[_index].title,
-                        style: TextStyle(fontFamily: 'Fraunces', 
+                        style: const TextStyle(fontFamily: 'Fraunces', 
                           fontSize: 19,
                           fontWeight: FontWeight.w500,
                           color: Colors.white,

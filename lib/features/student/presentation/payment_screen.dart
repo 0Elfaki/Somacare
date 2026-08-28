@@ -12,7 +12,7 @@ enum _PayMethod { mtn, airtel, card }
 /// - `doctorName` (String)
 /// - `consultFee` (int, UGX)
 /// - `platformFee` (int, UGX)
-/// - `onConfirm` (Future<void> Function()) — performs the actual booking
+/// - `onConfirm` (`Future<void> Function()`) — performs the actual booking
 ///   write (Supabase insert + notification). Called when the student taps Pay.
 class PaymentScreen extends StatefulWidget {
   final String doctorName;

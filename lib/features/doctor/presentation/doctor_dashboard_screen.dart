@@ -580,7 +580,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
               ),
               sliver: SliverList.separated(
                 itemCount: _emergencyAppointments.length,
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (_, _) =>
                     const SizedBox(height: AppSpacing.md),
                 itemBuilder: (context, i) {
                   final a = _emergencyAppointments[i];
@@ -611,7 +611,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
               ),
               sliver: SliverList.separated(
                 itemCount: _pendingApprovals.length,
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (_, _) =>
                     const SizedBox(height: AppSpacing.md),
                 itemBuilder: (context, i) {
                   final approval = _pendingApprovals[i];
@@ -660,9 +660,9 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
               ),
               sliver: SliverList.separated(
                 itemCount: 3,
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (_, _) =>
                     const SizedBox(height: AppSpacing.md),
-                itemBuilder: (_, __) => const AppSkeletonRow(),
+                itemBuilder: (_, _) => const AppSkeletonRow(),
               ),
             )
           else if (_todayAppointments.isEmpty)
@@ -684,7 +684,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
               ),
               sliver: SliverList.separated(
                 itemCount: _todayAppointments.length,
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (_, _) =>
                     const SizedBox(height: AppSpacing.md),
                 itemBuilder: (context, i) {
                   final a = _todayAppointments[i];

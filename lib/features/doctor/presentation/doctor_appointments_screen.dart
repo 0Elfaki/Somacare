@@ -202,11 +202,11 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.event_busy, size: 64, color: AppColors.textMuted),
+            const Icon(Icons.event_busy, size: 64, color: AppColors.textMuted),
             const SizedBox(height: 16),
             Text(
               'No appointments in $label',
-              style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
+              style: const TextStyle(fontSize: 16, color: AppColors.textSecondary),
             ),
           ],
         ),

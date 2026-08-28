@@ -87,9 +87,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ? ListView.separated(
                 padding: const EdgeInsets.all(AppSpacing.gutter),
                 itemCount: 4,
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (_, _) =>
                     const SizedBox(height: AppSpacing.md),
-                itemBuilder: (_, __) => const AppSkeletonRow(),
+                itemBuilder: (_, _) => const AppSkeletonRow(),
               )
             : _notifications.isEmpty
             ? _buildEmptyState()
@@ -99,8 +99,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.gutter),
+    return const Padding(
+      padding: EdgeInsets.all(AppSpacing.gutter),
       child: AppEmptyState(
         icon: Icons.notifications_none_rounded,
         title: 'No notifications yet',

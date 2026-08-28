@@ -449,7 +449,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
         },
         decoration: InputDecoration(
           hintText: 'Search medications...',
-          hintStyle: TextStyle(color: AppColors.textMuted),
+          hintStyle: const TextStyle(color: AppColors.textMuted),
           prefixIcon: const Icon(Icons.search, color: AppColors.primary),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
@@ -944,7 +944,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: TextStyle(fontSize: 14, color: AppColors.textMuted),
+            style: const TextStyle(fontSize: 14, color: AppColors.textMuted),
           ),
         ],
       ),

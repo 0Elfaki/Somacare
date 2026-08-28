@@ -121,7 +121,7 @@ class _StudentMedicalHistoryViewState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: AppColors.error),
+              const Icon(Icons.error_outline, size: 64, color: AppColors.error),
               const SizedBox(height: 16),
               Text(
                 _error!,
@@ -148,13 +148,13 @@ class _StudentMedicalHistoryViewState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.medical_information_outlined,
               size: 80,
               color: AppColors.textMuted,
             ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               'No Medical History Available',
               style: TextStyle(
                 fontSize: 20,
@@ -163,7 +163,7 @@ class _StudentMedicalHistoryViewState
               ),
             ),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'A doctor or school staff member will add your medical history.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: AppColors.textMuted),
@@ -204,11 +204,11 @@ class _StudentMedicalHistoryViewState
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.border),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Icon(Icons.science_outlined, color: AppColors.primary),
-                    const SizedBox(width: 12),
-                    const Expanded(
+                    Icon(Icons.science_outlined, color: AppColors.primary),
+                    SizedBox(width: 12),
+                    Expanded(
                       child: Text(
                         'View Lab Results',
                         style: TextStyle(fontWeight: FontWeight.w600),
@@ -464,7 +464,7 @@ class _StudentMedicalHistoryViewState
               ),
             ),
             const SizedBox(height: 4),
-            Text(
+            const Text(
               'Not recorded',
               style: TextStyle(
                 fontSize: 14,
@@ -517,10 +517,10 @@ class _StudentMedicalHistoryViewState
           color: AppColors.surfaceMuted,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Row(
+        child: const Row(
           children: [
             Icon(Icons.lock_outline, color: AppColors.textMuted),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Text(
                 'PDF available after doctor approval',

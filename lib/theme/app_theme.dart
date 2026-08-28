@@ -390,7 +390,7 @@ ThemeData buildAppTheme() {
         size: 22,
       ),
       // Dark status-bar glyphs, because the app bar is light.
-      systemOverlayStyle: SystemUiOverlayStyle(
+      systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,

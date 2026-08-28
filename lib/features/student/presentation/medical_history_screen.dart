@@ -846,7 +846,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.border),
+                borderSide: const BorderSide(color: AppColors.border),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -950,7 +950,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
               padding: const EdgeInsets.only(left: 26, bottom: 4),
               child: Text(
                 '• $item',
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
             ),
           ),
@@ -1062,7 +1062,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
                 backgroundColor: Colors.white,
                 selectedColor: AppColors.primary.withValues(alpha: 0.2),
                 checkmarkColor: AppColors.primary,
-                side: BorderSide(color: AppColors.border),
+                side: const BorderSide(color: AppColors.border),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -1083,11 +1083,11 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: AppColors.border),
+                borderSide: const BorderSide(color: AppColors.border),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: AppColors.border),
+                borderSide: const BorderSide(color: AppColors.border),
               ),
             ),
           ),

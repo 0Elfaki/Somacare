@@ -489,7 +489,7 @@ class _LoginField extends StatelessWidget {
                   ),
                 ),
               ),
-              if (suffix != null) suffix!,
+              ?suffix,
             ],
           ),
         ),

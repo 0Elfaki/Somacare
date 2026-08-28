@@ -855,9 +855,9 @@ class _SymptomChecklistBubble extends StatelessWidget {
           Flexible(
             child: Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.surfaceMuted,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(18),
                   topRight: Radius.circular(18),
                   bottomLeft: Radius.circular(4),
@@ -1060,11 +1060,11 @@ class _RiskAssessmentPanel extends StatelessWidget {
                     size: 22,
                   ),
                   const SizedBox(width: 10),
-                  Expanded(
+                  const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Moderate Risk - Consultation Recommended',
                           style: TextStyle(
                             fontSize: 12.5,
@@ -1072,8 +1072,8 @@ class _RiskAssessmentPanel extends StatelessWidget {
                             color: Color(0xFFC2410C),
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        const Text(
+                        SizedBox(height: 2),
+                        Text(
                           'Based on the symptoms provided, we recommend consulting a healthcare professional.',
                           style: TextStyle(
                             fontSize: 11,

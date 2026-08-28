@@ -438,7 +438,7 @@ class AppSectionTitle extends StatelessWidget {
                     horizontal: AppSpacing.sm,
                     vertical: 2,
                   ),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.surfaceMuted,
                     borderRadius: AppRadius.fullAll,
                   ),
@@ -1244,16 +1244,16 @@ class AppSkeletonRow extends StatelessWidget {
   const AppSkeletonRow({super.key});
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    padding: const EdgeInsets.all(AppSpacing.md),
+  Widget build(BuildContext context) => const AppCard(
+    padding: EdgeInsets.all(AppSpacing.md),
     child: Row(
       children: [
-        const AppSkeleton(height: 42, width: 42, radius: AppRadius.md),
-        const SizedBox(width: AppSpacing.md),
+        AppSkeleton(height: 42, width: 42, radius: AppRadius.md),
+        SizedBox(width: AppSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               AppSkeleton(height: 13, width: 140),
               SizedBox(height: AppSpacing.sm),
               AppSkeleton(height: 11, width: 90),

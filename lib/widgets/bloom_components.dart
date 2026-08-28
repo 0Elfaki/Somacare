@@ -279,7 +279,7 @@ class BloomSectionTitle extends StatelessWidget {
       padding: margin ?? const EdgeInsets.only(top: 16, bottom: 9),
       child: Text(
         title,
-        style: TextStyle(fontFamily: 'Fraunces', 
+        style: const TextStyle(fontFamily: 'Fraunces', 
           fontSize: 15,
           fontWeight: FontWeight.w400,
           color: AppColors.textPrimary,
@@ -331,7 +331,7 @@ class BloomScreenHeader extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: TextStyle(fontFamily: 'Inter', 
+              style: const TextStyle(fontFamily: 'Inter', 
                 fontSize: 13.5,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
@@ -418,11 +418,11 @@ class BloomSearchField extends StatelessWidget {
             child: TextField(
               controller: controller,
               onChanged: onChanged,
-              style: TextStyle(fontFamily: 'Inter', 
+              style: const TextStyle(fontFamily: 'Inter', 
                   fontSize: 12, color: AppColors.textPrimary),
               decoration: InputDecoration.collapsed(
                 hintText: hint,
-                hintStyle: TextStyle(fontFamily: 'Inter', 
+                hintStyle: const TextStyle(fontFamily: 'Inter', 
                     fontSize: 12, color: AppColors.textMuted),
               ),
             ),
@@ -618,14 +618,14 @@ class BloomListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: TextStyle(fontFamily: 'Inter', 
+                      style: const TextStyle(fontFamily: 'Inter', 
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary)),
                   if (subtitle != null) ...[
                     const SizedBox(height: 1),
                     Text(subtitle!,
-                        style: TextStyle(fontFamily: 'Inter', 
+                        style: const TextStyle(fontFamily: 'Inter', 
                             fontSize: 10.5,
                             color: AppColors.textMuted)),
                   ],
@@ -777,7 +777,7 @@ class BloomPaymentMethodTile extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(fontFamily: 'Inter', 
+                style: const TextStyle(fontFamily: 'Inter', 
                     fontSize: 12, color: AppColors.textPrimary),
               ),
             ),

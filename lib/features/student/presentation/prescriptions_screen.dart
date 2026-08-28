@@ -313,13 +313,13 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
   Widget _buildRemindersTab() {
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(
+        const SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Upcoming Medication Reminders',
                   style: TextStyle(
                     fontSize: 18,
@@ -327,7 +327,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                     color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   'Your scheduled medication times for today',
                   style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
@@ -513,7 +513,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
         },
         decoration: InputDecoration(
           hintText: 'Search prescriptions...',
-          hintStyle: TextStyle(color: AppColors.textMuted),
+          hintStyle: const TextStyle(color: AppColors.textMuted),
           prefixIcon: const Icon(Icons.search, color: AppColors.primaryLight),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
@@ -1223,7 +1223,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
             ),
           ),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             'Try adjusting your search or filters',
             style: TextStyle(fontSize: 14, color: AppColors.textMuted),
           ),
