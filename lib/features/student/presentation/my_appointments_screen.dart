@@ -489,7 +489,7 @@ class _AppointmentCard extends StatelessWidget {
 
                     const SizedBox(height: AppSpacing.md),
                     // Action buttons
-                    _buildActions(isPending, isConfirmed),
+                    _buildActions(context, isPending, isConfirmed),
                   ],
                 ),
               ),
@@ -500,13 +500,33 @@ class _AppointmentCard extends StatelessWidget {
     );
   }
 
-  Widget _buildActions(bool isPending, bool isConfirmed) {
+  Widget _buildActions(BuildContext context, bool isPending, bool isConfirmed) {
     if (onCancel == null) {
       return const SizedBox.shrink();
     }
 
     return Row(
       children: [
+        if (isConfirmed)
+          Expanded(
+            child: _ActionButton(
+              label: 'Message',
+              icon: Icons.chat_bubble_outline,
+              color: AppColors.primary,
+              onPressed: () => context.push(
+                '/messaging-chat',
+                extra: {
+                  'doctorName':
+                      a['doctor_name'] as String? ?? 'Dr. Sarah Martinez',
+                  'doctorSpecialty': a['doctor_specialty'] as String? ?? '',
+                  'doctorId': a['doctor_id'] as String?,
+                  'appointmentId': a['id']?.toString(),
+                },
+              ),
+              isPrimary: false,
+            ),
+          ),
+        if (isConfirmed) const SizedBox(width: AppSpacing.sm),
         if ((isPending || isConfirmed) && onCancel != null)
           Expanded(
             child: _ActionButton(

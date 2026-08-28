@@ -61,7 +61,7 @@ class _LabResultsScreenState extends State<LabResultsScreen> {
             pw.SizedBox(height: 4),
             pw.Text('Generated ${DateTime.now().toIso8601String().split('T').first}'),
             pw.SizedBox(height: 16),
-            pw.Table.fromTextArray(
+            pw.TableHelper.fromTextArray(
               headers: ['Test', 'Date', 'Value', 'Range', 'Status'],
               data: _results
                   .map((r) => [

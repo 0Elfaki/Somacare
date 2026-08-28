@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../theme/app_theme.dart';
-import '../../../widgets/bloom_components.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -63,7 +62,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: LegacyDarkColors.screenBg,
       body: Column(
         children: [
           // ── Hero area (gradient) ───────────────────────────────────────────
@@ -83,34 +82,56 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       colors: [Color(0xFF7C49E6), Color(0xFF6434C9)],
                     ),
                   ),
-                  child: Stack(
-                    children: [
-                      // Decorative circle
-                      Positioned(
-                        right: -60,
-                        top: -60,
-                        child: Container(
-                          width: 220,
-                          height: 220,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.lime.withValues(alpha: 0.12),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Scale the illustration off the smaller of the two
+                      // hero-area dimensions, clamped to sane bounds, so it
+                      // stays proportional on phones, tablets, and foldables
+                      // instead of looking tiny (stretched screen) or
+                      // clipped (cramped screen) at a fixed pixel size.
+                      final shortSide = constraints.maxWidth < constraints.maxHeight
+                          ? constraints.maxWidth
+                          : constraints.maxHeight;
+                      final circleSize = (shortSide * 0.62).clamp(160.0, 320.0);
+                      final iconBoxSize = (shortSide * 0.30).clamp(88.0, 140.0);
+                      final iconSize = iconBoxSize * 0.42;
+
+                      return Stack(
+                        children: [
+                          // Decorative circle
+                          Positioned(
+                            right: -circleSize * 0.27,
+                            top: -circleSize * 0.27,
+                            child: Container(
+                              width: circleSize,
+                              height: circleSize,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: LegacyDarkColors.lime
+                                    .withValues(alpha: 0.12),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      Center(
-                        child: Container(
-                          width: 104,
-                          height: 104,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.14),
-                            borderRadius: BorderRadius.circular(26),
+                          Center(
+                            child: Container(
+                              width: iconBoxSize,
+                              height: iconBoxSize,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.14),
+                                borderRadius: BorderRadius.circular(
+                                  iconBoxSize * 0.25,
+                                ),
+                              ),
+                              child: Icon(
+                                s.icon,
+                                size: iconSize,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
-                          child: Icon(s.icon,
-                              size: 44, color: Colors.white),
-                        ),
-                      ),
-                    ],
+                        ],
+                      );
+                    },
                   ),
                 );
               },
@@ -119,79 +140,132 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
           // ── Bottom panel ──────────────────────────────────────────────────
           Container(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 26),
-            color: AppColors.darkSurface,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Progress dots
-                Row(
-                  children: List.generate(_slides.length, (i) {
-                    final active = i == _index;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: active ? 20 : 20,
-                      height: 4,
-                      margin: const EdgeInsets.only(right: 5),
-                      decoration: BoxDecoration(
-                        color: active
-                            ? AppColors.lime
-                            : Colors.white.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(2),
+            width: double.infinity,
+            color: LegacyDarkColors.surface,
+            child: Center(
+              child: ConstrainedBox(
+                // Keeps the text/button row from stretching edge-to-edge on
+                // wide screens (tablets), matching the phone-card design
+                // this content was written for, without touching the
+                // gradient hero area above (which stays full width).
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 26),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Progress dots
+                      Row(
+                        children: List.generate(_slides.length, (i) {
+                          final active = i == _index;
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: active ? 20 : 20,
+                            height: 4,
+                            margin: const EdgeInsets.only(right: 5),
+                            decoration: BoxDecoration(
+                              color: active
+                                  ? LegacyDarkColors.lime
+                                  : Colors.white.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          );
+                        }),
                       ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 14),
+                      const SizedBox(height: 14),
 
-                // Title
-                Text(
-                  _slides[_index].title,
-                  style: TextStyle(fontFamily: 'Fraunces', 
-                    fontSize: 19,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                      // Title
+                      Text(
+                        _slides[_index].title,
+                        style: const TextStyle(fontFamily: 'Fraunces', 
+                          fontSize: 19,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 7),
+
+                      // Subtitle
+                      Text(
+                        _slides[_index].subtitle,
+                        style: TextStyle(fontFamily: 'Inter', 
+                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.55),
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+
+                      // Buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _OnboardingButton(
+                              label: 'Skip',
+                              isGhost: true,
+                              onPressed: () => context.go('/role-selection'),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 2,
+                            child: _OnboardingButton(
+                              label: _index == _slides.length - 1
+                                  ? 'Get Started'
+                                  : 'Next',
+                              onPressed: _nextOrFinish,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 7),
-
-                // Subtitle
-                Text(
-                  _slides[_index].subtitle,
-                  style: TextStyle(fontFamily: 'Inter', 
-                    fontSize: 12,
-                    color: Colors.white.withValues(alpha: 0.55),
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 18),
-
-                // Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: BloomButton(
-                        label: 'Skip',
-                        variant: BloomButtonVariant.ghost,
-                        onPressed: () => context.go('/role-selection'),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 2,
-                      child: BloomButton(
-                        label: _index == _slides.length - 1
-                            ? 'Get Started'
-                            : 'Next',
-                        onPressed: _nextOrFinish,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Local button matching the frozen legacy onboarding look — deliberately
+/// independent of the shared BloomButton/AppColors, which follow the
+/// app-wide redesign. Onboarding stays visually untouched regardless of any
+/// future palette changes.
+class _OnboardingButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onPressed;
+  final bool isGhost;
+
+  const _OnboardingButton({
+    required this.label,
+    required this.onPressed,
+    this.isGhost = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        height: 42,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isGhost ? Colors.white.withValues(alpha: 0.1) : LegacyDarkColors.primary,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }

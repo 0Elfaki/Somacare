@@ -83,7 +83,7 @@ class BloomButton extends StatelessWidget {
         fg = Colors.white;
       case BloomButtonVariant.ghost:
         bg = AppColors.darkGhost;
-        fg = Colors.white;
+        fg = AppColors.darkTextPrimary;
       case BloomButtonVariant.emergency:
         bg = AppColors.error;
         fg = Colors.white;
@@ -161,20 +161,20 @@ class BloomStatusBadge extends StatelessWidget {
 
     switch (status) {
       case BloomBadgeStatus.active:
-        bg = const Color(0x28D8FF4A); // 16% lime
+        bg = AppColors.successLight;
         fg = AppColors.lime;
       case BloomBadgeStatus.pending:
-        bg = const Color(0x28FFC15C); // 16% warn
+        bg = AppColors.warningLight;
         fg = AppColors.warning;
       case BloomBadgeStatus.danger:
-        bg = const Color(0x28FF5C72); // 16% red
+        bg = AppColors.errorLight;
         fg = AppColors.error;
       case BloomBadgeStatus.info:
-        bg = const Color(0x287C49E6); // 16% purple
+        bg = AppColors.infoLight;
         fg = AppColors.primaryLight;
       case BloomBadgeStatus.neutral:
-        bg = const Color(0x14FFFFFF);
-        fg = const Color(0x99FFFFFF);
+        bg = AppColors.darkGhost;
+        fg = AppColors.darkTextSecondary;
     }
 
     return Container(
@@ -225,20 +225,20 @@ class BloomTextBadge extends StatelessWidget {
 
     switch (status) {
       case BloomBadgeStatus.active:
-        bg = const Color(0x28D8FF4A);
+        bg = AppColors.successLight;
         fg = AppColors.lime;
       case BloomBadgeStatus.pending:
-        bg = const Color(0x28FFC15C);
+        bg = AppColors.warningLight;
         fg = AppColors.warning;
       case BloomBadgeStatus.danger:
         bg = AppColors.error;
         fg = Colors.white;
       case BloomBadgeStatus.info:
-        bg = const Color(0x287C49E6);
+        bg = AppColors.infoLight;
         fg = AppColors.primaryLight;
       case BloomBadgeStatus.neutral:
-        bg = const Color(0x14FFFFFF);
-        fg = const Color(0x99FFFFFF);
+        bg = AppColors.darkGhost;
+        fg = AppColors.darkTextSecondary;
     }
 
     return Container(
@@ -273,7 +273,7 @@ class BloomSectionTitle extends StatelessWidget {
       padding: margin ?? const EdgeInsets.only(top: 16, bottom: 9),
       child: Text(
         title,
-        style: TextStyle(fontFamily: 'Fraunces', 
+        style: const TextStyle(fontFamily: 'Fraunces', 
           fontSize: 15,
           fontWeight: FontWeight.w400,
           color: AppColors.darkTextPrimary,
@@ -325,14 +325,14 @@ class BloomScreenHeader extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: TextStyle(fontFamily: 'Inter', 
+              style: const TextStyle(fontFamily: 'Inter', 
                 fontSize: 13.5,
                 fontWeight: FontWeight.w600,
                 color: AppColors.darkTextPrimary,
               ),
             ),
           ),
-          if (trailing != null) ...trailing!,
+          ...?trailing,
         ],
       ),
     );
@@ -440,11 +440,11 @@ class BloomSearchField extends StatelessWidget {
             child: TextField(
               controller: controller,
               onChanged: onChanged,
-              style: TextStyle(fontFamily: 'Inter', 
+              style: const TextStyle(fontFamily: 'Inter', 
                   fontSize: 12, color: AppColors.darkTextPrimary),
               decoration: InputDecoration.collapsed(
                 hintText: hint,
-                hintStyle: TextStyle(fontFamily: 'Inter', 
+                hintStyle: const TextStyle(fontFamily: 'Inter', 
                     fontSize: 12, color: AppColors.darkTextMuted),
               ),
             ),
@@ -496,7 +496,7 @@ class BloomFilterChips extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: isSelected
                       ? Colors.white
-                      : const Color(0x99FFFFFF),
+                      : AppColors.darkTextSecondary,
                 ),
               ),
             ),
@@ -833,14 +833,14 @@ class BloomListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: TextStyle(fontFamily: 'Inter', 
+                      style: const TextStyle(fontFamily: 'Inter', 
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
                           color: AppColors.darkTextPrimary)),
                   if (subtitle != null) ...[
                     const SizedBox(height: 1),
                     Text(subtitle!,
-                        style: TextStyle(fontFamily: 'Inter', 
+                        style: const TextStyle(fontFamily: 'Inter', 
                             fontSize: 10.5,
                             color: AppColors.darkTextMuted)),
                   ],
@@ -1002,7 +1002,7 @@ class BloomStudentBottomNav extends StatelessWidget {
                         size: 18,
                         color: active
                             ? AppColors.lime
-                            : const Color(0x66FFFFFF),
+                            : AppColors.darkTextMuted,
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -1013,7 +1013,7 @@ class BloomStudentBottomNav extends StatelessWidget {
                               active ? FontWeight.w700 : FontWeight.w600,
                           color: active
                               ? AppColors.lime
-                              : const Color(0x66FFFFFF),
+                              : AppColors.darkTextMuted,
                         ),
                       ),
                     ],
@@ -1084,7 +1084,7 @@ class BloomDoctorBottomNav extends StatelessWidget {
                         size: 18,
                         color: active
                             ? AppColors.lime
-                            : const Color(0x66FFFFFF),
+                            : AppColors.darkTextMuted,
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -1095,7 +1095,7 @@ class BloomDoctorBottomNav extends StatelessWidget {
                               active ? FontWeight.w700 : FontWeight.w600,
                           color: active
                               ? AppColors.lime
-                              : const Color(0x66FFFFFF),
+                              : AppColors.darkTextMuted,
                         ),
                       ),
                     ],
@@ -1139,7 +1139,7 @@ class BloomInputField extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: TextStyle(fontFamily: 'Inter', 
+          style: const TextStyle(fontFamily: 'Inter', 
             fontSize: 10,
             fontWeight: FontWeight.w600,
             color: AppColors.darkTextMuted,
@@ -1162,13 +1162,13 @@ class BloomInputField extends StatelessWidget {
                   obscureText: obscureText,
                   keyboardType: keyboardType,
                   maxLines: obscureText ? 1 : maxLines,
-                  style: TextStyle(fontFamily: 'Inter', 
+                  style: const TextStyle(fontFamily: 'Inter', 
                     fontSize: 12,
                     color: AppColors.darkTextPrimary,
                   ),
                   decoration: InputDecoration.collapsed(
                     hintText: hint,
-                    hintStyle: TextStyle(fontFamily: 'Inter', 
+                    hintStyle: const TextStyle(fontFamily: 'Inter', 
                       fontSize: 12,
                       color: AppColors.darkTextMuted,
                     ),
@@ -1229,7 +1229,7 @@ class BloomPaymentMethodTile extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(fontFamily: 'Inter', 
+                style: const TextStyle(fontFamily: 'Inter', 
                     fontSize: 12, color: AppColors.darkTextPrimary),
               ),
             ),
@@ -1242,7 +1242,7 @@ class BloomPaymentMethodTile extends StatelessWidget {
                 border: selected
                     ? Border.all(color: AppColors.primary, width: 5)
                     : Border.all(
-                        color: const Color(0x33FFFFFF), width: 1.5),
+                        color: AppColors.darkBorder, width: 1.5),
               ),
             ),
           ],

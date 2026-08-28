@@ -36,6 +36,7 @@ import '../../features/student/presentation/medical_store_screen.dart';
 import '../../features/student/presentation/my_medications_screen.dart';
 import '../../features/student/presentation/emergency_screen.dart';
 import '../../features/student/presentation/consult_screen.dart';
+import '../../features/student/presentation/messaging_chat_screen.dart';
 import '../../features/student/presentation/records_screen.dart';
 import '../../features/student/presentation/profile_screen.dart';
 import '../../features/student/presentation/lab_results_screen.dart';
@@ -504,6 +505,25 @@ final GoRouter appRouter = GoRouter(
           child: ConsultScreen(
             channelId: channelId,
             doctorName: data['doctorName'] as String?,
+          ),
+        );
+      },
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/messaging-chat',
+      pageBuilder: (c, s) {
+        final extra = s.extra;
+        final data = extra is Map<String, dynamic> ? extra : <String, dynamic>{};
+        final doctorName = data['doctorName'] as String? ?? 'Dr. Sarah Martinez';
+        return MaterialPage(
+          key: ValueKey('messaging-chat-$doctorName'),
+          child: MessagingChatScreen(
+            doctorName: doctorName,
+            doctorSpecialty:
+                data['doctorSpecialty'] as String? ?? 'General Physician',
+            doctorId: data['doctorId'] as String?,
+            appointmentId: data['appointmentId'] as String?,
           ),
         );
       },

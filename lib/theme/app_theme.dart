@@ -1,34 +1,66 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 // ─── Bloom Design Tokens ─────────────────────────────────────────────────────
 
-class AppColors {
-  // Brand Purple
-  static const Color primary = Color(0xFF7C49E6);
-  static const Color primaryLight = Color(0xFF9468F2);
-  static const Color primaryDark = Color(0xFF6434C9);
+// ─── Frozen Legacy Dark Palette ─────────────────────────────────────────────
+//
+// The onboarding flow and login screen were explicitly meant to stay
+// untouched by the Damulink-style redesign. They were originally built
+// against the dark theme's exact values, but AppColors.dark*/primary/lime
+// were later retargeted to the light medical palette for the rest of the
+// app — which broke these two screens' contrast (e.g. white text on what
+// became a white background). This class preserves the ORIGINAL values so
+// those two screens can reference `LegacyDarkColors.*` and stay pixel-
+// identical to their pre-redesign appearance, independent of any future
+// AppColors changes.
+class LegacyDarkColors {
+  static const Color pageBg = Color(0xFF0B1518);
+  static const Color screenBg = Color(0xFF12282E);
+  static const Color surface = Color(0xFF1C363D);
+  static const Color border = Color(0x14FFFFFF); // 8% white
 
-  // Brand Lime
-  static const Color lime = Color(0xFFD8FF4A);
-  static const Color limeDark = Color(0xFFB8EE3A);
-  static const Color limeAlt = Color(0xFFCCFF57);
+  static const Color textPrimary = Color(0xFFFFFFFF);
+  static const Color textMuted = Color(0x99FFFFFF); // 60%
+
+  static const Color primary = Color(0xFF7C49E6); // brand purple
+  static const Color lime = Color(0xFFD8FF4A); // brand lime
+  static const Color error = Color(0xFFFF5C72);
+}
+
+class AppColors {
+  // Brand — retargeted from purple to the Damulink medical-blue palette.
+  // Every screen already references AppColors.primary/lime/error/warning and
+  // the dark* surface/text tokens consistently, so changing what these
+  // tokens equal re-skins the whole app (student + doctor) in one place.
+  static const Color primary = Color(0xFF2563EB); // was brand purple
+  static const Color primaryLight = Color(0xFF3B82F6);
+  static const Color primaryDark = Color(0xFF1D4ED8);
+
+  // "Brand Lime" retargeted to the medical teal/green accent.
+  static const Color lime = Color(0xFF0D9488); // was bright lime
+  static const Color limeDark = Color(0xFF0F766E);
+  static const Color limeAlt = Color(0xFF14B8A6);
 
   // Semantic
-  static const Color error = Color(0xFFFF5C72);
-  static const Color warning = Color(0xFFFFC15C);
-  static const Color warningText = Color(0xFFC97B12);
+  static const Color error = Color(0xFFDC2626); // was coral-red
+  static const Color warning = Color(0xFFF59E0B); // was amber-yellow
+  static const Color warningText = Color(0xFFB45309);
 
-  // ─── Dark Theme Surfaces ───────────────────────────────────────────────────
-  static const Color darkPageBg = Color(0xFF0B1518);
-  static const Color darkScreenBg = Color(0xFF12282E);
-  static const Color darkSurface = Color(0xFF1C363D);
-  static const Color darkGhost = Color(0xFF234049);
-  static const Color darkBorder = Color(0x14FFFFFF); // 8% white
-  static const Color darkBorderSubtle = Color(0x0DFFFFFF); // 5% white
+  // ─── Surfaces (formerly "Dark Theme Surfaces") ─────────────────────────────
+  // Names kept as `dark*` so every existing screen (which already reads
+  // these tokens) doesn't need touching — only the values changed, from a
+  // near-black dark theme to the Damulink off-white/card-white theme.
+  static const Color darkPageBg = Color(0xFFF8FAFC);
+  static const Color darkScreenBg = Color(0xFFF8FAFC);
+  static const Color darkSurface = Color(0xFFFFFFFF);
+  static const Color darkGhost = Color(0xFFF1F5F9);
+  static const Color darkBorder = Color(0xFFE2E8F0);
+  static const Color darkBorderSubtle = Color(0xFFEDF1F5);
 
-  static const Color darkTextPrimary = Color(0xFFFFFFFF);
-  static const Color darkTextSecondary = Color(0x99FFFFFF); // 60%
-  static const Color darkTextMuted = Color(0x66FFFFFF); // 40%
+  static const Color darkTextPrimary = Color(0xFF1E293B);
+  static const Color darkTextSecondary = Color(0xFF64748B);
+  static const Color darkTextMuted = Color(0xFF94A3B8);
 
   // ─── Light Theme Surfaces ─────────────────────────────────────────────────
   static const Color lightPageBg = Color(0xFFF6F3FA);
@@ -51,21 +83,37 @@ class AppColors {
   static const Color textTertiary = darkTextMuted;
   static const Color border = darkBorder;
 
-  // Success/lime convenience
+  // Success/teal convenience
   static const Color success = lime;
-  static const Color successLight = Color(0x28D8FF4A); // 16% lime
+  static const Color successLight = Color(0x280D9488); // 16% teal
 
-  // Secondary accent (lime, used alongside success in stat/badge contexts)
+  // Secondary accent (teal, used alongside success in stat/badge contexts)
   static const Color secondary = lime;
-  static const Color secondaryLight = Color(0x28D8FF4A); // 16% lime
+  static const Color secondaryLight = Color(0x280D9488); // 16% teal
 
-  // Informational accent (purple-light, used for neutral/info badges & CTAs)
+  // Informational accent (blue-light, used for neutral/info badges & CTAs)
   static const Color info = primaryLight;
-  static const Color infoLight = Color(0x289468F2); // 16% primaryLight
+  static const Color infoLight = Color(0x283B82F6); // 16% primaryLight
 
   // Warning/error tints
-  static const Color warningLight = Color(0x28FFC15C); // 16% warning
-  static const Color errorLight = Color(0x28FF5C72); // 16% error
+  static const Color warningLight = Color(0x28F59E0B); // 16% warning
+  static const Color errorLight = Color(0x28DC2626); // 16% error
+
+  // ─── Damulink-inspired Medical Palette ─────────────────────────────────────
+  // A distinct, opt-in light/card palette for screens being migrated to the
+  // Damulink-style redesign (hero banners, white cards on off-white bg).
+  // Existing dark-theme screens are untouched; new/updated screens should
+  // use these `med*` tokens instead of the `dark*`/`primary` ones above.
+  static const Color medPrimaryBlue = Color(0xFF2563EB); // headers, primary buttons, active states
+  static const Color medTeal = Color(0xFF0D9488); // success, "active" status, confirmations
+  static const Color medPurple = Color(0xFF7C3AED); // AI features, wellness, chat
+  static const Color medAmber = Color(0xFFF59E0B); // expiring/pending items
+  static const Color medRed = Color(0xFFDC2626); // urgent/emergency, cancellations
+  static const Color medBg = Color(0xFFF8FAFC); // main background
+  static const Color medCard = Color(0xFFFFFFFF); // cards, modals
+  static const Color medTextPrimary = Color(0xFF1E293B); // headings, labels
+  static const Color medTextSecondary = Color(0xFF64748B); // subtitles, metadata
+  static const Color medBorder = Color(0xFFE2E8F0); // dividers, strokes
 }
 
 /// Font-size scale (paired with BloomTextStyles / the shared TextTheme).

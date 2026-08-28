@@ -846,72 +846,67 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: AppRadius.lgAll,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppRadius.lgAll,
+        child: Container(
+          height: isMobile ? 88 : 98,
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 6 : AppSpacing.sm,
+            vertical: 8,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.medCard,
             borderRadius: AppRadius.lgAll,
-            child: Container(
-              height: isMobile ? 85 : 95,
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 6 : AppSpacing.sm,
-                vertical: 6,
+            border: Border.all(color: AppColors.medBorder),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
               ),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: gradient
-                      .map((c) => c.withValues(alpha: 0.15))
-                      .toList(),
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.all(isMobile ? 5 : 7),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: AppRadius.smAll,
                 ),
-                borderRadius: AppRadius.lgAll,
-                border: Border.all(color: color.withValues(alpha: 0.3)),
-                boxShadow: AppShadows.card,
+                child: Icon(icon, color: color, size: isMobile ? 14 : 16),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(isMobile ? 3 : 5),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.2),
-                      borderRadius: AppRadius.smAll,
-                    ),
-                    child: Icon(icon, color: color, size: isMobile ? 12 : 14),
-                  ),
-                  SizedBox(height: isMobile ? 2 : 4),
-                  Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: isMobile
-                          ? AppTypography.titleMedium
-                          : AppTypography.titleLarge,
-                      fontWeight: FontWeight.w900,
-                      color: color,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: isMobile ? 8 : AppTypography.labelSmall,
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+              SizedBox(height: isMobile ? 4 : 6),
+              Text(
+                value,
+                style: TextStyle(
+                  fontFamily: 'Fraunces',
+                  fontSize: isMobile
+                      ? AppTypography.titleMedium
+                      : AppTypography.titleLarge,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.medTextPrimary,
+                ),
               ),
-            ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: isMobile ? 8 : AppTypography.labelSmall,
+                  color: AppColors.medTextSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
       ),
@@ -957,7 +952,7 @@ class _QuickActionsGrid extends StatelessWidget {
             icon: Icons.account_balance_wallet_rounded,
             label: 'Finances',
             subtitle: 'Revenue & payments',
-            color: const Color(0xFF10B981),
+            color: AppColors.medTeal,
             onTap: onFinances,
             isFullWidth: true,
           ),
@@ -966,7 +961,7 @@ class _QuickActionsGrid extends StatelessWidget {
             icon: Icons.people_rounded,
             label: 'My Patients',
             subtitle: 'View patient records',
-            color: const Color(0xFF8B5CF6),
+            color: AppColors.medPurple,
             onTap: onPatients,
             isFullWidth: true,
           ),
@@ -975,7 +970,7 @@ class _QuickActionsGrid extends StatelessWidget {
             icon: Icons.medical_information_rounded,
             label: 'Medical History',
             subtitle: 'Manage records & PDFs',
-            color: const Color(0xFFF59E0B),
+            color: AppColors.medAmber,
             onTap: onManageHistory,
             isFullWidth: true,
           ),
@@ -1003,7 +998,7 @@ class _QuickActionsGrid extends StatelessWidget {
                 icon: Icons.account_balance_wallet_rounded,
                 label: 'Finances',
                 subtitle: 'Revenue & payments',
-                color: const Color(0xFF10B981),
+                color: AppColors.medTeal,
                 onTap: onFinances,
               ),
             ),
@@ -1017,7 +1012,7 @@ class _QuickActionsGrid extends StatelessWidget {
                 icon: Icons.people_rounded,
                 label: 'My Patients',
                 subtitle: 'View patient records',
-                color: const Color(0xFF8B5CF6),
+                color: AppColors.medPurple,
                 onTap: onPatients,
               ),
             ),
@@ -1027,7 +1022,7 @@ class _QuickActionsGrid extends StatelessWidget {
                 icon: Icons.medical_information_rounded,
                 label: 'Medical History',
                 subtitle: 'Manage records & PDFs',
-                color: const Color(0xFFF59E0B),
+                color: AppColors.medAmber,
                 onTap: onManageHistory,
               ),
             ),
@@ -1057,65 +1052,64 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: AppRadius.lgAll,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppRadius.lgAll,
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            color: color,
             borderRadius: AppRadius.lgAll,
-            child: Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
-                borderRadius: AppRadius.lgAll,
-                border: Border.all(color: color.withValues(alpha: 0.3)),
-                boxShadow: AppShadows.card,
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.25),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.sm),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.15),
-                      borderRadius: AppRadius.smAll,
-                    ),
-                    child: Icon(icon, color: color, size: 20),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          label,
-                          style: const TextStyle(
-                            fontSize: AppTypography.titleSmall,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          style: const TextStyle(
-                            fontSize: AppTypography.labelSmall,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    color: AppColors.textTertiary,
-                    size: 14,
-                  ),
-                ],
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: AppRadius.smAll,
+                ),
+                child: Icon(icon, color: Colors.white, size: 20),
               ),
-            ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: AppTypography.titleSmall,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: AppTypography.labelSmall,
+                        color: Colors.white.withValues(alpha: 0.85),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: Colors.white.withValues(alpha: 0.8),
+                size: 14,
+              ),
+            ],
           ),
         ),
       ),

@@ -1,9 +1,19 @@
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/routing/app_router.dart';
 import 'theme/app_theme.dart';
+
+/// True when running in a browser or as a desktop app (Windows/macOS/Linux),
+/// where the window can be arbitrarily wide. False on native Android/iOS —
+/// including tablets — where the app should always fill the real screen.
+bool get _isWideWindowPlatform =>
+    kIsWeb ||
+    defaultTargetPlatform == TargetPlatform.macOS ||
+    defaultTargetPlatform == TargetPlatform.windows ||
+    defaultTargetPlatform == TargetPlatform.linux;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,12 +40,17 @@ class SOMACAREApp extends StatelessWidget {
       darkTheme: buildDarkTheme(),
       themeMode: ThemeMode.dark,
       // SomaCare is a phone-only design (every screen, grid, and layout
-      // assumes a ~360-430px wide viewport). On wide browser windows
-      // (web/desktop) that stretches grids and tiles into huge, broken
-      // shapes. Constrain the whole app to a phone-like column and fill
-      // the rest of the window with the page background, same as how a
-      // phone app looks when viewed on desktop (e.g. web.whatsapp.com).
+      // assumes a ~360-430px wide viewport). On wide *browser or desktop*
+      // windows that stretches grids and tiles into huge, broken shapes, so
+      // we constrain the app to a phone-like column there and fill the rest
+      // of the window with the page background — same as how a phone app
+      // looks when viewed on desktop (e.g. web.whatsapp.com).
+      //
+      // On native Android/iOS builds — phones AND tablets — the app should
+      // simply fill the real screen instead, so this constraint is skipped
+      // there entirely.
       builder: (context, child) {
+        if (!_isWideWindowPlatform) return child ?? const SizedBox.shrink();
         return ColoredBox(
           color: AppColors.darkPageBg,
           child: Center(

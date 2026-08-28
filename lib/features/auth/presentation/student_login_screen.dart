@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/app_theme.dart';
-import '../../../widgets/bloom_components.dart';
 
 class StudentLoginScreen extends StatefulWidget {
   const StudentLoginScreen({super.key});
@@ -124,159 +123,377 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
     final isDoctor = _role == 'doctor';
 
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.medBg,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 22, 16, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Role tab chips ─────────────────────────────────────────────
-              Row(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+            child: ConstrainedBox(
+              // Keeps the form from stretching edge-to-edge on wide screens
+              // (tablets) while still filling the width naturally on phones.
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _RoleChip(
-                    label: 'Student',
-                    selected: !isDoctor,
-                    onTap: () => setState(() {
-                      _role = 'student';
-                      _selectedSchool = null;
-                    }),
+                  // ── Logo / brand mark ──────────────────────────────────────
+                  Center(
+                    child: Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            AppColors.medPrimaryBlue,
+                            AppColors.medPurple,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Icon(
+                        Icons.local_hospital_rounded,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
                   ),
-                  const SizedBox(width: 6),
-                  _RoleChip(
-                    label: 'Doctor',
-                    selected: isDoctor,
-                    onTap: () => setState(() {
-                      _role = 'doctor';
-                      _selectedSchool = null;
-                    }),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'SomaCare',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Fraunces',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.medTextPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  // ── Card ────────────────────────────────────────────────────
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppColors.medCard,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.medBorder),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ── Role tab chips ─────────────────────────────────────
+                        Row(
+                          children: [
+                            _RoleChip(
+                              label: 'Student',
+                              selected: !isDoctor,
+                              onTap: () => setState(() {
+                                _role = 'student';
+                                _selectedSchool = null;
+                              }),
+                            ),
+                            const SizedBox(width: 8),
+                            _RoleChip(
+                              label: 'Doctor',
+                              selected: isDoctor,
+                              onTap: () => setState(() {
+                                _role = 'doctor';
+                                _selectedSchool = null;
+                              }),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // ── Greeting ────────────────────────────────────────────
+                        const Text(
+                          'Welcome back',
+                          style: TextStyle(
+                            fontFamily: 'Fraunces',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.medTextPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          isDoctor
+                              ? 'Log in with your doctor credentials'
+                              : 'Log in to continue to your school',
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 12.5,
+                            color: AppColors.medTextSecondary,
+                          ),
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        // ── School badge (students only) ─────────────────────────
+                        if (!isDoctor) ...[
+                          GestureDetector(
+                            onTap: () async {
+                              final school = await context
+                                  .push<String>('/school-selection');
+                              if (school != null && mounted) {
+                                setState(() => _selectedSchool = school);
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.medBg,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: AppColors.medBorder),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 38,
+                                    height: 38,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.medPrimaryBlue
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(11),
+                                    ),
+                                    child: const Icon(
+                                      Icons.school_rounded,
+                                      size: 19,
+                                      color: AppColors.medPrimaryBlue,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 11),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'School',
+                                          style: TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.medTextSecondary,
+                                            letterSpacing: 0.3,
+                                          ),
+                                        ),
+                                        Text(
+                                          _selectedSchool ??
+                                              'Tap to select school',
+                                          style: TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: _selectedSchool != null
+                                                ? AppColors.medTextPrimary
+                                                : AppColors.medTextSecondary,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: AppColors.medTextSecondary,
+                                    size: 20,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                        ],
+
+                        // ── Email / ID field ──────────────────────────────────────
+                        _LoginField(
+                          label: isDoctor ? 'License / Doctor ID' : 'Email',
+                          hint: isDoctor ? 'UG-MD-33847' : 'student@somacare.app',
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        const SizedBox(height: 12),
+
+                        // ── Password ─────────────────────────────────────────────
+                        _LoginField(
+                          label: 'Password',
+                          hint: 'Enter your password',
+                          controller: _passwordController,
+                          obscureText: _obscurePassword,
+                          suffix: GestureDetector(
+                            onTap: () => setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            ),
+                            child: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              size: 18,
+                              color: AppColors.medTextSecondary,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        // ── Forgot password ───────────────────────────────────────
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Contact ${_selectedSchool ?? "admin"} for password reset',
+                                  ),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              'Forgot password?',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.medPrimaryBlue,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        // ── Login button ─────────────────────────────────────────
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _login,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.medPrimaryBlue,
+                              foregroundColor: Colors.white,
+                              disabledBackgroundColor:
+                                  AppColors.medPrimaryBlue.withValues(alpha: 0.5),
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Log In',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-
-              const SizedBox(height: 16),
-
-              // ── Greeting ──────────────────────────────────────────────────
-              Text(
-                'Welcome back',
-                style: TextStyle(fontFamily: 'Fraunces', 
-                  fontSize: 22,
-                  fontWeight: FontWeight.w300,
-                  color: AppColors.darkTextPrimary,
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // ── School badge (students only) ──────────────────────────────
-              if (!isDoctor) ...[
-                BloomCard(
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: AppColors.lime,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          _selectedSchool ?? 'Tap to select school',
-                          style: TextStyle(fontFamily: 'Inter', 
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.darkTextPrimary),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () async {
-                          final school =
-                              await context.push<String>('/school-selection');
-                          if (school != null && mounted) {
-                            setState(() => _selectedSchool = school);
-                          }
-                        },
-                        child: Text(
-                          'Change',
-                          style: TextStyle(fontFamily: 'Inter', 
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.lime),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-
-              // ── Email / ID field ──────────────────────────────────────────
-              BloomInputField(
-                label: isDoctor ? 'License / Doctor ID' : 'Email',
-                hint: isDoctor ? 'UG-MD-33847' : 'student@somacare.app',
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 12),
-
-              // ── Password ─────────────────────────────────────────────────
-              BloomInputField(
-                label: 'Password',
-                hint: '••••••••',
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                suffix: GestureDetector(
-                  onTap: () =>
-                      setState(() => _obscurePassword = !_obscurePassword),
-                  child: Icon(
-                    _obscurePassword
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                    size: 16,
-                    color: AppColors.darkTextMuted,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // ── Forgot password ───────────────────────────────────────────
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            'Contact ${_selectedSchool ?? "admin"} for password reset'),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'Forgot password?',
-                    style: TextStyle(fontFamily: 'Inter', 
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.lime),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // ── Login button ─────────────────────────────────────────────
-              BloomButton(
-                label: isDoctor ? 'Log In' : 'Log In',
-                isLoading: _isLoading,
-                onPressed: _isLoading ? null : _login,
-              ),
-            ],
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Clean, standard-looking text field for login — label above, boxed
+/// input, no extra visual noise. Deliberately simple rather than heavily
+/// styled, per request.
+class _LoginField extends StatelessWidget {
+  final String label;
+  final String? hint;
+  final TextEditingController controller;
+  final bool obscureText;
+  final TextInputType? keyboardType;
+  final Widget? suffix;
+
+  const _LoginField({
+    required this.label,
+    required this.controller,
+    this.hint,
+    this.obscureText = false,
+    this.keyboardType,
+    this.suffix,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+            color: AppColors.medTextPrimary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.medBg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.medBorder),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  obscureText: obscureText,
+                  keyboardType: keyboardType,
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    color: AppColors.medTextPrimary,
+                  ),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    border: InputBorder.none,
+                    hintText: hint,
+                    hintStyle: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                      color: AppColors.medTextSecondary,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 13),
+                  ),
+                ),
+              ),
+              ?suffix,
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -295,20 +512,21 @@ class _RoleChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary : AppColors.darkSurface,
+          color: selected ? AppColors.medPrimaryBlue : AppColors.medBg,
           borderRadius: BorderRadius.circular(999),
           border: selected
               ? null
-              : Border.all(color: AppColors.darkBorder, width: 1),
+              : Border.all(color: AppColors.medBorder, width: 1),
         ),
         child: Text(
           label,
-          style: TextStyle(fontFamily: 'Inter', 
-            fontSize: 10.5,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : const Color(0x99FFFFFF),
+            color: selected ? Colors.white : AppColors.medTextSecondary,
           ),
         ),
       ),

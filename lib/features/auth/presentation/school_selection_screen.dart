@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/bloom_components.dart';
@@ -37,7 +36,16 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
           .from('schools')
           .select('name')
           .order('name', ascending: true);
-      final names = (data as List).map((e) => e['name'] as String).toList();
+      final rawNames = (data as List).map((e) => e['name'] as String).toList();
+      // Dedupe defensively (case-insensitive, trimmed) — the schools table
+      // can end up with duplicate name rows (e.g. re-seeded data), and a
+      // repeated entry in this list is confusing during onboarding.
+      final seen = <String>{};
+      final names = <String>[];
+      for (final raw in rawNames) {
+        final trimmed = raw.trim();
+        if (seen.add(trimmed.toLowerCase())) names.add(trimmed);
+      }
       if (mounted) {
         setState(() {
           _schools = names;
@@ -107,7 +115,10 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
     return Scaffold(
       backgroundColor: AppColors.darkScreenBg,
       body: SafeArea(
-        child: Column(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Column(
           children: [
             // Header
             const BloomScreenHeader(title: 'Select your school'),
@@ -129,9 +140,9 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'All schools',
-                  style: GoogleFonts.fraunces(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
+                  style: BloomTextStyles.fraunces(
+                    size: 15,
+                    weight: FontWeight.w400,
                     color: AppColors.darkTextPrimary,
                   ),
                 ),
@@ -157,7 +168,7 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
                       ? Center(
                           child: Text(
                             'No schools found',
-                            style: GoogleFonts.inter(
+                            style: BloomTextStyles.inter(
                               color: AppColors.darkTextMuted,
                             ),
                           ),
@@ -209,16 +220,16 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
                                         children: [
                                           Text(
                                             s,
-                                            style: GoogleFonts.inter(
-                                              fontSize: 12.5,
-                                              fontWeight: FontWeight.w600,
+                                            style: BloomTextStyles.inter(
+                                              size: 12.5,
+                                              weight: FontWeight.w600,
                                               color: AppColors.darkTextPrimary,
                                             ),
                                           ),
                                           Text(
                                             'Tap to select',
-                                            style: GoogleFonts.inter(
-                                              fontSize: 10.5,
+                                            style: BloomTextStyles.inter(
+                                              size: 10.5,
                                               color: AppColors.darkTextMuted,
                                             ),
                                           ),
@@ -267,6 +278,8 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
               ),
             ),
           ],
+            ),
+          ),
         ),
       ),
     );

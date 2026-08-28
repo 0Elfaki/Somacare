@@ -63,6 +63,23 @@ END $$;
 
 -- ── 5. RLS — Profiles ────────────────────────────────────────────────────────
 
+-- Helper function used below: SECURITY DEFINER means its internal SELECT on
+-- profiles bypasses RLS, which is required — a policy on profiles cannot
+-- safely subquery profiles directly (Postgres re-applies the same policy to
+-- the subquery, causing "infinite recursion detected in policy for
+-- relation profiles").
+CREATE OR REPLACE FUNCTION public.current_user_role()
+RETURNS TEXT
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT role FROM public.profiles WHERE id = auth.uid();
+$$;
+
+GRANT EXECUTE ON FUNCTION public.current_user_role() TO authenticated;
+
 -- Doctors can read any student profile (needed for StudentProfileScreen)
 DO $$
 BEGIN
@@ -75,7 +92,7 @@ BEGIN
       CREATE POLICY "Doctors can view student profiles"
         ON profiles FOR SELECT
         USING (
-          (SELECT role FROM profiles WHERE id = auth.uid()) = 'doctor'
+          public.current_user_role() = 'doctor'
           AND role = 'student'
         )
     $policy$;

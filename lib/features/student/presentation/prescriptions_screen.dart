@@ -10,6 +10,20 @@ import '../data/medication_models.dart';
 import '../providers/prescription_provider.dart';
 import '../../../theme/app_theme.dart';
 
+/// Normalizes a doctor's name to always show exactly one "Dr." honorific,
+/// regardless of whether the underlying data already includes it. Prevents
+/// the "Dr. Dr. Sarah Johnson" duplication bug when a label or a value
+/// both add the prefix independently.
+String _displayDoctorName(String raw) {
+  final trimmed = raw.trim();
+  if (trimmed.isEmpty) return trimmed;
+  final withoutPrefix = trimmed.replaceFirst(
+    RegExp(r'^dr\.?\s*', caseSensitive: false),
+    '',
+  );
+  return 'Dr. $withoutPrefix';
+}
+
 class PrescriptionsScreen extends ConsumerStatefulWidget {
   const PrescriptionsScreen({super.key});
 
@@ -23,6 +37,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
   PrescriptionStatus? _selectedFilter;
+  bool _showExpiringOnly = false;
   DateTime? _historyStartDate;
   DateTime? _historyEndDate;
   String _searchQuery = '';
@@ -63,7 +78,13 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
       final matchesStatus =
           _selectedFilter == null || prescription.status == _selectedFilter;
 
-      return matchesSearch && matchesStatus;
+      // "Expiring soon" filter (from the tappable metric card)
+      final matchesExpiring =
+          !_showExpiringOnly ||
+          (prescription.expiryDate != null &&
+              prescription.expiryDate!.difference(DateTime.now()).inDays <= 7);
+
+      return matchesSearch && matchesStatus && matchesExpiring;
     }).toList();
   }
 
@@ -370,6 +391,15 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   label: 'Active',
                   value: _activeCount.toString(),
                   color: const Color(0xFF22C55E),
+                  isActive: _selectedFilter == PrescriptionStatus.active,
+                  onTap: () => setState(() {
+                    _showExpiringOnly = false;
+                    _selectedFilter =
+                        _selectedFilter == PrescriptionStatus.active
+                            ? null
+                            : PrescriptionStatus.active;
+                    _tabController.animateTo(0);
+                  }),
                 ),
               ),
               const SizedBox(width: 12),
@@ -379,6 +409,15 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   label: 'Pending',
                   value: _pendingRefills.toString(),
                   color: const Color(0xFFF59E0B),
+                  isActive: _selectedFilter == PrescriptionStatus.pending,
+                  onTap: () => setState(() {
+                    _showExpiringOnly = false;
+                    _selectedFilter =
+                        _selectedFilter == PrescriptionStatus.pending
+                            ? null
+                            : PrescriptionStatus.pending;
+                    _tabController.animateTo(0);
+                  }),
                 ),
               ),
               const SizedBox(width: 12),
@@ -388,6 +427,12 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   label: 'Expiring',
                   value: _expiringSoon.toString(),
                   color: const Color(0xFFEF4444),
+                  isActive: _showExpiringOnly,
+                  onTap: () => setState(() {
+                    _selectedFilter = null;
+                    _showExpiringOnly = !_showExpiringOnly;
+                    _tabController.animateTo(0);
+                  }),
                 ),
               ),
             ],
@@ -402,33 +447,43 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
     required String label,
     required String value,
     required Color color,
+    VoidCallback? onTap,
+    bool isActive = false,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isActive
+              ? Colors.white.withValues(alpha: 0.35)
+              : Colors.white.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(16),
+          border: isActive
+              ? Border.all(color: Colors.white, width: 1.5)
+              : null,
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 12,
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.8),
+                fontSize: 12,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -750,8 +805,8 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                     Expanded(
                       child: _buildDetailRow(
                         icon: Icons.person,
-                        label: 'Dr.',
-                        value: prescription.prescribingDoctor,
+                        label: 'Doctor',
+                        value: _displayDoctorName(prescription.prescribingDoctor),
                       ),
                     ),
                   ],
@@ -1260,7 +1315,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                     _buildDetailItem(
                       icon: Icons.person,
                       title: 'Prescribing Doctor',
-                      value: prescription.prescribingDoctor,
+                      value: _displayDoctorName(prescription.prescribingDoctor),
                     ),
                     _buildDetailItem(
                       icon: Icons.local_pharmacy,

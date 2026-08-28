@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/app_theme.dart';
-import '../../../widgets/bloom_components.dart';
 
 class StudentDashboardScreen extends StatefulWidget {
   const StudentDashboardScreen({super.key});
@@ -14,10 +13,10 @@ class StudentDashboardScreen extends StatefulWidget {
 class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   static const _quickActions = <_QuickAction>[
     _QuickAction(
-      label: 'AI Symptom Check',
-      category: 'Wellness',
-      path: '/symptom-check',
-      icon: Icons.psychology_outlined,
+      label: 'Message Doctor',
+      category: 'Chat',
+      path: '/messaging-chat',
+      icon: Icons.chat_bubble_outline,
     ),
     _QuickAction(
       label: 'Book Appointment',
@@ -55,13 +54,16 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
       path: '/my-medications',
       icon: Icons.medication_outlined,
     ),
-    _QuickAction(
-      label: 'Emergency',
-      category: 'Urgent',
-      path: '/emergency',
-      icon: Icons.emergency_outlined,
-      isEmergency: true,
-    ),
+  ];
+
+  static const _quickActionColors = <Color>[
+    AppColors.medPrimaryBlue,
+    AppColors.medTeal,
+    AppColors.medPurple,
+    AppColors.medAmber,
+    AppColors.medPrimaryBlue,
+    AppColors.medTeal,
+    AppColors.medPurple,
   ];
 
   String _studentName = '';
@@ -69,7 +71,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   bool _isLoadingStats = true;
 
   int _upcomingCount = 0;
-  int _recordsCount = 0;
   int _medicationsCount = 0;
   Map<String, dynamic>? _nextAppointment;
 
@@ -150,7 +151,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
       if (mounted) {
         setState(() {
           _upcomingCount = upcoming.length;
-          _recordsCount = appointments.length;
           _medicationsCount = medications.length;
           _nextAppointment = upcoming.isNotEmpty ? upcoming.first : null;
           _isLoadingStats = false;
@@ -173,9 +173,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     final topPad = MediaQuery.of(context).padding.top;
 
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.medBg,
       body: RefreshIndicator(
-        color: AppColors.primary,
+        color: AppColors.medPrimaryBlue,
         onRefresh: () async {
           _initialized = false;
           await Future.wait([_loadName(), _loadDashboardData()]);
@@ -186,83 +186,69 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             // ── Header ──────────────────────────────────────────────────────
             SliverToBoxAdapter(
               child: Container(
-                padding: EdgeInsets.fromLTRB(16, topPad + 14, 16, 18),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [AppColors.primaryDark, AppColors.primary],
-                  ),
-                ),
-                child: Column(
+                padding: EdgeInsets.fromLTRB(16, topPad + 14, 16, 16),
+                color: AppColors.medBg,
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Top row: notification bell
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
                             _greeting(),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 11,
-                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 12,
+                              color: AppColors.medTextSecondary,
                             ),
                           ),
-                        ),
-                        GestureDetector(
-                          onTap: () {},
-                          child: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.notifications_outlined,
-                              size: 16,
-                              color: Colors.white,
+                          const SizedBox(height: 2),
+                          Text(
+                            _studentName.isNotEmpty
+                                ? 'Hi, $_studentName 👋'
+                                : 'Hi there 👋',
+                            style: const TextStyle(
+                              fontFamily: 'Fraunces',
+                              fontSize: 21,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.medTextPrimary,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-
-                    // Name
-                    Text(
-                      _studentName.isNotEmpty
-                          ? 'Hi, $_studentName'
-                          : 'Hi there',
-                      style: const TextStyle(
-                        fontFamily: 'Fraunces',
-                        fontSize: 19,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.white,
+                        ],
                       ),
                     ),
+                    _MedIconButton(
+                      icon: Icons.notifications_outlined,
+                      onTap: () {},
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
-                    const SizedBox(height: 12),
-
-                    // Stats pills (real counts)
-                    Row(
-                      children: [
-                        _StatPill(
-                          value: _isLoadingStats ? '—' : '$_upcomingCount',
-                          label: 'Upcoming',
-                        ),
-                        const SizedBox(width: 8),
-                        _StatPill(
-                          value: _isLoadingStats ? '—' : '$_recordsCount',
-                          label: 'Records',
-                        ),
-                        const SizedBox(width: 8),
-                        _StatPill(
-                          value: _isLoadingStats ? '—' : '$_medicationsCount',
-                          label: 'Medications',
-                        ),
-                      ],
+            // ── Stat cards (real counts) ───────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _MedStatCard(
+                        icon: Icons.event_available,
+                        value: _isLoadingStats ? '—' : '$_upcomingCount',
+                        label: 'Upcoming\nAppointments',
+                        color: AppColors.medPrimaryBlue,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _MedStatCard(
+                        icon: Icons.medication_outlined,
+                        value: _isLoadingStats ? '—' : '$_medicationsCount',
+                        label: 'Active\nMedications',
+                        color: AppColors.medTeal,
+                      ),
                     ),
                   ],
                 ),
@@ -273,7 +259,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             if (_nextAppointment != null)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: _UpcomingVisitCard(
                     appointment: _nextAppointment!,
                     onJoin: () => context.push(
@@ -291,17 +277,71 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 ),
               ),
 
-            // ── Section label ────────────────────────────────────────────────
+            // ── Emergency hero banner ────────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: _MedHeroBanner(
+                  icon: Icons.emergency_outlined,
+                  eyebrow: 'URGENT CARE',
+                  title: 'Talk to a doctor in minutes',
+                  subtitle:
+                      'For symptoms that need attention now — connect with an on-call doctor right away.',
+                  gradientColors: const [
+                    AppColors.medRed,
+                    Color(0xFF991B1B),
+                  ],
+                  primaryLabel: 'CONNECT NOW',
+                  onPrimaryTap: () => context.push('/emergency'),
+                  secondaryLabel: 'See all requests',
+                  onSecondaryTap: () => context.push('/my-appointments'),
+                ),
+              ),
+            ),
+
+            // ── AI Symptom Checker hero banner ───────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: _MedHeroBanner(
+                  icon: Icons.psychology_outlined,
+                  eyebrow: 'AI SYMPTOM CHECKER',
+                  title: 'Describe your symptoms',
+                  subtitle:
+                      'Get instant AI-guided insight into what you\'re feeling and what to do next.',
+                  gradientColors: const [
+                    AppColors.medPurple,
+                    AppColors.medPrimaryBlue,
+                  ],
+                  primaryLabel: 'START CHECK',
+                  onPrimaryTap: () => context.push('/symptom-check'),
+                ),
+              ),
+            ),
+
+            // ── Medication reminders card ────────────────────────────────────
+            if (!_isLoadingStats && _medicationsCount > 0)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: _MedReminderCard(
+                    count: _medicationsCount,
+                    onTap: () => context.push('/my-medications'),
+                  ),
+                ),
+              ),
+
+            // ── Section label ────────────────────────────────────────────────
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16, 4, 16, 10),
                 child: Text(
                   'Quick actions',
                   style: TextStyle(
                     fontFamily: 'Fraunces',
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.darkTextPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.medTextPrimary,
                   ),
                 ),
               ),
@@ -313,19 +353,19 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate((ctx, i) {
                   final a = _quickActions[i];
-                  return BloomQuickActionTile(
+                  return _MedQuickActionCard(
                     category: a.category,
                     label: a.label,
                     icon: a.icon,
-                    isEmergency: a.isEmergency,
+                    color: _quickActionColors[i % _quickActionColors.length],
                     onTap: () => context.push(a.path),
                   );
                 }, childCount: _quickActions.length),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 1.9,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.55,
                 ),
               ),
             ),
@@ -355,7 +395,13 @@ class _UpcomingVisitCard extends StatelessWidget {
     final time = appointment['time'] as String? ?? '';
     final isConfirmed = appointment['status'] == 'confirmed';
 
-    return BloomCard(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.medCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.medBorder),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -369,15 +415,15 @@ class _UpcomingVisitCard extends StatelessWidget {
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.08,
-                  color: AppColors.darkTextMuted,
+                  color: AppColors.medPrimaryBlue,
                 ),
               ),
               Text(
                 '$date · $time',
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 10.5,
-                  color: AppColors.darkTextMuted,
+                  color: AppColors.medTextSecondary,
                 ),
               ),
             ],
@@ -385,7 +431,19 @@ class _UpcomingVisitCard extends StatelessWidget {
           const SizedBox(height: 11),
           Row(
             children: [
-              const BloomAvatar(size: 36),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: const BoxDecoration(
+                  color: AppColors.medPrimaryBlue,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.person,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -397,7 +455,7 @@ class _UpcomingVisitCard extends StatelessWidget {
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
-                        color: AppColors.darkTextPrimary,
+                        color: AppColors.medTextPrimary,
                       ),
                     ),
                     if (specialty.isNotEmpty)
@@ -406,7 +464,7 @@ class _UpcomingVisitCard extends StatelessWidget {
                         style: const TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 11,
-                          color: AppColors.darkTextMuted,
+                          color: AppColors.medTextSecondary,
                         ),
                       ),
                   ],
@@ -416,22 +474,44 @@ class _UpcomingVisitCard extends StatelessWidget {
           ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
-            child: BloomDivider(),
+            child: Divider(height: 1, color: AppColors.medBorder),
           ),
           Row(
             children: [
               Expanded(
-                child: BloomButton(
-                  label: isConfirmed ? 'Join details' : 'Pending payment',
+                child: ElevatedButton(
                   onPressed: isConfirmed ? onJoin : onReschedule,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.medPrimaryBlue,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    isConfirmed ? 'Join details' : 'Pending payment',
+                    style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: BloomButton(
-                  label: 'Reschedule',
-                  variant: BloomButtonVariant.ghost,
+                child: OutlinedButton(
                   onPressed: onReschedule,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.medTextPrimary,
+                    side: const BorderSide(color: AppColors.medBorder),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Reschedule',
+                    style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
+                  ),
                 ),
               ),
             ],
@@ -442,41 +522,363 @@ class _UpcomingVisitCard extends StatelessWidget {
   }
 }
 
-class _StatPill extends StatelessWidget {
+/// Circular icon button used in the header (notification bell, etc.) —
+/// light-card style to match the Damulink header.
+class _MedIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  const _MedIconButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: AppColors.medCard,
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.medBorder),
+        ),
+        child: Icon(icon, size: 18, color: AppColors.medTextPrimary),
+      ),
+    );
+  }
+}
+
+/// White stat card with a colored icon chip, value, and label — the
+/// Damulink-style replacement for the old dark stat pills.
+class _MedStatCard extends StatelessWidget {
+  final IconData icon;
   final String value;
   final String label;
-  const _StatPill({required this.value, required this.label});
+  final Color color;
+  const _MedStatCard({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(999),
+        color: AppColors.medCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.medBorder),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            value,
-            style: const TextStyle(
-              fontFamily: 'IBM Plex Mono',
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: AppColors.lime,
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
             ),
+            child: Icon(icon, color: color, size: 19),
           ),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 10,
-              color: Colors.white.withValues(alpha: 0.7),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontFamily: 'Fraunces',
+                    fontSize: 19,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.medTextPrimary,
+                  ),
+                ),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 10,
+                    height: 1.2,
+                    color: AppColors.medTextSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Full-width gradient hero banner (Emergency / AI Symptom Checker), matching
+/// the Damulink "EMERGENCY NEED FOR BLOOD DONORS" card pattern.
+class _MedHeroBanner extends StatelessWidget {
+  final IconData icon;
+  final String eyebrow;
+  final String title;
+  final String subtitle;
+  final List<Color> gradientColors;
+  final String primaryLabel;
+  final VoidCallback onPrimaryTap;
+  final String? secondaryLabel;
+  final VoidCallback? onSecondaryTap;
+
+  const _MedHeroBanner({
+    required this.icon,
+    required this.eyebrow,
+    required this.title,
+    required this.subtitle,
+    required this.gradientColors,
+    required this.primaryLabel,
+    required this.onPrimaryTap,
+    this.secondaryLabel,
+    this.onSecondaryTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradientColors,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(9),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  eyebrow,
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: const TextStyle(
+              fontFamily: 'Fraunces',
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 12,
+              height: 1.4,
+              color: Colors.white.withValues(alpha: 0.85),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: onPrimaryTap,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: gradientColors.first,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text(
+                  primaryLabel,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                ),
+              ),
+              if (secondaryLabel != null) ...[
+                const SizedBox(width: 12),
+                TextButton(
+                  onPressed: onSecondaryTap,
+                  style: TextButton.styleFrom(foregroundColor: Colors.white),
+                  child: Text(
+                    secondaryLabel!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Amber "N reminders today" card, tapping through to My Medications.
+class _MedReminderCard extends StatelessWidget {
+  final int count;
+  final VoidCallback onTap;
+  const _MedReminderCard({required this.count, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.medAmber.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.medAmber.withValues(alpha: 0.25)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: AppColors.medAmber.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.medication_outlined,
+                color: AppColors.medAmber,
+                size: 19,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Medication reminders',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.medTextPrimary,
+                    ),
+                  ),
+                  Text(
+                    'You have $count active medication${count == 1 ? '' : 's'}',
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 11,
+                      color: AppColors.medTextSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right,
+              color: AppColors.medTextSecondary,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Colored quick-action tile, matching Damulink's solid-color grid cards
+/// (Request Blood / Lab Report / Appointments / Blood Journey, etc).
+class _MedQuickActionCard extends StatelessWidget {
+  final String category;
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _MedQuickActionCard({
+    required this.category,
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: Icon(icon, color: Colors.white, size: 18),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                height: 1.2,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              category,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 10,
+                color: Colors.white.withValues(alpha: 0.8),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -487,12 +889,10 @@ class _QuickAction {
   final String category;
   final String path;
   final IconData icon;
-  final bool isEmergency;
   const _QuickAction({
     required this.label,
     required this.category,
     required this.path,
     required this.icon,
-    this.isEmergency = false,
   });
 }

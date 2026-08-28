@@ -11,7 +11,7 @@ enum AiRiskLevel { low, medium, high }
 /// - `risk` (String: 'low' | 'medium' | 'high')
 /// - `headline` (String)
 /// - `description` (String)
-/// - `notes` (List<String>)
+/// - `notes` (`List<String>`)
 class AiResultScreen extends StatelessWidget {
   final AiRiskLevel risk;
   final String headline;

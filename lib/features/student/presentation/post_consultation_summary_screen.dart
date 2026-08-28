@@ -87,7 +87,7 @@ class _PostConsultationSummaryScreenState
                 style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
             if (_recent.isEmpty) pw.Text('No prescriptions issued yet for this visit.'),
             if (_recent.isNotEmpty)
-              pw.Table.fromTextArray(
+              pw.TableHelper.fromTextArray(
                 headers: ['Medication', 'Dosage', 'Frequency'],
                 data: _recent
                     .map((r) => [r.medicationName, r.dosage, r.frequency])
@@ -127,7 +127,7 @@ class _PostConsultationSummaryScreenState
                       padding:
                           const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0x14FFFFFF),
+                        color: AppColors.darkGhost,
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(

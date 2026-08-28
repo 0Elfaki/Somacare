@@ -4,7 +4,17 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'ai_result_screen.dart';
 
-const _groqApiKey = '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';
+// The API key is injected at build/run time instead of hardcoded in source.
+// A key committed directly into Dart code ships inside the built app (APK/IPA)
+// and can be extracted by anyone who inspects it — this is very likely why
+// the previous hardcoded key started returning "Invalid API Key": exposed
+// keys get caught by automated secret-scanning and revoked.
+//
+// Run with:  flutter run --dart-define=GROQ_API_KEY=your_new_key_here
+// Build with: flutter build apk --dart-define=GROQ_API_KEY=your_new_key_here
+//
+// Get a key at https://console.groq.com/keys
+const _groqApiKey = String.fromEnvironment('GROQ_API_KEY');
 const _model = 'llama-3.3-70b-versatile';
 
 const _systemPrompt = '''
@@ -30,6 +40,48 @@ class SymptomCheckScreen extends StatefulWidget {
   State<SymptomCheckScreen> createState() => _SymptomCheckScreenState();
 }
 
+// Fixed symptom-tracker rows shown in the "noted symptoms" checklist card,
+// matching the AI Symptom Checker design. Presence is inferred with a light
+// keyword scan over everything the user has typed so far.
+const List<_SymptomTracker> _kTrackedSymptoms = [
+  _SymptomTracker(
+    label: 'Headache',
+    icon: Icons.psychology_alt_outlined,
+    keywords: ['headache', 'head ache', 'migraine'],
+  ),
+  _SymptomTracker(
+    label: 'Fever',
+    icon: Icons.thermostat,
+    keywords: ['fever'],
+  ),
+  _SymptomTracker(
+    label: 'High Temperature',
+    icon: Icons.device_thermostat,
+    keywords: ['high temperature', 'temperature', 'hot to the touch'],
+  ),
+  _SymptomTracker(
+    label: 'Nausea / Vomiting',
+    icon: Icons.sick_outlined,
+    keywords: ['nausea', 'nauseous', 'vomit', 'throwing up'],
+  ),
+  _SymptomTracker(
+    label: 'Fatigue',
+    icon: Icons.bedtime_outlined,
+    keywords: ['fatigue', 'tired', 'exhausted', 'no energy'],
+  ),
+];
+
+class _SymptomTracker {
+  final String label;
+  final IconData icon;
+  final List<String> keywords;
+  const _SymptomTracker({
+    required this.label,
+    required this.icon,
+    required this.keywords,
+  });
+}
+
 class _SymptomCheckScreenState extends State<SymptomCheckScreen> {
   final _ctrl = TextEditingController();
   final _scrollCtrl = ScrollController();
@@ -38,6 +90,19 @@ class _SymptomCheckScreenState extends State<SymptomCheckScreen> {
   bool _isAssessing = false;
 
   bool get _hasUserInput => _messages.any((m) => m.role == 'user');
+
+  String get _combinedUserText => _messages
+      .where((m) => m.role == 'user')
+      .map((m) => m.text.toLowerCase())
+      .join(' \n ');
+
+  Set<String> get _presentSymptoms {
+    final text = _combinedUserText;
+    return {
+      for (final s in _kTrackedSymptoms)
+        if (s.keywords.any(text.contains)) s.label,
+    };
+  }
 
   @override
   void initState() {
@@ -80,6 +145,24 @@ class _SymptomCheckScreenState extends State<SymptomCheckScreen> {
     });
     _ctrl.clear();
     _scrollToBottom();
+
+    if (_groqApiKey.isEmpty) {
+      setState(() {
+        _isTyping = false;
+        _messages.add(
+          const _Msg(
+            role: 'assistant',
+            text:
+                'The AI symptom checker isn\'t configured yet — it needs a '
+                'Groq API key passed in at build time '
+                '(--dart-define=GROQ_API_KEY=...). Get a free key at '
+                'console.groq.com/keys.',
+          ),
+        );
+      });
+      _scrollToBottom();
+      return;
+    }
 
     try {
       final history = _messages
@@ -244,7 +327,7 @@ no commentary) in exactly this shape:
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'AI Symptom Check',
+                  'AI Symptom Checker',
                   style: TextStyle(
                     color: Color(0xFF0F172A),
                     fontSize: 15,
@@ -334,9 +417,18 @@ no commentary) in exactly this shape:
             child: ListView.builder(
               controller: _scrollCtrl,
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              itemCount: _messages.length + (_isTyping ? 1 : 0),
+              // +1 for the "noted symptoms" checklist card, once the user
+              // has said something, and +1 for the typing indicator.
+              itemCount:
+                  _messages.length +
+                  (_hasUserInput ? 1 : 0) +
+                  (_isTyping ? 1 : 0),
               itemBuilder: (context, i) {
-                if (_isTyping && i == _messages.length) {
+                if (_hasUserInput && i == _messages.length) {
+                  return _SymptomChecklistBubble(present: _presentSymptoms);
+                }
+                final typingIndex = _messages.length + (_hasUserInput ? 1 : 0);
+                if (_isTyping && i == typingIndex) {
                   return const _TypingBubble();
                 }
                 return _ChatBubble(msg: _messages[i]);
@@ -370,6 +462,56 @@ no commentary) in exactly this shape:
                         )
                         .toList(),
               ),
+            )
+          else if (_hasUserInput)
+            SizedBox(
+              height: 44,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  _SuggestionChip(
+                    label: 'Describe pain location',
+                    icon: Icons.location_on_outlined,
+                    onTap: () {
+                      _ctrl.text = 'The pain is located in ';
+                      _ctrl.selection = TextSelection.collapsed(
+                        offset: _ctrl.text.length,
+                      );
+                    },
+                  ),
+                  _SuggestionChip(
+                    label: 'How long has it lasted?',
+                    icon: Icons.access_time,
+                    onTap: () {
+                      _ctrl.text = 'It has lasted for ';
+                      _ctrl.selection = TextSelection.collapsed(
+                        offset: _ctrl.text.length,
+                      );
+                    },
+                  ),
+                  _SuggestionChip(
+                    label: 'Other symptoms?',
+                    icon: Icons.add_circle_outline,
+                    onTap: () {
+                      _ctrl.text = 'I also have ';
+                      _ctrl.selection = TextSelection.collapsed(
+                        offset: _ctrl.text.length,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+          // ── Risk banner + actions ────────────────────────
+          if (_hasUserInput)
+            _RiskAssessmentPanel(
+              isBusy: _isAssessing,
+              onTap: _getResult,
+              onBookAppointment: () => context.push('/book-appointment'),
+              onEmergency: () => context.push('/emergency'),
+              onSaveReport: _getResult,
             ),
 
           // ── Input bar ──────────────────────────────────
@@ -634,8 +776,9 @@ class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
 
 class _SuggestionChip extends StatelessWidget {
   final String label;
+  final IconData? icon;
   final VoidCallback onTap;
-  const _SuggestionChip({required this.label, required this.onTap});
+  const _SuggestionChip({required this.label, required this.onTap, this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -656,13 +799,392 @@ class _SuggestionChip extends StatelessWidget {
             ),
           ],
         ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF0F172A),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 14, color: const Color(0xFF5B8CFF)),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Symptom Checklist Bubble ────────────────────────────────────────────────
+//
+// Mirrors the "Thanks for sharing. I've noted the following symptoms:" card
+// from the AI Symptom Checker design — a wide assistant bubble that lists a
+// fixed set of tracked symptoms and whether the user has mentioned them yet.
+
+class _SymptomChecklistBubble extends StatelessWidget {
+  final Set<String> present;
+  const _SymptomChecklistBubble({required this.present});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF9333EA), Color(0xFF5B8CFF)],
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.psychology, color: Colors.white, size: 16),
           ),
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(18),
+                  topRight: Radius.circular(18),
+                  bottomLeft: Radius.circular(4),
+                  bottomRight: Radius.circular(18),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Thanks for sharing. I've noted the following symptoms:",
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.4,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < _kTrackedSymptoms.length; i++)
+                          _SymptomRow(
+                            tracker: _kTrackedSymptoms[i],
+                            isPresent: present.contains(
+                              _kTrackedSymptoms[i].label,
+                            ),
+                            showDivider: i != _kTrackedSymptoms.length - 1,
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "I'm gathering more information to better assess your condition.",
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      height: 1.4,
+                      color: Color(0xFF334155),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SymptomRow extends StatelessWidget {
+  final _SymptomTracker tracker;
+  final bool isPresent;
+  final bool showDivider;
+  const _SymptomRow({
+    required this.tracker,
+    required this.isPresent,
+    required this.showDivider,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        border: showDivider
+            ? const Border(
+                bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1),
+              )
+            : null,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: isPresent
+                  ? const Color(0xFFDCFCE7)
+                  : const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Icon(
+              tracker.icon,
+              size: 16,
+              color: isPresent
+                  ? const Color(0xFF16A34A)
+                  : const Color(0xFF94A3B8),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tracker.label,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                Text(
+                  isPresent ? 'Present' : 'Not specified',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isPresent
+                        ? const Color(0xFF16A34A)
+                        : const Color(0xFF94A3B8),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isPresent ? const Color(0xFF22C55E) : Colors.transparent,
+              border: isPresent
+                  ? null
+                  : Border.all(color: const Color(0xFFCBD5E1), width: 1.5),
+            ),
+            child: isPresent
+                ? const Icon(Icons.check, size: 14, color: Colors.white)
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Risk Assessment Panel ────────────────────────────────────────────────────
+//
+// The orange "Moderate Risk - Consultation Recommended" banner plus the
+// Book Appointment / Emergency SOS / Save Report action row from the design.
+// Tapping the banner (or Save Report) runs the real AI assessment.
+
+class _RiskAssessmentPanel extends StatelessWidget {
+  final bool isBusy;
+  final VoidCallback onTap;
+  final VoidCallback onBookAppointment;
+  final VoidCallback onEmergency;
+  final VoidCallback onSaveReport;
+
+  const _RiskAssessmentPanel({
+    required this.isBusy,
+    required this.onTap,
+    required this.onBookAppointment,
+    required this.onEmergency,
+    required this.onSaveReport,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: isBusy ? null : onTap,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF7ED),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFFED7AA)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    color: Color(0xFFEA580C),
+                    size: 22,
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Moderate Risk - Consultation Recommended',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFFC2410C),
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Based on the symptoms provided, we recommend consulting a healthcare professional.',
+                          style: TextStyle(
+                            fontSize: 11,
+                            height: 1.3,
+                            color: Color(0xFF9A3412),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  if (isBusy)
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Color(0xFFEA580C),
+                      ),
+                    )
+                  else
+                    const Icon(
+                      Icons.chevron_right,
+                      color: Color(0xFFEA580C),
+                      size: 20,
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _PanelButton(
+                  label: 'Book Appointment',
+                  icon: Icons.calendar_month,
+                  background: const Color(0xFF5B8CFF),
+                  foreground: Colors.white,
+                  onTap: onBookAppointment,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _PanelButton(
+                  label: 'Emergency SOS',
+                  icon: Icons.phone_in_talk,
+                  background: const Color(0xFFDC2626),
+                  foreground: Colors.white,
+                  onTap: onEmergency,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _PanelButton(
+                  label: 'Save Report',
+                  icon: Icons.description_outlined,
+                  background: Colors.white,
+                  foreground: const Color(0xFF0F172A),
+                  border: const Color(0xFFE2E8F0),
+                  onTap: isBusy ? null : onSaveReport,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PanelButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Color background;
+  final Color foreground;
+  final Color? border;
+  final VoidCallback? onTap;
+
+  const _PanelButton({
+    required this.label,
+    required this.icon,
+    required this.background,
+    required this.foreground,
+    required this.onTap,
+    this.border,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(12),
+          border: border != null ? Border.all(color: border!) : null,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: foreground, size: 16),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: foreground,
+              ),
+            ),
+          ],
         ),
       ),
     );
