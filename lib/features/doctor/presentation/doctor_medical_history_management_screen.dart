@@ -221,7 +221,7 @@ class _DoctorMedicalHistoryManagementScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Medical history saved successfully!'),
-            backgroundColor: Color(0xFF2ECC71),
+            backgroundColor: AppColors.success,
           ),
         );
         _loadStudentHistory(_selectedPatient!['id'].toString());
@@ -234,7 +234,7 @@ class _DoctorMedicalHistoryManagementScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error saving: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -249,7 +249,7 @@ class _DoctorMedicalHistoryManagementScreenState
       builder: (context) => AlertDialog(
         title: const Row(
           children: [
-            Icon(Icons.verified, color: Color(0xFF2ECC71)),
+            Icon(Icons.verified, color: AppColors.success),
             SizedBox(width: 8),
             Text('Approve Medical History'),
           ],
@@ -266,7 +266,7 @@ class _DoctorMedicalHistoryManagementScreenState
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2ECC71),
+              backgroundColor: AppColors.success,
             ),
             child: const Text('Approve'),
           ),
@@ -281,7 +281,7 @@ class _DoctorMedicalHistoryManagementScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Medical history approved!'),
-            backgroundColor: Color(0xFF2ECC71),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -297,7 +297,7 @@ class _DoctorMedicalHistoryManagementScreenState
       builder: (context) => AlertDialog(
         title: const Row(
           children: [
-            Icon(Icons.cancel, color: Colors.red),
+            Icon(Icons.cancel, color: AppColors.error),
             SizedBox(width: 8),
             Text('Deny Medical History'),
           ],
@@ -328,7 +328,7 @@ class _DoctorMedicalHistoryManagementScreenState
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, commentController.text),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             child: const Text('Deny'),
           ),
         ],
@@ -342,7 +342,7 @@ class _DoctorMedicalHistoryManagementScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Medical history denied'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -413,7 +413,7 @@ class _DoctorMedicalHistoryManagementScreenState
                 ? const Center(
                     child: Text(
                       'Please select a student to view their medical history',
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: AppColors.textMuted),
                     ),
                   )
                 : _isLoadingHistory
@@ -430,12 +430,8 @@ class _DoctorMedicalHistoryManagementScreenState
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Medical History Management'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
+      backgroundColor: AppColors.pageBg,
+      appBar: AppBar(title: const Text('Medical histories')),
       body: body,
     );
   }
@@ -554,10 +550,10 @@ class _DoctorMedicalHistoryManagementScreenState
                       ? Icons.cancel
                       : Icons.pending,
                   color: isApproved
-                      ? const Color(0xFF2ECC71)
+                      ? AppColors.success
                       : hasDenial
-                      ? Colors.red
-                      : Colors.orange,
+                      ? AppColors.error
+                      : AppColors.warning,
                   size: 28,
                 ),
                 const SizedBox(width: 8),
@@ -571,10 +567,10 @@ class _DoctorMedicalHistoryManagementScreenState
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: isApproved
-                        ? const Color(0xFF2ECC71)
+                        ? AppColors.success
                         : hasDenial
-                        ? Colors.red
-                        : Colors.orange,
+                        ? AppColors.error
+                        : AppColors.warning,
                   ),
                 ),
               ],
@@ -584,10 +580,10 @@ class _DoctorMedicalHistoryManagementScreenState
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
+                  color: AppColors.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: Colors.red.withValues(alpha: 0.3),
+                    color: AppColors.error.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Column(
@@ -597,7 +593,7 @@ class _DoctorMedicalHistoryManagementScreenState
                       'Denial Reason:',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.red,
+                        color: AppColors.error,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -621,7 +617,7 @@ class _DoctorMedicalHistoryManagementScreenState
             icon: const Icon(Icons.check),
             label: const Text('Approve'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2ECC71),
+              backgroundColor: AppColors.success,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
@@ -634,7 +630,7 @@ class _DoctorMedicalHistoryManagementScreenState
             icon: const Icon(Icons.close),
             label: const Text('Deny'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
@@ -672,11 +668,11 @@ class _DoctorMedicalHistoryManagementScreenState
               fillColor: Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderSide: BorderSide(color: AppColors.border),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderSide: BorderSide(color: AppColors.border),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),

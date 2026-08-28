@@ -44,7 +44,7 @@ class _LabResultsScreenState extends State<LabResultsScreen> {
   }
 
   Color _statusColor(LabResultStatus s) => switch (s) {
-        LabResultStatus.normal => AppColors.lime,
+        LabResultStatus.normal => AppColors.success,
         LabResultStatus.abnormal => AppColors.warning,
         LabResultStatus.critical => AppColors.error,
       };
@@ -61,7 +61,7 @@ class _LabResultsScreenState extends State<LabResultsScreen> {
             pw.SizedBox(height: 4),
             pw.Text('Generated ${DateTime.now().toIso8601String().split('T').first}'),
             pw.SizedBox(height: 16),
-            pw.TableHelper.fromTextArray(
+            pw.Table.fromTextArray(
               headers: ['Test', 'Date', 'Value', 'Range', 'Status'],
               data: _results
                   .map((r) => [
@@ -85,7 +85,7 @@ class _LabResultsScreenState extends State<LabResultsScreen> {
     final testNames = _results.map((r) => r.testName).toSet().toList();
 
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -97,7 +97,7 @@ class _LabResultsScreenState extends State<LabResultsScreen> {
                 if (_results.isNotEmpty)
                   IconButton(
                     icon: const Icon(Icons.picture_as_pdf_outlined,
-                        color: AppColors.lime, size: 20),
+                        color: AppColors.success, size: 20),
                     onPressed: _downloadReport,
                     tooltip: 'Download report',
                   ),
@@ -117,7 +117,7 @@ class _LabResultsScreenState extends State<LabResultsScreen> {
                               textAlign: TextAlign.center,
                               style: BloomTextStyles.inter(
                                 size: 12.5,
-                                color: AppColors.darkTextMuted,
+                                color: AppColors.textMuted,
                               ),
                             ),
                           ),
@@ -217,7 +217,7 @@ class _TrendPainter extends CustomPainter {
     }
 
     final linePaint = Paint()
-      ..color = AppColors.lime
+      ..color = AppColors.success
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke;
     final path = Path();

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/medical_history_repository.dart';
+import '../../../theme/app_theme.dart';
 
 /// Simplified Medical History View for Students
 ///
@@ -72,16 +73,17 @@ class _StudentMedicalHistoryViewState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.pageBg,
       appBar: AppBar(
         title: const Text(
           'My Medical History',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
-        backgroundColor: const Color(0xFF3A86FF),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
+          tooltip: 'Back',
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
@@ -108,7 +110,7 @@ class _StudentMedicalHistoryViewState
   Widget _buildBody() {
     if (_isLoading) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF3A86FF)),
+        child: CircularProgressIndicator(color: AppColors.primary),
       );
     }
 
@@ -119,7 +121,7 @@ class _StudentMedicalHistoryViewState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red.shade400),
+              Icon(Icons.error_outline, size: 64, color: AppColors.error),
               const SizedBox(height: 16),
               Text(
                 _error!,
@@ -149,7 +151,7 @@ class _StudentMedicalHistoryViewState
             Icon(
               Icons.medical_information_outlined,
               size: 80,
-              color: Colors.grey.shade400,
+              color: AppColors.textMuted,
             ),
             const SizedBox(height: 16),
             Text(
@@ -157,14 +159,14 @@ class _StudentMedicalHistoryViewState
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
+                color: AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'A doctor or school staff member will add your medical history.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+              style: TextStyle(fontSize: 14, color: AppColors.textMuted),
             ),
             const SizedBox(height: 20),
             OutlinedButton.icon(
@@ -181,7 +183,7 @@ class _StudentMedicalHistoryViewState
   Widget _buildContent() {
     return RefreshIndicator(
       onRefresh: _loadData,
-      color: const Color(0xFF3A86FF),
+      color: AppColors.primary,
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -200,11 +202,11 @@ class _StudentMedicalHistoryViewState
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.science_outlined, color: Color(0xFF3A86FF)),
+                    const Icon(Icons.science_outlined, color: AppColors.primary),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Text(
@@ -212,7 +214,7 @@ class _StudentMedicalHistoryViewState
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
-                    Icon(Icons.chevron_right, color: Colors.grey.shade400),
+                    Icon(Icons.chevron_right, color: AppColors.textMuted),
                   ],
                 ),
               ),
@@ -288,11 +290,11 @@ class _StudentMedicalHistoryViewState
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
             colors: isApproved
-                ? [const Color(0xFF059669).withValues(alpha: 0.1), Colors.white]
+                ? [AppColors.success.withValues(alpha: 0.1), Colors.white]
                 : hasDenial
-                ? [const Color(0xFFDC2626).withValues(alpha: 0.1), Colors.white]
+                ? [AppColors.error.withValues(alpha: 0.1), Colors.white]
                 : [
-                    const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                    AppColors.warning.withValues(alpha: 0.1),
                     Colors.white,
                   ],
             begin: Alignment.topLeft,
@@ -309,10 +311,10 @@ class _StudentMedicalHistoryViewState
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: isApproved
-                        ? const Color(0xFF059669).withValues(alpha: 0.2)
+                        ? AppColors.success.withValues(alpha: 0.2)
                         : hasDenial
-                        ? const Color(0xFFDC2626).withValues(alpha: 0.2)
-                        : const Color(0xFFF59E0B).withValues(alpha: 0.2),
+                        ? AppColors.error.withValues(alpha: 0.2)
+                        : AppColors.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -322,10 +324,10 @@ class _StudentMedicalHistoryViewState
                         ? Icons.cancel
                         : Icons.pending,
                     color: isApproved
-                        ? const Color(0xFF059669)
+                        ? AppColors.success
                         : hasDenial
-                        ? const Color(0xFFDC2626)
-                        : const Color(0xFFF59E0B),
+                        ? AppColors.error
+                        : AppColors.warning,
                     size: 28,
                   ),
                 ),
@@ -344,10 +346,10 @@ class _StudentMedicalHistoryViewState
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: isApproved
-                              ? const Color(0xFF059669)
+                              ? AppColors.success
                               : hasDenial
-                              ? const Color(0xFFDC2626)
-                              : const Color(0xFFF59E0B),
+                              ? AppColors.error
+                              : AppColors.warning,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -374,10 +376,10 @@ class _StudentMedicalHistoryViewState
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDC2626).withValues(alpha: 0.1),
+                  color: AppColors.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: const Color(0xFFDC2626).withValues(alpha: 0.3),
+                    color: AppColors.error.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Column(
@@ -385,14 +387,14 @@ class _StudentMedicalHistoryViewState
                   children: [
                     const Row(
                       children: [
-                        Icon(Icons.comment, size: 16, color: Color(0xFFDC2626)),
+                        Icon(Icons.comment, size: 16, color: AppColors.error),
                         SizedBox(width: 4),
                         Text(
                           'Feedback from Doctor:',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFFDC2626),
+                            color: AppColors.error,
                           ),
                         ),
                       ],
@@ -426,14 +428,14 @@ class _StudentMedicalHistoryViewState
           children: [
             Row(
               children: [
-                Icon(icon, color: const Color(0xFF3A86FF), size: 20),
+                Icon(icon, color: AppColors.primary, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   title,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF3A86FF),
+                    color: AppColors.primary,
                   ),
                 ),
               ],
@@ -466,7 +468,7 @@ class _StudentMedicalHistoryViewState
               'Not recorded',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey.shade500,
+                color: AppColors.textMuted,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -495,7 +497,7 @@ class _StudentMedicalHistoryViewState
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: AppColors.border),
             ),
             child: Text(
               value,
@@ -512,18 +514,18 @@ class _StudentMedicalHistoryViewState
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
+          color: AppColors.surfaceMuted,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            Icon(Icons.lock_outline, color: Colors.grey.shade500),
+            Icon(Icons.lock_outline, color: AppColors.textMuted),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 'PDF available after doctor approval',
                 style: TextStyle(
-                  color: Colors.grey.shade600,
+                  color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -538,7 +540,7 @@ class _StudentMedicalHistoryViewState
       icon: const Icon(Icons.download),
       label: const Text('Download PDF'),
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF3A86FF),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -550,7 +552,7 @@ class _StudentMedicalHistoryViewState
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Preparing PDF...'),
-        backgroundColor: Color(0xFF3A86FF),
+        backgroundColor: AppColors.primary,
       ),
     );
   }

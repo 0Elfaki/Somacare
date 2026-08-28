@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCameraUsageDescription</key>
+	<string>SomaCare uses your camera so you can see and be seen during a video consultation with your doctor.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SomaCare uses your microphone so you can talk to your doctor during a consultation.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SomaCare needs access to your photos so you can attach images of a symptom or a prescription to your record.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

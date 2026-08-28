@@ -11,7 +11,7 @@ enum AiRiskLevel { low, medium, high }
 /// - `risk` (String: 'low' | 'medium' | 'high')
 /// - `headline` (String)
 /// - `description` (String)
-/// - `notes` (`List<String>`)
+/// - `notes` (List<String>)
 class AiResultScreen extends StatelessWidget {
   final AiRiskLevel risk;
   final String headline;
@@ -27,7 +27,7 @@ class AiResultScreen extends StatelessWidget {
   });
 
   Color get _riskColor => switch (risk) {
-        AiRiskLevel.low => AppColors.lime,
+        AiRiskLevel.low => AppColors.success,
         AiRiskLevel.medium => AppColors.warning,
         AiRiskLevel.high => AppColors.error,
       };
@@ -41,7 +41,7 @@ class AiResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -54,9 +54,9 @@ class AiResultScreen extends StatelessWidget {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.darkSurface,
+                        color: AppColors.surface,
                         borderRadius: AppRadius.cardAll,
-                        border: Border.all(color: AppColors.darkBorder, width: 1),
+                        border: Border.all(color: AppColors.border, width: 1),
                       ),
                       child: Container(
                         padding: const EdgeInsets.all(15),
@@ -106,7 +106,7 @@ class AiResultScreen extends StatelessWidget {
                               style: BloomTextStyles.fraunces(
                                 size: 17,
                                 weight: FontWeight.w400,
-                                color: AppColors.darkTextPrimary,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 7),
@@ -114,7 +114,7 @@ class AiResultScreen extends StatelessWidget {
                               description,
                               style: BloomTextStyles.inter(
                                 size: 12,
-                                color: AppColors.darkTextSecondary,
+                                color: AppColors.textSecondary,
                                 height: 1.55,
                               ),
                             ),
@@ -135,7 +135,7 @@ class AiResultScreen extends StatelessWidget {
                                     '• $n',
                                     style: BloomTextStyles.inter(
                                       size: 12,
-                                      color: AppColors.darkTextPrimary,
+                                      color: AppColors.textPrimary,
                                       height: 1.7,
                                     ),
                                   ),
@@ -155,12 +155,12 @@ class AiResultScreen extends StatelessWidget {
                             onPressed: () => showDialog(
                               context: context,
                               builder: (_) => AlertDialog(
-                                backgroundColor: AppColors.darkSurface,
+                                backgroundColor: AppColors.surface,
                                 title: Text(
                                   'Self-care tips',
                                   style: BloomTextStyles.inter(
                                     weight: FontWeight.w700,
-                                    color: AppColors.darkTextPrimary,
+                                    color: AppColors.textPrimary,
                                   ),
                                 ),
                                 content: Text(
@@ -169,7 +169,7 @@ class AiResultScreen extends StatelessWidget {
                                   "don't improve or get worse.",
                                   style: BloomTextStyles.inter(
                                     size: 12.5,
-                                    color: AppColors.darkTextSecondary,
+                                    color: AppColors.textSecondary,
                                   ),
                                 ),
                                 actions: [

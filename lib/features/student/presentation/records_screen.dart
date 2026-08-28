@@ -9,7 +9,7 @@ class RecordsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -28,7 +28,7 @@ class RecordsScreen extends StatelessWidget {
                           title: 'Medical History',
                           subtitle: 'Conditions, allergies, immunizations',
                           trailing: const Icon(Icons.chevron_right,
-                              color: AppColors.darkTextMuted, size: 18),
+                              color: AppColors.textMuted, size: 18),
                           onTap: () => context.push('/medical-history'),
                         ),
                         BloomListItem(
@@ -37,16 +37,16 @@ class RecordsScreen extends StatelessWidget {
                           title: 'Lab Results',
                           subtitle: 'Test results and trends',
                           trailing: const Icon(Icons.chevron_right,
-                              color: AppColors.darkTextMuted, size: 18),
+                              color: AppColors.textMuted, size: 18),
                           onTap: () => context.push('/lab-results'),
                         ),
                         BloomListItem(
                           leading: const Icon(Icons.description_outlined,
-                              color: AppColors.lime, size: 20),
+                              color: AppColors.success, size: 20),
                           title: 'Prescriptions',
                           subtitle: 'Active and past prescriptions',
                           trailing: const Icon(Icons.chevron_right,
-                              color: AppColors.darkTextMuted, size: 18),
+                              color: AppColors.textMuted, size: 18),
                           onTap: () => context.push('/prescriptions'),
                           showBorder: false,
                         ),

@@ -147,14 +147,22 @@ final GoRouter appRouter = GoRouter(
       final role = _authNotifier.cachedRole ?? '';
       // If a student tries to access doctor routes, redirect to student dashboard
       if (role == 'student' &&
-          (loc.startsWith('/doctor-') ||
+          (loc.startsWith('/doctor') ||
               loc == '/appointment-detail' ||
               loc == '/encounter-form' ||
               loc == '/prescription-writer')) {
         return '/student-dashboard';
       }
+      // Doctor-only screens whose paths happen to start with `/student-`.
+      // These must be excluded from the student-route guard below, or a
+      // doctor opening a patient gets bounced back to their own dashboard.
+      const doctorOwnedStudentRoutes = <String>{
+        '/student-profile',
+      };
+
       // If a doctor tries to access student routes, redirect to doctor dashboard
       if (role == 'doctor' &&
+          !doctorOwnedStudentRoutes.contains(loc) &&
           (loc.startsWith('/student-') ||
               loc == '/book-appointment' ||
               loc == '/my-appointments' ||
@@ -170,7 +178,7 @@ final GoRouter appRouter = GoRouter(
     }
 
     // Doctor routes bypass the student-specific redirect below
-    if (loc.startsWith('/doctor-')) return null;
+    if (loc.startsWith('/doctor')) return null;
     if (loc == '/appointment-detail') return null;
     if (loc == '/doctor-consult') return null;
     if (loc == '/student-profile') return null;
@@ -283,12 +291,21 @@ final GoRouter appRouter = GoRouter(
         ),
 
         GoRoute(
-          path: '/doctor-medical-history/:studentId?',
+          path: '/doctor-medical-history',
+          pageBuilder: (c, s) => const MaterialPage(
+            key: ValueKey('doctor-medical-history-all'),
+            child: DoctorMedicalHistoryManagementScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/doctor-medical-history/:studentId',
           pageBuilder: (c, s) {
             final studentId = s.pathParameters['studentId'];
             return MaterialPage(
               key: ValueKey('doctor-medical-history-${studentId ?? 'none'}'),
-              child: DoctorMedicalHistoryManagementScreen(studentId: studentId),
+              child: DoctorMedicalHistoryManagementScreen(
+                studentId: studentId,
+              ),
             );
           },
         ),
@@ -393,18 +410,6 @@ final GoRouter appRouter = GoRouter(
             'prescription-writer-${apptId.isEmpty ? 'none' : apptId}',
           ),
           child: PrescriptionWriterScreen(extra: data),
-        );
-      },
-    ),
-
-    GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
-      path: '/doctor/student/:studentId',
-      pageBuilder: (c, s) {
-        final studentId = s.pathParameters['studentId'] ?? '';
-        return MaterialPage(
-          key: ValueKey('doctor-student-$studentId'),
-          child: StudentProfileScreen(extra: {'studentId': studentId}),
         );
       },
     ),

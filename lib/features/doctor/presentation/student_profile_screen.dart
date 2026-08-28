@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'doctor_medical_history_management_screen.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 import '../../student/data/lab_result_model.dart';
 import '../../student/data/lab_result_repository.dart';
 
@@ -53,7 +54,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
     final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.darkSurface,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -76,7 +77,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.darkTextPrimary,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -143,7 +144,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                 const SizedBox(height: 8),
                 DropdownButtonFormField<LabResultStatus>(
                   initialValue: status,
-                  dropdownColor: AppColors.darkSurface,
+                  dropdownColor: AppColors.surface,
                   style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(labelText: 'Status'),
                   items: LabResultStatus.values
@@ -194,14 +195,20 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
       ),
     );
 
+    // The five controllers above live exactly as long as the sheet. Without
+    // this they leaked on every open — each one holds a listener list and a
+    // native text-input connection.
+    for (final c in [testCtrl, valueCtrl, unitCtrl, lowCtrl, highCtrl]) {
+      c.dispose();
+    }
+
     if (saved == true) {
       await _loadLabResults();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Lab result added'),
-            backgroundColor: AppColors.success,
-          ),
+        showAppSnack(
+          context,
+          'Lab result added.',
+          tone: AppStatusTone.success,
         );
       }
     }
@@ -277,9 +284,9 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
   }
 
   Color _bmiColor(double bmi) {
-    if (bmi < 18.5) return const Color(0xFF0891B2);
+    if (bmi < 18.5) return AppColors.info;
     if (bmi < 25) return AppColors.primary;
-    if (bmi < 30) return const Color(0xFFD97706);
+    if (bmi < 30) return AppColors.warningDark;
     return AppColors.error;
   }
 
@@ -298,39 +305,26 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: AppColors.darkScreenBg,
+        backgroundColor: AppColors.pageBg,
         appBar: AppBar(
-          backgroundColor: AppColors.darkSurface,
-          elevation: 0,
           leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: AppColors.darkTextPrimary,
-            ),
+            icon: const Icon(Icons.arrow_back_rounded),
+            tooltip: 'Back',
             onPressed: () => context.pop(),
           ),
-          title: Text(
-            fullName,
-            style: const TextStyle(
-              color: AppColors.darkTextPrimary,
-              fontWeight: FontWeight.w800,
-              fontSize: 18,
-            ),
-          ),
+          title: Text(fullName, overflow: TextOverflow.ellipsis),
           actions: [
             IconButton(
-              icon: const Icon(Icons.refresh, color: AppColors.primary),
+              icon: const Icon(Icons.refresh_rounded),
+              tooltip: 'Refresh',
               onPressed: _loadData,
             ),
           ],
           bottom: const TabBar(
-            labelColor: AppColors.primary,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: AppColors.primary,
             tabs: [
               Tab(text: 'Overview'),
               Tab(text: 'Labs'),
-              Tab(text: 'Medical History'),
+              Tab(text: 'History'),
             ],
           ),
         ),
@@ -352,7 +346,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [AppColors.primary, Color(0xFF0891B2)],
+                              colors: [AppColors.primary, AppColors.info],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
@@ -412,7 +406,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                 label: 'Height',
                                 value: '$height cm',
                                 icon: Icons.height,
-                                color: const Color(0xFF0891B2),
+                                color: AppColors.info,
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -421,7 +415,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                 label: 'Weight',
                                 value: '$weight kg',
                                 icon: Icons.monitor_weight_outlined,
-                                color: const Color(0xFF7C3AED),
+                                color: AppColors.accent,
                               ),
                             ),
                           ],
@@ -454,7 +448,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                           label: 'Blood Type',
                           value: bloodType,
                           icon: Icons.bloodtype_outlined,
-                          color: const Color(0xFFDB2777),
+                          color: AppColors.accent,
                         ),
                         const SizedBox(height: 20),
 
@@ -466,8 +460,8 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: allergies.isEmpty
-                                ? const Color(0xFFECFDF5)
-                                : const Color(0xFFFFF7ED),
+                                ? AppColors.successSurface
+                                : AppColors.warningSurface,
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: allergies.isEmpty
@@ -485,7 +479,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                     : Icons.warning_amber_outlined,
                                 color: allergies.isEmpty
                                     ? AppColors.primary
-                                    : const Color(0xFFD97706),
+                                    : AppColors.warningDark,
                                 size: 20,
                               ),
                               const SizedBox(width: 10),
@@ -497,7 +491,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                   style: TextStyle(
                                     color: allergies.isEmpty
                                         ? AppColors.primary
-                                        : const Color(0xFF92400E),
+                                        : AppColors.warningDark,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14,
                                   ),
@@ -561,7 +555,7 @@ class _LabsTab extends StatelessWidget {
 
   Color _statusColor(LabResultStatus s) => switch (s) {
     LabResultStatus.normal => AppColors.primary,
-    LabResultStatus.abnormal => const Color(0xFFD97706),
+    LabResultStatus.abnormal => AppColors.warningDark,
     LabResultStatus.critical => AppColors.error,
   };
 
@@ -604,7 +598,7 @@ class _LabsTab extends StatelessWidget {
                       return Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: AppColors.darkSurface,
+                          color: AppColors.surface,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: color.withValues(alpha: 0.2),
@@ -621,14 +615,14 @@ class _LabsTab extends StatelessWidget {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 13,
-                                      color: AppColors.darkTextPrimary,
+                                      color: AppColors.textPrimary,
                                     ),
                                   ),
                                   Text(
                                     '${r.testDate.toIso8601String().split('T').first} · ${r.rangeLabel}',
                                     style: const TextStyle(
                                       fontSize: 11,
-                                      color: AppColors.darkTextMuted,
+                                      color: AppColors.textMuted,
                                     ),
                                   ),
                                 ],
@@ -677,7 +671,7 @@ class _SectionHeader extends StatelessWidget {
       style: const TextStyle(
         fontSize: 15,
         fontWeight: FontWeight.w800,
-        color: AppColors.darkTextPrimary,
+        color: AppColors.textPrimary,
       ),
     );
   }
@@ -703,7 +697,7 @@ class _VitalCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.15)),
         boxShadow: [
@@ -734,7 +728,7 @@ class _VitalCard extends StatelessWidget {
                   label,
                   style: const TextStyle(
                     fontSize: 11,
-                    color: AppColors.darkTextMuted,
+                    color: AppColors.textMuted,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -771,17 +765,17 @@ class _PrescriptionChip extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
+        color: AppColors.primarySurface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFF3B82F6).withValues(alpha: 0.2),
+          color: AppColors.primaryLight.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
         children: [
           const Icon(
             Icons.medication_outlined,
-            color: Color(0xFF3B82F6),
+            color: AppColors.primaryLight,
             size: 18,
           ),
           const SizedBox(width: 10),
@@ -794,14 +788,14 @@ class _PrescriptionChip extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
-                    color: Color(0xFF1E40AF),
+                    color: AppColors.primaryDark,
                   ),
                 ),
                 Text(
                   '$dosage · $frequency',
                   style: const TextStyle(
                     fontSize: 12,
-                    color: AppColors.darkTextSecondary,
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -830,9 +824,9 @@ class _PastAppointmentRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -844,14 +838,14 @@ class _PastAppointmentRow extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
-                  color: AppColors.darkTextPrimary,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFECFDF5),
+                  color: AppColors.successSurface,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -870,7 +864,7 @@ class _PastAppointmentRow extends StatelessWidget {
             reason,
             style: const TextStyle(
               fontSize: 12,
-              color: AppColors.darkTextSecondary,
+              color: AppColors.textSecondary,
             ),
           ),
           if (notes.isNotEmpty) ...[
@@ -879,7 +873,7 @@ class _PastAppointmentRow extends StatelessWidget {
               'Notes: $notes',
               style: const TextStyle(
                 fontSize: 12,
-                color: Color(0xFF475569),
+                color: AppColors.textStrong,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -903,18 +897,18 @@ class _EmptyState extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         children: [
-          Icon(icon, size: 40, color: const Color(0xFFCBD5E1)),
+          Icon(icon, size: 40, color: AppColors.borderStrong),
           const SizedBox(height: 8),
           Text(
             message,
             style: const TextStyle(
-              color: AppColors.darkTextMuted,
+              color: AppColors.textMuted,
               fontWeight: FontWeight.w600,
             ),
           ),

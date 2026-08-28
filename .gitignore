@@ -15,3 +15,15 @@ android/local.properties
 # OS files
 .DS_Store
 Thumbs.db
+
+# Release signing — never commit
+android/key.properties
+*.jks
+*.keystore
+
+# Crash dumps and analyzer replay logs (3.6 MB of these were committed)
+hs_err_pid*.log
+replay_pid*.log
+flutter_*.log
+.flutter-plugins
+.flutter-plugins-dependencies

@@ -107,13 +107,13 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
   Color _getStatusColor(PrescriptionStatus status) {
     switch (status) {
       case PrescriptionStatus.active:
-        return const Color(0xFF22C55E);
+        return AppColors.success;
       case PrescriptionStatus.pending:
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       case PrescriptionStatus.completed:
-        return const Color(0xFF3B82F6);
+        return AppColors.primaryLight;
       case PrescriptionStatus.expired:
-        return const Color(0xFFEF4444);
+        return AppColors.error;
     }
   }
 
@@ -164,7 +164,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           // App Bar
@@ -174,6 +174,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
             pinned: true,
             backgroundColor: AppColors.primaryDark,
             leading: IconButton(
+              tooltip: 'Back',
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => context.pop(),
             ),
@@ -186,6 +187,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
             ),
             actions: [
               IconButton(
+                tooltip: 'Notifications',
                 icon: const Icon(
                   Icons.notifications_outlined,
                   color: Colors.white,
@@ -322,13 +324,13 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Your scheduled medication times for today',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -390,7 +392,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   icon: Icons.medication,
                   label: 'Active',
                   value: _activeCount.toString(),
-                  color: const Color(0xFF22C55E),
+                  color: AppColors.success,
                   isActive: _selectedFilter == PrescriptionStatus.active,
                   onTap: () => setState(() {
                     _showExpiringOnly = false;
@@ -408,7 +410,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   icon: Icons.pending_actions,
                   label: 'Pending',
                   value: _pendingRefills.toString(),
-                  color: const Color(0xFFF59E0B),
+                  color: AppColors.warning,
                   isActive: _selectedFilter == PrescriptionStatus.pending,
                   onTap: () => setState(() {
                     _showExpiringOnly = false;
@@ -426,7 +428,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   icon: Icons.warning_amber,
                   label: 'Expiring',
                   value: _expiringSoon.toString(),
-                  color: const Color(0xFFEF4444),
+                  color: AppColors.error,
                   isActive: _showExpiringOnly,
                   onTap: () => setState(() {
                     _selectedFilter = null;
@@ -511,11 +513,12 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
         },
         decoration: InputDecoration(
           hintText: 'Search prescriptions...',
-          hintStyle: TextStyle(color: Colors.grey[400]),
-          prefixIcon: const Icon(Icons.search, color: Color(0xFF5B8CFF)),
+          hintStyle: TextStyle(color: AppColors.textMuted),
+          prefixIcon: const Icon(Icons.search, color: AppColors.primaryLight),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear, color: Colors.grey),
+                  tooltip: 'Clear',
+                  icon: const Icon(Icons.clear, color: AppColors.textMuted),
                   onPressed: () {
                     _searchController.clear();
                     setState(() {
@@ -568,13 +571,13 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
       selectedColor: AppColors.primary.withValues(alpha: 0.2),
       checkmarkColor: AppColors.primary,
       labelStyle: TextStyle(
-        color: isSelected ? AppColors.primary : const Color(0xFF64748B),
+        color: isSelected ? AppColors.primary : AppColors.textSecondary,
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected ? AppColors.primary : const Color(0xFFE2E8F0),
+          color: isSelected ? AppColors.primary : AppColors.border,
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -604,7 +607,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -678,7 +681,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: AppColors.border),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -686,7 +689,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
             const Icon(
               Icons.calendar_today,
               size: 18,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -694,8 +697,8 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                 date != null ? DateFormat('MMM dd, yyyy').format(date) : label,
                 style: TextStyle(
                   color: date != null
-                      ? const Color(0xFF1E293B)
-                      : const Color(0xFF94A3B8),
+                      ? AppColors.textPrimary
+                      : AppColors.textMuted,
                   fontSize: 14,
                 ),
               ),
@@ -751,7 +754,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ],
@@ -844,7 +847,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                                 .difference(DateTime.now())
                                 .inDays <=
                             7
-                        ? const Color(0xFFEF4444)
+                        ? AppColors.error
                         : null,
                   ),
                 ],
@@ -854,7 +857,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
+                    color: AppColors.pageBg,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -865,13 +868,13 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                           const Icon(
                             Icons.refresh,
                             size: 20,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                           ),
                           const SizedBox(width: 8),
                           Text(
                             'Refills: ${prescription.refillsRemaining} of ${prescription.refillsTotal}',
                             style: const TextStyle(
-                              color: Color(0xFF64748B),
+                              color: AppColors.textSecondary,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -883,8 +886,8 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                           height: 8,
                           decoration: BoxDecoration(
                             color: prescription.refillsRemaining > 1
-                                ? const Color(0xFF22C55E)
-                                : const Color(0xFFF59E0B),
+                                ? AppColors.success
+                                : AppColors.warning,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -899,7 +902,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
+                      color: AppColors.warningSurface,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -908,14 +911,14 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                         const Icon(
                           Icons.info_outline,
                           size: 18,
-                          color: Color(0xFFD97706),
+                          color: AppColors.warningDark,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             prescription.instructions!,
                             style: const TextStyle(
-                              color: Color(0xFF92400E),
+                              color: AppColors.warningDark,
                               fontSize: 13,
                             ),
                           ),
@@ -932,7 +935,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: const BoxDecoration(
-              border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
+              border: Border(top: BorderSide(color: AppColors.surfaceMuted)),
             ),
             child: Row(
               children: [
@@ -975,7 +978,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                                   content: Text(
                                     'Refill request submitted for ${prescription.medicationName}',
                                   ),
-                                  backgroundColor: const Color(0xFF22C55E),
+                                  backgroundColor: AppColors.success,
                                 ),
                               );
                             }
@@ -985,7 +988,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                     label: const Text('Refill'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primary,
-                      side: const BorderSide(color: Color(0xFF5B8CFF)),
+                      side: const BorderSide(color: AppColors.primaryLight),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -996,13 +999,14 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                 const SizedBox(width: 8),
                 // View Details Button
                 IconButton(
+                  tooltip: 'View details',
                   onPressed: () {
                     _showPrescriptionDetails(prescription);
                   },
                   icon: const Icon(Icons.visibility),
                   style: IconButton.styleFrom(
-                    backgroundColor: const Color(0xFFF1F5F9),
-                    foregroundColor: const Color(0xFF64748B),
+                    backgroundColor: AppColors.surfaceMuted,
+                    foregroundColor: AppColors.textSecondary,
                   ),
                 ),
                 // Download PDF Button
@@ -1011,7 +1015,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   icon: const Icon(Icons.picture_as_pdf_outlined),
                   tooltip: 'Download',
                   style: IconButton.styleFrom(
-                    backgroundColor: const Color(0xFFF1F5F9),
+                    backgroundColor: AppColors.surfaceMuted,
                     foregroundColor: AppColors.primary,
                   ),
                 ),
@@ -1027,18 +1031,18 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: AppColors.surfaceMuted,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: const Color(0xFF64748B)),
+          Icon(icon, size: 16, color: AppColors.textSecondary),
           const SizedBox(width: 6),
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -1055,17 +1059,17 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
   }) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: const Color(0xFF94A3B8)),
+        Icon(icon, size: 16, color: AppColors.textMuted),
         const SizedBox(width: 8),
         Text(
           '$label: ',
-          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+          style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
         ),
         Expanded(
           child: Text(
             value,
             style: TextStyle(
-              color: valueColor ?? const Color(0xFF64748B),
+              color: valueColor ?? AppColors.textSecondary,
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -1113,7 +1117,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
               color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.alarm, color: Color(0xFF5B8CFF), size: 28),
+            child: const Icon(Icons.alarm, color: AppColors.primaryLight, size: 28),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -1125,7 +1129,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -1133,7 +1137,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   DateFormat('h:mm a').format(reminder.scheduledTime!),
                   style: const TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -1148,13 +1152,13 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
+                  color: AppColors.warningSurface,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   timeText,
                   style: const TextStyle(
-                    color: Color(0xFFD97706),
+                    color: AppColors.warningDark,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1166,12 +1170,12 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Marked as taken!'),
-                      backgroundColor: Color(0xFF22C55E),
+                      backgroundColor: AppColors.success,
                     ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF22C55E),
+                  backgroundColor: AppColors.success,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -1200,13 +1204,13 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: AppColors.surfaceMuted,
               borderRadius: BorderRadius.circular(50),
             ),
             child: const Icon(
               Icons.search_off,
               size: 48,
-              color: Color(0xFF94A3B8),
+              color: AppColors.textMuted,
             ),
           ),
           const SizedBox(height: 20),
@@ -1215,13 +1219,13 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Try adjusting your search or filters',
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            style: TextStyle(fontSize: 14, color: AppColors.textMuted),
           ),
         ],
       ),
@@ -1248,7 +1252,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFE2E8F0),
+                color: AppColors.border,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -1283,20 +1287,21 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         Text(
                           prescription.dosage,
                           style: const TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
                     ),
                   ),
                   IconButton(
+                    tooltip: 'Close',
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
                   ),
@@ -1398,7 +1403,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                               content: Text(
                                 'Refill request submitted for ${prescription.medicationName}',
                               ),
-                              backgroundColor: const Color(0xFF22C55E),
+                              backgroundColor: AppColors.success,
                             ),
                           );
                         }
@@ -1407,7 +1412,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                       label: const Text('Request Refill'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primary,
-                        side: const BorderSide(color: Color(0xFF5B8CFF)),
+                        side: const BorderSide(color: AppColors.primaryLight),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -1438,10 +1443,10 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: AppColors.surfaceMuted,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, size: 20, color: const Color(0xFF64748B)),
+            child: Icon(icon, size: 20, color: AppColors.textSecondary),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1452,7 +1457,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   title,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF94A3B8),
+                    color: AppColors.textMuted,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -1461,7 +1466,7 @@ class _PrescriptionsScreenState extends ConsumerState<PrescriptionsScreen>
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ],

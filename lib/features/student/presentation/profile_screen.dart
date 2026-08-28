@@ -225,7 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.textTertiary,
+                  color: AppColors.textMuted,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -274,7 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textTertiary,
+                            color: AppColors.textMuted,
                           ),
                         ),
                       ),
@@ -287,7 +287,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textTertiary,
+                            color: AppColors.textMuted,
                           ),
                         ),
                       ),
@@ -384,7 +384,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.textTertiary,
+                  color: AppColors.textMuted,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -405,7 +405,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               decoration: InputDecoration(
                 hintText: hint,
                 filled: true,
-                fillColor: AppColors.surfaceVariant,
+                fillColor: AppColors.surfaceMuted,
                 border: OutlineInputBorder(
                   borderRadius: AppRadius.mdAll,
                   borderSide: BorderSide(color: color),
@@ -447,7 +447,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
-    );
+    )
+        // The sheet owns this controller; release it when the sheet
+        // closes rather than leaking one per open.
+        .whenComplete(ctrl.dispose);
   }
 
   void _showCardSheet(BuildContext ctx) {
@@ -476,7 +479,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.textTertiary,
+                  color: AppColors.textMuted,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -546,14 +549,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
-    );
+    )
+        // The sheet owns these controllers; release them when it closes.
+        .whenComplete(() {
+      cardCtrl.dispose();
+      expiryCtrl.dispose();
+      cvvCtrl.dispose();
+    });
   }
 
   InputDecoration _cardDeco(String hint, IconData icon) => InputDecoration(
     hintText: hint,
-    prefixIcon: Icon(icon, size: 18, color: AppColors.textTertiary),
+    prefixIcon: Icon(icon, size: 18, color: AppColors.textMuted),
     filled: true,
-    fillColor: AppColors.surfaceVariant,
+    fillColor: AppColors.surfaceMuted,
     border: const OutlineInputBorder(
       borderRadius: AppRadius.mdAll,
       borderSide: BorderSide(color: AppColors.border),
@@ -588,7 +597,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.textTertiary,
+                  color: AppColors.textMuted,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -609,7 +618,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               decoration: const InputDecoration(
                 hintText: 'New Password',
                 filled: true,
-                fillColor: AppColors.surfaceVariant,
+                fillColor: AppColors.surfaceMuted,
                 border: OutlineInputBorder(
                   borderRadius: AppRadius.mdAll,
                   borderSide: BorderSide(color: AppColors.border),
@@ -667,7 +676,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
-    );
+    )
+        // The sheet owns this controller; release it when the sheet
+        // closes rather than leaking one per open.
+        .whenComplete(ctrl.dispose);
   }
 
   // ── About SOMA CARE ────────────────────────────────────────────────────────
@@ -686,7 +698,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.textTertiary,
+                color: AppColors.textMuted,
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
@@ -696,7 +708,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 80,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [AppColors.primary, AppColors.secondary],
+                  colors: [AppColors.primary, AppColors.success],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -716,7 +728,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 8),
             const Text(
               'Version 2.0.0',
-              style: TextStyle(fontSize: 14, color: AppColors.textTertiary),
+              style: TextStyle(fontSize: 14, color: AppColors.textMuted),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -727,7 +739,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 24),
             const Text(
               '© 2026 SOMACARE',
-              style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
             const SizedBox(height: 16),
           ],
@@ -774,7 +786,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final school = _profile?['school'] as String? ?? 'University';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.pageBg,
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
@@ -791,7 +803,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Container(
                         decoration: const BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [AppColors.primary, AppColors.secondary],
+                            colors: [AppColors.primary, AppColors.success],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -1035,7 +1047,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const _HDivider(),
                                 _MenuTile(
                                   icon: Icons.inventory_2_outlined,
-                                  color: const Color(0xFFDB2777),
+                                  color: AppColors.accent,
                                   label: 'My Prescriptions',
                                   onTap: () => context.push('/prescriptions'),
                                 ),
@@ -1049,7 +1061,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const _HDivider(),
                                 _MenuTile(
                                   icon: Icons.medication_outlined,
-                                  color: AppColors.secondary,
+                                  color: AppColors.success,
                                   label: 'My Medications',
                                   onTap: () => context.push('/my-medications'),
                                 ),
@@ -1082,12 +1094,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   logo: '📱',
                                   name: 'MTN Mobile Money',
                                   subtitle: 'Link your MTN MoMo number',
-                                  color: const Color(0xFFFFCC00),
+                                  color: PaymentBrandColors.mpesaYellow,
                                   onTap: () => _showPaymentSheet(
                                     context,
                                     'MTN Mobile Money',
                                     'Enter MTN number (e.g. 077X XXX XXX)',
-                                    const Color(0xFFFFAA00),
+                                    PaymentBrandColors.mpesaAmber,
                                   ),
                                 ),
                                 const _HDivider(),
@@ -1095,12 +1107,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   logo: '📱',
                                   name: 'Airtel Money',
                                   subtitle: 'Link your Airtel number',
-                                  color: const Color(0xFFDC2626),
+                                  color: AppColors.error,
                                   onTap: () => _showPaymentSheet(
                                     context,
                                     'Airtel Money',
                                     'Enter Airtel number (e.g. 075X XXX XXX)',
-                                    const Color(0xFFDC2626),
+                                    AppColors.error,
                                   ),
                                 ),
                                 const _HDivider(),
@@ -1158,10 +1170,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 _SettingsTile(
                                   icon: Icons.dark_mode_outlined,
                                   label: 'Dark Mode',
-                                  color: AppColors.secondary,
+                                  color: AppColors.success,
                                   trailing: Switch(
                                     value: _darkMode,
-                                    activeThumbColor: AppColors.secondary,
+                                    activeThumbColor: AppColors.success,
                                     onChanged: (v) =>
                                         setState(() => _darkMode = v),
                                   ),
@@ -1246,7 +1258,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const _HDivider(),
                                 _MenuTile(
                                   icon: Icons.help_outline,
-                                  color: AppColors.secondary,
+                                  color: AppColors.success,
                                   label: 'FAQs',
                                   onTap: () => ScaffoldMessenger.of(context)
                                       .showSnackBar(
@@ -1282,7 +1294,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const _HDivider(),
                                 _MenuTile(
                                   icon: Icons.info_outline,
-                                  color: AppColors.textTertiary,
+                                  color: AppColors.textMuted,
                                   label: 'App Version 2.0.0',
                                   onTap: () {},
                                 ),
@@ -1387,7 +1399,7 @@ class _Card extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: AppRadius.lgAll,
-        border: Border.all(color: AppColors.surfaceVariant),
+        border: Border.all(color: AppColors.surfaceMuted),
         boxShadow: AppShadows.card,
       ),
       child: ClipRRect(borderRadius: AppRadius.lgAll, child: child),
@@ -1442,7 +1454,7 @@ class _PickerRow extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textTertiary,
+                        color: AppColors.textMuted,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -1508,7 +1520,7 @@ class _TypedRow extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: AppColors.warningLight.withValues(alpha: 0.3),
+              color: AppColors.warningTint.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, size: 20, color: AppColors.warning),
@@ -1523,7 +1535,7 @@ class _TypedRow extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textTertiary,
+                    color: AppColors.textMuted,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -1601,7 +1613,7 @@ class _PickerSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: AppColors.textTertiary,
+              color: AppColors.textMuted,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -1691,7 +1703,7 @@ class _MenuTile extends StatelessWidget {
               ),
               const Icon(
                 Icons.chevron_right,
-                color: AppColors.textTertiary,
+                color: AppColors.textMuted,
                 size: 24,
               ),
             ],
@@ -1759,7 +1771,7 @@ class _PaymentTile extends StatelessWidget {
                       subtitle,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: AppColors.textTertiary,
+                        color: AppColors.textMuted,
                       ),
                     ),
                   ],
@@ -1767,7 +1779,7 @@ class _PaymentTile extends StatelessWidget {
               ),
               const Icon(
                 Icons.chevron_right,
-                color: AppColors.textTertiary,
+                color: AppColors.textMuted,
                 size: 24,
               ),
             ],
@@ -1832,7 +1844,7 @@ class _SettingsTile extends StatelessWidget {
               if (onTap != null && trailing == null)
                 const Icon(
                   Icons.chevron_right,
-                  color: AppColors.textTertiary,
+                  color: AppColors.textMuted,
                   size: 24,
                 ),
             ],

@@ -185,7 +185,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.textTertiary,
+                    color: AppColors.textMuted,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -326,7 +326,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
             SizedBox(height: 16),
             Text(
               '© 2026 Somacare\nAll rights reserved.',
-              style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
           ],
         ),
@@ -413,7 +413,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
         (_profile?['specialization'] as String?) ?? 'General Practice';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.pageBg,
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
@@ -606,7 +606,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                                       const _HDivider(),
                                       _ActionTile(
                                         icon: Icons.info_outline_rounded,
-                                        color: AppColors.secondary,
+                                        color: AppColors.success,
                                         label: 'About',
                                         subtitle: 'App version & info',
                                         onTap: () => _showAboutDialog(),
@@ -749,7 +749,7 @@ class _Card extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: AppRadius.lgAll,
-        border: Border.all(color: AppColors.surfaceVariant),
+        border: Border.all(color: AppColors.surfaceMuted),
         boxShadow: AppShadows.card,
       ),
       child: ClipRRect(borderRadius: AppRadius.lgAll, child: child),
@@ -800,7 +800,7 @@ class _ProfileField extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textTertiary,
+                    color: AppColors.textMuted,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -817,7 +817,7 @@ class _ProfileField extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: hint,
                       hintStyle: const TextStyle(
-                        color: AppColors.textTertiary,
+                        color: AppColors.textMuted,
                         fontSize: 15,
                       ),
                       isDense: true,
@@ -850,7 +850,7 @@ class _ProfileField extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       color: controller.text.isEmpty
-                          ? AppColors.textTertiary
+                          ? AppColors.textMuted
                           : AppColors.textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
@@ -887,10 +887,10 @@ class _InfoRow extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: AppColors.secondaryLight.withValues(alpha: 0.1),
+              color: AppColors.successTint.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, size: 20, color: AppColors.secondary),
+            child: Icon(icon, size: 20, color: AppColors.success),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -902,7 +902,7 @@ class _InfoRow extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textTertiary,
+                    color: AppColors.textMuted,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -978,7 +978,7 @@ class _ActionTile extends StatelessWidget {
                       subtitle,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: AppColors.textTertiary,
+                        color: AppColors.textMuted,
                       ),
                     ),
                   ],
@@ -986,7 +986,7 @@ class _ActionTile extends StatelessWidget {
               ),
               const Icon(
                 Icons.chevron_right,
-                color: AppColors.textTertiary,
+                color: AppColors.textMuted,
                 size: 24,
               ),
             ],
@@ -1060,7 +1060,7 @@ class _SettingsTile extends StatelessWidget {
               ),
               ?trailing,
               if (onTap != null && trailing == null)
-                const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+                const Icon(Icons.chevron_right, color: AppColors.textMuted),
             ],
           ),
         ),

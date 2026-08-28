@@ -177,7 +177,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           content: Text(
             '🚨 Emergency appointment started! Doctor has been notified.',
           ),
-          backgroundColor: Color(0xFF22C55E),
+          backgroundColor: AppColors.success,
           duration: Duration(seconds: 4),
         ),
       );
@@ -186,7 +186,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           content: Text(
             '⏳ Emergency request sent! Waiting for doctor to accept.',
           ),
-          backgroundColor: Color(0xFFF59E0B),
+          backgroundColor: AppColors.warning,
           duration: Duration(seconds: 4),
         ),
       );
@@ -196,7 +196,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('❌ Failed to book: $e'),
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: AppColors.error,
         ),
       );
     } finally {
@@ -224,7 +224,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.darkScreenBg,
+        backgroundColor: AppColors.pageBg,
         body: SafeArea(
           child: Column(
             children: [
@@ -241,7 +241,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         child: Text(
                           'No doctors available',
                           style: BloomTextStyles.inter(
-                            color: AppColors.darkTextMuted,
+                            color: AppColors.textMuted,
                           ),
                         ),
                       )
@@ -296,7 +296,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                         style: BloomTextStyles.inter(
                                           size: 12,
                                           weight: FontWeight.w600,
-                                          color: AppColors.darkTextPrimary,
+                                          color: AppColors.textPrimary,
                                         ),
                                       ),
                                     ),
@@ -338,14 +338,14 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                         decoration: BoxDecoration(
                                           color: selected
                                               ? AppColors.primary
-                                              : AppColors.darkSurface,
+                                              : AppColors.surface,
                                           borderRadius: BorderRadius.circular(
                                             999,
                                           ),
                                           border: selected
                                               ? null
                                               : Border.all(
-                                                  color: AppColors.darkBorder,
+                                                  color: AppColors.border,
                                                 ),
                                         ),
                                         child: Text(
@@ -356,7 +356,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                             weight: FontWeight.w600,
                                             color: selected
                                                 ? Colors.white
-                                                : AppColors.darkTextSecondary,
+                                                : AppColors.textSecondary,
                                           ),
                                         ),
                                       ),
@@ -381,14 +381,14 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                       decoration: BoxDecoration(
                                         color: selected
                                             ? AppColors.primary
-                                            : AppColors.darkSurface,
+                                            : AppColors.surface,
                                         borderRadius: BorderRadius.circular(
                                           999,
                                         ),
                                         border: selected
                                             ? null
                                             : Border.all(
-                                                color: AppColors.darkBorder,
+                                                color: AppColors.border,
                                               ),
                                       ),
                                       child: Text(
@@ -398,7 +398,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                           weight: FontWeight.w600,
                                           color: selected
                                               ? Colors.white
-                                              : AppColors.darkTextSecondary,
+                                              : AppColors.textSecondary,
                                         ),
                                       ),
                                     ),
@@ -409,9 +409,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                             const BloomSectionTitle('Reason for visit'),
                             Container(
                               decoration: BoxDecoration(
-                                color: AppColors.darkSurface,
+                                color: AppColors.surface,
                                 borderRadius: AppRadius.mdAll,
-                                border: Border.all(color: AppColors.darkBorder),
+                                border: Border.all(color: AppColors.border),
                               ),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
@@ -423,7 +423,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                 onChanged: (_) => setState(() {}),
                                 style: BloomTextStyles.inter(
                                   size: 12,
-                                  color: AppColors.darkTextPrimary,
+                                  color: AppColors.textPrimary,
                                 ),
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
@@ -431,7 +431,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                       'Sore throat and mild fever since yesterday…',
                                   hintStyle: BloomTextStyles.inter(
                                     size: 12,
-                                    color: AppColors.darkTextMuted,
+                                    color: AppColors.textMuted,
                                   ),
                                 ),
                               ),
@@ -443,8 +443,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               Container(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
                 decoration: const BoxDecoration(
-                  color: AppColors.darkSurface,
-                  border: Border(top: BorderSide(color: AppColors.darkBorder)),
+                  color: AppColors.surface,
+                  border: Border(top: BorderSide(color: AppColors.border)),
                 ),
                 child: BloomButton(
                   label: _isLoading
@@ -490,7 +490,7 @@ class _DoctorTile extends StatelessWidget {
         decoration: showBorder
             ? const BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(color: AppColors.darkBorder, width: 1),
+                  bottom: BorderSide(color: AppColors.border, width: 1),
                 ),
               )
             : null,
@@ -507,14 +507,14 @@ class _DoctorTile extends StatelessWidget {
                     style: BloomTextStyles.inter(
                       size: 12.5,
                       weight: FontWeight.w600,
-                      color: AppColors.darkTextPrimary,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   Text(
                     specialty,
                     style: BloomTextStyles.inter(
                       size: 10.5,
-                      color: AppColors.darkTextMuted,
+                      color: AppColors.textMuted,
                     ),
                   ),
                 ],

@@ -59,7 +59,7 @@ class _AmbulanceTrackingScreenState extends State<AmbulanceTrackingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -80,7 +80,7 @@ class _AmbulanceTrackingScreenState extends State<AmbulanceTrackingScreen> {
                             style: BloomTextStyles.inter(
                               size: 10,
                               weight: FontWeight.w700,
-                              color: AppColors.darkTextMuted,
+                              color: AppColors.textMuted,
                               letterSpacing: 0.06,
                             ),
                           ),
@@ -110,14 +110,14 @@ class _AmbulanceTrackingScreenState extends State<AmbulanceTrackingScreen> {
                                 style: BloomTextStyles.inter(
                                   size: 12.5,
                                   weight: FontWeight.w600,
-                                  color: AppColors.darkTextPrimary,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                               Text(
                                 'Mulago Ambulance Unit 03',
                                 style: BloomTextStyles.inter(
                                   size: 11,
-                                  color: AppColors.darkTextMuted,
+                                  color: AppColors.textMuted,
                                 ),
                               ),
                             ],
@@ -132,7 +132,7 @@ class _AmbulanceTrackingScreenState extends State<AmbulanceTrackingScreen> {
                           widget.note!,
                           style: BloomTextStyles.inter(
                             size: 12,
-                            color: AppColors.darkTextSecondary,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ),
@@ -186,14 +186,14 @@ class _StepDot extends StatelessWidget {
                     height: 2,
                     color: active
                         ? AppColors.primary
-                        : AppColors.darkGhost,
+                        : AppColors.surfaceMuted,
                   ),
                 ),
               Container(
                 width: 20,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: active ? AppColors.primary : AppColors.darkGhost,
+                  color: active ? AppColors.primary : AppColors.surfaceMuted,
                   shape: BoxShape.circle,
                 ),
                 child: active
@@ -209,7 +209,7 @@ class _StepDot extends StatelessWidget {
             style: BloomTextStyles.inter(
               size: 9,
               weight: FontWeight.w600,
-              color: active ? AppColors.darkTextPrimary : AppColors.darkTextMuted,
+              color: active ? AppColors.textPrimary : AppColors.textMuted,
             ),
           ),
         ],

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../theme/app_theme.dart';
 
 const String _appId = String.fromEnvironment(
   'AGORA_APP_ID',
@@ -311,7 +312,7 @@ class _DoctorConsultScreenState extends State<DoctorConsultScreen> {
                           children: [
                             const Icon(
                               Icons.medical_services_outlined,
-                              color: Color(0xFF059669),
+                              color: AppColors.success,
                               size: 16,
                             ),
                             const SizedBox(width: 6),
@@ -371,7 +372,7 @@ class _DoctorConsultScreenState extends State<DoctorConsultScreen> {
                           width: 64,
                           height: 64,
                           decoration: const BoxDecoration(
-                            color: Color(0xFFDC2626),
+                            color: AppColors.error,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(

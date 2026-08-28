@@ -57,7 +57,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${product.name} added to cart'),
-        backgroundColor: const Color(0xFF22C55E),
+        backgroundColor: AppColors.success,
         action: SnackBarAction(
           label: 'VIEW CART',
           textColor: Colors.white,
@@ -116,7 +116,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.successMessage!),
-            backgroundColor: const Color(0xFF22C55E),
+            backgroundColor: AppColors.success,
           ),
         );
         ref.read(storeProvider.notifier).clearSuccessMessage();
@@ -125,7 +125,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.orderError!),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
         ref.read(storeProvider.notifier).clearOrderError();
@@ -133,7 +133,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
     });
 
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: _showCart
           ? _buildCartView(storeState)
           : _buildStoreView(storeState),
@@ -150,6 +150,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
           pinned: true,
           backgroundColor: AppColors.primary,
           leading: IconButton(
+            tooltip: 'Back',
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => context.pop(),
           ),
@@ -159,6 +160,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
           ),
           actions: [
             IconButton(
+              tooltip: 'Cart',
               icon: const Icon(Icons.shopping_cart, color: Colors.white),
               onPressed: () {
                 setState(() {
@@ -170,6 +172,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
               alignment: Alignment.center,
               children: [
                 IconButton(
+                  tooltip: 'Notifications',
                   icon: const Icon(
                     Icons.notifications_outlined,
                     color: Colors.white,
@@ -189,7 +192,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
-                        color: Color(0xFFEF4444),
+                        color: AppColors.error,
                         shape: BoxShape.circle,
                       ),
                       child: Text(
@@ -264,11 +267,12 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
         },
         decoration: InputDecoration(
           hintText: 'Search medicines, supplements...',
-          hintStyle: TextStyle(color: Colors.grey[400]),
+          hintStyle: TextStyle(color: AppColors.textMuted),
           prefixIcon: const Icon(Icons.search, color: AppColors.primary),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear, color: Colors.grey),
+                  tooltip: 'Clear',
+                  icon: const Icon(Icons.clear, color: AppColors.textMuted),
                   onPressed: () {
                     _searchController.clear();
                     setState(() {
@@ -345,14 +349,14 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF22C55E), Color(0xFF10B981)],
+          colors: [AppColors.success, AppColors.success],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF22C55E).withValues(alpha: 0.3),
+            color: AppColors.success.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -385,7 +389,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF22C55E),
+                    foregroundColor: AppColors.success,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 10,
@@ -434,7 +438,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                     size: 16,
                     color: isSelected
                         ? AppColors.primary
-                        : const Color(0xFF64748B),
+                        : AppColors.textSecondary,
                   ),
                   const SizedBox(width: 6),
                   Text(_getCategoryName(category)),
@@ -452,7 +456,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
               labelStyle: TextStyle(
                 color: isSelected
                     ? AppColors.primary
-                    : const Color(0xFF64748B),
+                    : AppColors.textSecondary,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
               shape: RoundedRectangleBorder(
@@ -460,7 +464,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                 side: BorderSide(
                   color: isSelected
                       ? AppColors.primary
-                      : const Color(0xFFE2E8F0),
+                      : AppColors.border,
                 ),
               ),
             ),
@@ -491,7 +495,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             height: 100,
             width: double.infinity,
             decoration: const BoxDecoration(
-              color: AppColors.darkGhost,
+              color: AppColors.surfaceMuted,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -517,13 +521,13 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFEF3C7),
+                        color: AppColors.warningSurface,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Text(
                         'Rx Required',
                         style: TextStyle(
-                          color: Color(0xFFD97706),
+                          color: AppColors.warningDark,
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                         ),
@@ -538,7 +542,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
-                      color: Color(0xFF1E293B),
+                      color: AppColors.textPrimary,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -552,7 +556,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                       const Icon(
                         Icons.star,
                         size: 14,
-                        color: Color(0xFFF59E0B),
+                        color: AppColors.warning,
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -564,7 +568,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                       ),
                       Text(
                         ' (${product.reviewCount})',
-                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                        style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                       ),
                     ],
                   ),
@@ -583,7 +587,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                               '\$${product.originalPrice!.toStringAsFixed(2)}',
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Colors.grey[400],
+                                color: AppColors.textMuted,
                                 decoration: TextDecoration.lineThrough,
                               ),
                             ),
@@ -639,7 +643,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 16),
@@ -693,12 +697,12 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
         ),
         subtitle: Text(
           '$categoryTotal products${categoryProducts.isNotEmpty ? ' from \$${categoryProducts.reduce((a, b) => a.price < b.price ? a : b).price.toStringAsFixed(2)}' : ''}',
-          style: TextStyle(color: Colors.grey[500], fontSize: 13),
+          style: TextStyle(color: AppColors.textMuted, fontSize: 13),
         ),
         trailing: const Icon(
           Icons.arrow_forward_ios,
           size: 16,
-          color: Color(0xFF94A3B8),
+          color: AppColors.textMuted,
         ),
         onTap: () {
           setState(() {
@@ -724,13 +728,13 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           'Track and manage your orders',
-          style: TextStyle(color: Colors.grey[500], fontSize: 14),
+          style: TextStyle(color: AppColors.textMuted, fontSize: 14),
         ),
         const SizedBox(height: 16),
         if (storeState.orders.isEmpty)
@@ -745,17 +749,17 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
     Color statusColor;
     switch (order.status) {
       case 'Delivered':
-        statusColor = const Color(0xFF22C55E);
+        statusColor = AppColors.success;
         break;
       case 'Processing':
       case 'pending':
-        statusColor = const Color(0xFFF59E0B);
+        statusColor = AppColors.warning;
         break;
       case 'Shipped':
-        statusColor = const Color(0xFF3B82F6);
+        statusColor = AppColors.primaryLight;
         break;
       default:
-        statusColor = const Color(0xFF64748B);
+        statusColor = AppColors.textSecondary;
     }
 
     return Container(
@@ -811,7 +815,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                 const SizedBox(height: 8),
                 Text(
                   'Ordered on ${_formatDate(order.createdAt)}',
-                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                 ),
                 const Divider(height: 24),
                 ...order.items.map(
@@ -835,7 +839,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                               Text(
                                 'Qty: ${item.quantity}',
                                 style: TextStyle(
-                                  color: Colors.grey[500],
+                                  color: AppColors.textMuted,
                                   fontSize: 12,
                                 ),
                               ),
@@ -876,7 +880,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
           ),
           Container(
             decoration: const BoxDecoration(
-              border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
+              border: Border(top: BorderSide(color: AppColors.surfaceMuted)),
             ),
             child: Row(
               children: [
@@ -889,7 +893,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                     label: const Text('View Details'),
                   ),
                 ),
-                Container(width: 1, height: 20, color: const Color(0xFFF1F5F9)),
+                Container(width: 1, height: 20, color: AppColors.surfaceMuted),
                 Expanded(
                   child: TextButton.icon(
                     icon: const Icon(Icons.replay_outlined, size: 16),
@@ -927,7 +931,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
               child: Container(
                 width: 40, height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: AppColors.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -940,7 +944,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             const SizedBox(height: 4),
             Text(
               'Placed on ${_formatDate(order.createdAt)}',
-              style: TextStyle(color: Colors.grey[500]),
+              style: TextStyle(color: AppColors.textMuted),
             ),
             const SizedBox(height: 4),
             Text(
@@ -1021,7 +1025,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                     content: const Text(
                       '✅ Reorder placed! The store has been notified.',
                     ),
-                    backgroundColor: const Color(0xFF22C55E),
+                    backgroundColor: AppColors.success,
                     action: SnackBarAction(
                       label: 'VIEW CART',
                       textColor: Colors.white,
@@ -1054,13 +1058,13 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: AppColors.surfaceMuted,
               borderRadius: BorderRadius.circular(50),
             ),
             child: const Icon(
               Icons.receipt_long,
               size: 48,
-              color: Color(0xFF94A3B8),
+              color: AppColors.textMuted,
             ),
           ),
           const SizedBox(height: 20),
@@ -1069,13 +1073,13 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Start shopping to see your orders here',
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            style: TextStyle(fontSize: 14, color: AppColors.textMuted),
           ),
         ],
       ),
@@ -1092,13 +1096,13 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: AppColors.surfaceMuted,
               borderRadius: BorderRadius.circular(50),
             ),
             child: const Icon(
               Icons.search_off,
               size: 48,
-              color: Color(0xFF94A3B8),
+              color: AppColors.textMuted,
             ),
           ),
           const SizedBox(height: 20),
@@ -1107,13 +1111,13 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Try adjusting your search or filters',
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            style: TextStyle(fontSize: 14, color: AppColors.textMuted),
           ),
         ],
       ),
@@ -1123,10 +1127,11 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
   // Cart View
   Widget _buildCartView(StoreState storeState) {
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         leading: IconButton(
+          tooltip: 'Back',
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             setState(() {
@@ -1180,13 +1185,13 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: AppColors.surfaceMuted,
               borderRadius: BorderRadius.circular(50),
             ),
             child: const Icon(
               Icons.shopping_cart_outlined,
               size: 48,
-              color: Color(0xFF94A3B8),
+              color: AppColors.textMuted,
             ),
           ),
           const SizedBox(height: 20),
@@ -1195,13 +1200,13 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Add items to get started',
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            style: TextStyle(fontSize: 14, color: AppColors.textMuted),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
@@ -1251,7 +1256,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.darkScreenBg,
+                color: AppColors.pageBg,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
@@ -1307,7 +1312,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
                           width: 28,
                           height: 28,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F9),
+                            color: AppColors.surfaceMuted,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(Icons.remove, size: 16),
@@ -1361,7 +1366,8 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             ),
             // Delete Button
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: Color(0xFFEF4444)),
+              tooltip: 'Remove',
+              icon: const Icon(Icons.delete_outline, color: AppColors.error),
               onPressed: () {
                 ref.read(storeProvider.notifier).removeFromCart(cartItem);
               },
@@ -1393,7 +1399,7 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
               children: [
                 const Text(
                   'Subtotal',
-                  style: TextStyle(color: Color(0xFF64748B)),
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
                 Text(
                   '\$${storeState.cartTotal.toStringAsFixed(2)}',
@@ -1407,14 +1413,14 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
               children: [
                 const Text(
                   'Delivery',
-                  style: TextStyle(color: Color(0xFF64748B)),
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
                 Text(
                   storeState.cartTotal >= 50 ? 'FREE' : '\$5.00',
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
                     color: storeState.cartTotal >= 50
-                        ? const Color(0xFF22C55E)
+                        ? AppColors.success
                         : null,
                   ),
                 ),
@@ -1496,12 +1502,12 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFF22C55E).withValues(alpha: 0.1),
+                color: AppColors.success.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.check_circle,
-                color: Color(0xFF22C55E),
+                color: AppColors.success,
                 size: 48,
               ),
             ),
@@ -1513,12 +1519,12 @@ class _MedicalStoreScreenState extends ConsumerState<MedicalStoreScreen>
             const SizedBox(height: 8),
             Text(
               'Your order ID: ${orderId.substring(0, 8)}',
-              style: TextStyle(color: Colors.grey[600]),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 8),
             const Text(
               'Thank you for your purchase!',
-              style: TextStyle(color: Color(0xFF64748B)),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
           ],
         ),

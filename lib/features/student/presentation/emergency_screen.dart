@@ -320,7 +320,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -337,14 +337,14 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                         width: 28,
                         height: 28,
                         decoration: BoxDecoration(
-                          color: AppColors.darkSurface,
+                          color: AppColors.surface,
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.darkBorder),
+                          border: Border.all(color: AppColors.border),
                         ),
                         child: const Icon(
                           Icons.arrow_back_ios_new,
                           size: 13,
-                          color: AppColors.darkTextPrimary,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                     ),
@@ -403,9 +403,9 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                     const BloomSectionTitle("What's happening?"),
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.darkSurface,
+                        color: AppColors.surface,
                         borderRadius: AppRadius.mdAll,
-                        border: Border.all(color: AppColors.darkBorder),
+                        border: Border.all(color: AppColors.border),
                       ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -417,14 +417,14 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                         minLines: 3,
                         style: BloomTextStyles.inter(
                           size: 12,
-                          color: AppColors.darkTextPrimary,
+                          color: AppColors.textPrimary,
                         ),
                         decoration: InputDecoration(
                           border: InputBorder.none,
                           hintText: 'Briefly describe the emergency…',
                           hintStyle: BloomTextStyles.inter(
                             size: 12,
-                            color: AppColors.darkTextMuted,
+                            color: AppColors.textMuted,
                           ),
                         ),
                       ),
@@ -439,7 +439,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                               style: BloomTextStyles.inter(
                                 size: 12,
                                 weight: FontWeight.w600,
-                                color: AppColors.darkTextPrimary,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                           ),
@@ -497,7 +497,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [AppColors.error, Color(0xFFB91C1C)],
+          colors: [AppColors.error, AppColors.errorDark],
         ),
         borderRadius: AppRadius.cardAll,
       ),
@@ -613,7 +613,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
           style: BloomTextStyles.fraunces(
             size: 15,
             weight: FontWeight.w400,
-            color: AppColors.darkTextPrimary,
+            color: AppColors.textPrimary,
           ),
         ),
       ),
@@ -655,7 +655,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                     style: BloomTextStyles.inter(
                       size: 13,
                       weight: FontWeight.w600,
-                      color: AppColors.darkTextPrimary,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -663,7 +663,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                     subtitle,
                     style: BloomTextStyles.inter(
                       size: 11,
-                      color: AppColors.darkTextMuted,
+                      color: AppColors.textMuted,
                     ),
                   ),
                 ],
@@ -702,7 +702,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                   vertical: 7,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.darkGhost,
+                  color: AppColors.surfaceMuted,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
@@ -710,7 +710,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                   style: BloomTextStyles.inter(
                     size: 11,
                     weight: FontWeight.w600,
-                    color: AppColors.darkTextMuted,
+                    color: AppColors.textMuted,
                   ),
                 ),
               ),
@@ -761,7 +761,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
             style: BloomTextStyles.inter(
               size: 13,
               weight: FontWeight.w700,
-              color: AppColors.darkTextPrimary,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
@@ -770,7 +770,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
               tip.summary,
               style: BloomTextStyles.inter(
                 size: 11,
-                color: AppColors.darkTextMuted,
+                color: AppColors.textMuted,
                 height: 1.3,
               ),
               maxLines: 3,
@@ -786,7 +786,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.darkSurface,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -806,7 +806,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.darkGhost,
+                    color: AppColors.surfaceMuted,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -830,7 +830,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                       style: BloomTextStyles.fraunces(
                         size: 19,
                         weight: FontWeight.w400,
-                        color: AppColors.darkTextPrimary,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
@@ -841,7 +841,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                 tip.detail,
                 style: BloomTextStyles.inter(
                   size: 13,
-                  color: AppColors.darkTextSecondary,
+                  color: AppColors.textSecondary,
                   height: 1.6,
                 ),
               ),
@@ -850,7 +850,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.errorLight,
+                  color: AppColors.errorTint,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: AppColors.error.withValues(alpha: 0.3),
@@ -955,7 +955,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                           style: BloomTextStyles.inter(
                             size: 13,
                             weight: FontWeight.w600,
-                            color: AppColors.darkTextPrimary,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -963,13 +963,13 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                           step.description,
                           style: BloomTextStyles.inter(
                             size: 11,
-                            color: AppColors.darkTextMuted,
+                            color: AppColors.textMuted,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Icon(step.icon, color: AppColors.darkTextMuted, size: 20),
+                  Icon(step.icon, color: AppColors.textMuted, size: 20),
                 ],
               ),
             ),
@@ -1019,7 +1019,7 @@ class _QuickActionButton extends StatelessWidget {
             style: BloomTextStyles.inter(
               size: 11,
               weight: FontWeight.w600,
-              color: AppColors.darkTextPrimary,
+              color: AppColors.textPrimary,
               height: 1.3,
             ),
           ),

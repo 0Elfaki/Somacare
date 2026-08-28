@@ -104,7 +104,7 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
   }
 
   static const _avatarColors = [
-    AppColors.lime,
+    AppColors.success,
     AppColors.primaryLight,
     AppColors.primaryDark,
     AppColors.primary,
@@ -113,7 +113,7 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -143,7 +143,7 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
                   style: BloomTextStyles.fraunces(
                     size: 15,
                     weight: FontWeight.w400,
-                    color: AppColors.darkTextPrimary,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ),
@@ -169,7 +169,7 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
                           child: Text(
                             'No schools found',
                             style: BloomTextStyles.inter(
-                              color: AppColors.darkTextMuted,
+                              color: AppColors.textMuted,
                             ),
                           ),
                         )
@@ -190,7 +190,7 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
                                     ? const BoxDecoration(
                                         border: Border(
                                           bottom: BorderSide(
-                                            color: AppColors.darkBorder,
+                                            color: AppColors.border,
                                             width: 1,
                                           ),
                                         ),
@@ -223,14 +223,14 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
                                             style: BloomTextStyles.inter(
                                               size: 12.5,
                                               weight: FontWeight.w600,
-                                              color: AppColors.darkTextPrimary,
+                                              color: AppColors.textPrimary,
                                             ),
                                           ),
                                           Text(
                                             'Tap to select',
                                             style: BloomTextStyles.inter(
                                               size: 10.5,
-                                              color: AppColors.darkTextMuted,
+                                              color: AppColors.textMuted,
                                             ),
                                           ),
                                         ],
@@ -264,9 +264,9 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
             Container(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
               decoration: const BoxDecoration(
-                color: AppColors.darkSurface,
+                color: AppColors.surface,
                 border: Border(
-                  top: BorderSide(color: AppColors.darkBorder, width: 1),
+                  top: BorderSide(color: AppColors.border, width: 1),
                 ),
               ),
               child: BloomButton(

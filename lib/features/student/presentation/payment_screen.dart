@@ -12,7 +12,7 @@ enum _PayMethod { mtn, airtel, card }
 /// - `doctorName` (String)
 /// - `consultFee` (int, UGX)
 /// - `platformFee` (int, UGX)
-/// - `onConfirm` (`Future<void>` Function()) — performs the actual booking
+/// - `onConfirm` (Future<void> Function()) — performs the actual booking
 ///   write (Supabase insert + notification). Called when the student taps Pay.
 class PaymentScreen extends StatefulWidget {
   final String doctorName;
@@ -76,7 +76,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -96,7 +96,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             style: BloomTextStyles.inter(
                               size: 10,
                               weight: FontWeight.w700,
-                              color: AppColors.darkTextMuted,
+                              color: AppColors.textMuted,
                               letterSpacing: 0.06,
                             ),
                           ),
@@ -123,7 +123,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 style: BloomTextStyles.inter(
                                   size: 14,
                                   weight: FontWeight.w700,
-                                  color: AppColors.darkTextPrimary,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                               BloomMonoText(
@@ -142,14 +142,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       child: Column(
                         children: [
                           BloomPaymentMethodTile(
-                            iconColor: const Color(0xFFFFCB05),
+                            iconColor: PaymentBrandColors.mtnYellow,
                             label: 'MTN Mobile Money',
                             selected: _method == _PayMethod.mtn,
                             onTap: () =>
                                 setState(() => _method = _PayMethod.mtn),
                           ),
                           BloomPaymentMethodTile(
-                            iconColor: const Color(0xFFE4002B),
+                            iconColor: PaymentBrandColors.airtelRed,
                             label: 'Airtel Money',
                             selected: _method == _PayMethod.airtel,
                             onTap: () =>
@@ -173,9 +173,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
             Container(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
               decoration: const BoxDecoration(
-                color: AppColors.darkSurface,
+                color: AppColors.surface,
                 border: Border(
-                  top: BorderSide(color: AppColors.darkBorder, width: 1),
+                  top: BorderSide(color: AppColors.border, width: 1),
                 ),
               ),
               child: BloomButton(
@@ -213,15 +213,15 @@ class _SummaryRow extends StatelessWidget {
             style: BloomTextStyles.inter(
               size: 12,
               color: muted
-                  ? AppColors.darkTextMuted
-                  : AppColors.darkTextPrimary,
+                  ? AppColors.textMuted
+                  : AppColors.textPrimary,
             ),
           ),
         ),
         BloomMonoText(
           value,
           size: 12,
-          color: muted ? AppColors.darkTextMuted : AppColors.darkTextPrimary,
+          color: muted ? AppColors.textMuted : AppColors.textPrimary,
         ),
       ],
     );

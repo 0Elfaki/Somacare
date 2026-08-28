@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 import '../data/notification_service.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -52,42 +53,43 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // The screen is pushed onto the root navigator from either dashboard, so
+    // the system back gesture should simply pop it. Intercepting the pop and
+    // forcing `/doctor-dashboard` sent students to the wrong side of the app.
     return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) {
-          context.go('/doctor-dashboard');
-        }
-      },
+      canPop: true,
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.pageBg,
         appBar: AppBar(
-          backgroundColor: AppColors.surface,
-          elevation: 0,
-          scrolledUnderElevation: 1,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-            onPressed: () => context.go('/doctor-dashboard'),
+            icon: const Icon(Icons.arrow_back_rounded),
+            tooltip: 'Back',
+            // This screen is reachable from both dashboards, so pop back to
+            // whichever one opened it rather than hard-coding the doctor's.
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/student-dashboard');
+              }
+            },
           ),
-          title: const Text(
-            'Notifications',
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w800,
-              fontSize: AppTypography.headlineSmall,
-            ),
-          ),
+          title: const Text('Notifications'),
           actions: [
             IconButton(
-              icon: const Icon(Icons.refresh, color: AppColors.primary),
+              icon: const Icon(Icons.refresh_rounded),
               onPressed: _loadNotifications,
               tooltip: 'Refresh',
             ),
           ],
         ),
         body: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
+            ? ListView.separated(
+                padding: const EdgeInsets.all(AppSpacing.gutter),
+                itemCount: 4,
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: AppSpacing.md),
+                itemBuilder: (_, __) => const AppSkeletonRow(),
               )
             : _notifications.isEmpty
             ? _buildEmptyState()
@@ -97,31 +99,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.notifications_none_rounded,
-            size: 64,
-            color: Colors.grey.shade400,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No notifications yet',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'You\'ll be notified about new bookings,\nemergencies, and data resets',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.gutter),
+      child: AppEmptyState(
+        icon: Icons.notifications_none_rounded,
+        title: 'No notifications yet',
+        message:
+            "You'll be told here about new bookings, emergency requests and "
+            'record approvals.',
       ),
     );
   }
@@ -242,7 +227,7 @@ class _NotificationCard extends StatelessWidget {
                     _formatDate(createdAt),
                     style: const TextStyle(
                       fontSize: 12,
-                      color: AppColors.textTertiary,
+                      color: AppColors.textMuted,
                     ),
                   ),
                 ],

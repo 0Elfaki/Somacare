@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
+/// The "Bloom" component set — the older shared widgets, still used across the
+/// student flows. New work should prefer `widgets/app_ui.dart`, which is the
+/// design system the two dashboards share; these are kept because seventeen
+/// screens still render from them, and they now draw entirely from the same
+/// tokens.
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // BLOOM COMPONENT LIBRARY
 // Shared widgets that implement the SomaCare Bloom design system.
@@ -28,9 +34,9 @@ class BloomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = color ?? AppColors.darkSurface;
+    final bg = color ?? AppColors.surface;
     final br = border ??
-        Border.all(color: AppColors.darkBorder, width: 1);
+        Border.all(color: AppColors.border, width: 1);
 
     Widget card = Container(
       decoration: BoxDecoration(
@@ -82,8 +88,8 @@ class BloomButton extends StatelessWidget {
         bg = AppColors.primary;
         fg = Colors.white;
       case BloomButtonVariant.ghost:
-        bg = AppColors.darkGhost;
-        fg = AppColors.darkTextPrimary;
+        bg = AppColors.surfaceMuted;
+        fg = AppColors.textPrimary;
       case BloomButtonVariant.emergency:
         bg = AppColors.error;
         fg = Colors.white;
@@ -91,8 +97,8 @@ class BloomButton extends StatelessWidget {
         bg = AppColors.error;
         fg = Colors.white;
       case BloomButtonVariant.lime:
-        bg = AppColors.lime;
-        fg = AppColors.darkPageBg;
+        bg = AppColors.success;
+        fg = AppColors.pageBg;
     }
 
     return GestureDetector(
@@ -161,20 +167,20 @@ class BloomStatusBadge extends StatelessWidget {
 
     switch (status) {
       case BloomBadgeStatus.active:
-        bg = AppColors.successLight;
-        fg = AppColors.lime;
+        bg = AppColors.successTint;
+        fg = AppColors.success;
       case BloomBadgeStatus.pending:
-        bg = AppColors.warningLight;
+        bg = AppColors.warningTint;
         fg = AppColors.warning;
       case BloomBadgeStatus.danger:
-        bg = AppColors.errorLight;
+        bg = AppColors.errorTint;
         fg = AppColors.error;
       case BloomBadgeStatus.info:
-        bg = AppColors.infoLight;
+        bg = AppColors.infoTint;
         fg = AppColors.primaryLight;
       case BloomBadgeStatus.neutral:
-        bg = AppColors.darkGhost;
-        fg = AppColors.darkTextSecondary;
+        bg = AppColors.surfaceMuted;
+        fg = AppColors.textSecondary;
     }
 
     return Container(
@@ -225,20 +231,20 @@ class BloomTextBadge extends StatelessWidget {
 
     switch (status) {
       case BloomBadgeStatus.active:
-        bg = AppColors.successLight;
-        fg = AppColors.lime;
+        bg = AppColors.successTint;
+        fg = AppColors.success;
       case BloomBadgeStatus.pending:
-        bg = AppColors.warningLight;
+        bg = AppColors.warningTint;
         fg = AppColors.warning;
       case BloomBadgeStatus.danger:
         bg = AppColors.error;
         fg = Colors.white;
       case BloomBadgeStatus.info:
-        bg = AppColors.infoLight;
+        bg = AppColors.infoTint;
         fg = AppColors.primaryLight;
       case BloomBadgeStatus.neutral:
-        bg = AppColors.darkGhost;
-        fg = AppColors.darkTextSecondary;
+        bg = AppColors.surfaceMuted;
+        fg = AppColors.textSecondary;
     }
 
     return Container(
@@ -273,10 +279,10 @@ class BloomSectionTitle extends StatelessWidget {
       padding: margin ?? const EdgeInsets.only(top: 16, bottom: 9),
       child: Text(
         title,
-        style: const TextStyle(fontFamily: 'Fraunces', 
+        style: TextStyle(fontFamily: 'Fraunces', 
           fontSize: 15,
           fontWeight: FontWeight.w400,
-          color: AppColors.darkTextPrimary,
+          color: AppColors.textPrimary,
         ),
       ),
     );
@@ -312,12 +318,12 @@ class BloomScreenHeader extends StatelessWidget {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: AppColors.darkSurface,
+                  color: AppColors.surface,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.darkBorder, width: 1),
+                  border: Border.all(color: AppColors.border, width: 1),
                 ),
                 child: const Icon(Icons.arrow_back_ios_new,
-                    size: 13, color: AppColors.darkTextPrimary),
+                    size: 13, color: AppColors.textPrimary),
               ),
             ),
             const SizedBox(width: 10),
@@ -325,43 +331,15 @@ class BloomScreenHeader extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(fontFamily: 'Inter', 
+              style: TextStyle(fontFamily: 'Inter', 
                 fontSize: 13.5,
                 fontWeight: FontWeight.w600,
-                color: AppColors.darkTextPrimary,
+                color: AppColors.textPrimary,
               ),
             ),
           ),
-          ...?trailing,
+          if (trailing != null) ...trailing!,
         ],
-      ),
-    );
-  }
-}
-
-// ─── BloomProgressBar ─────────────────────────────────────────────────────────
-
-class BloomProgressBar extends StatelessWidget {
-  final double value; // 0.0 – 1.0
-  final Color? color;
-  final double height;
-
-  const BloomProgressBar({
-    super.key,
-    required this.value,
-    this.color,
-    this.height = 6,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(3),
-      child: LinearProgressIndicator(
-        value: value.clamp(0.0, 1.0),
-        backgroundColor: const Color(0x1AFFFFFF),
-        color: color ?? AppColors.lime,
-        minHeight: height,
       ),
     );
   }
@@ -391,7 +369,7 @@ class BloomToggle extends StatelessWidget {
         width: 38,
         height: 22,
         decoration: BoxDecoration(
-          color: value ? track : AppColors.darkGhost,
+          color: value ? track : AppColors.surfaceMuted,
           borderRadius: BorderRadius.circular(999),
         ),
         padding: const EdgeInsets.all(2),
@@ -427,25 +405,25 @@ class BloomSearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.darkBorder, width: 1),
+        border: Border.all(color: AppColors.border, width: 1),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       child: Row(
         children: [
-          const Icon(Icons.search, size: 16, color: AppColors.darkTextMuted),
+          const Icon(Icons.search, size: 16, color: AppColors.textMuted),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
               controller: controller,
               onChanged: onChanged,
-              style: const TextStyle(fontFamily: 'Inter', 
-                  fontSize: 12, color: AppColors.darkTextPrimary),
+              style: TextStyle(fontFamily: 'Inter', 
+                  fontSize: 12, color: AppColors.textPrimary),
               decoration: InputDecoration.collapsed(
                 hintText: hint,
-                hintStyle: const TextStyle(fontFamily: 'Inter', 
-                    fontSize: 12, color: AppColors.darkTextMuted),
+                hintStyle: TextStyle(fontFamily: 'Inter', 
+                    fontSize: 12, color: AppColors.textMuted),
               ),
             ),
           ),
@@ -483,11 +461,11 @@ class BloomFilterChips extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : AppColors.darkSurface,
+                color: isSelected ? AppColors.primary : AppColors.surface,
                 borderRadius: BorderRadius.circular(999),
                 border: isSelected
                     ? null
-                    : Border.all(color: AppColors.darkBorder, width: 1),
+                    : Border.all(color: AppColors.border, width: 1),
               ),
               child: Text(
                 opt,
@@ -496,205 +474,12 @@ class BloomFilterChips extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: isSelected
                       ? Colors.white
-                      : AppColors.darkTextSecondary,
+                      : AppColors.textSecondary,
                 ),
               ),
             ),
           );
         }).toList(),
-      ),
-    );
-  }
-}
-
-// ─── BloomSegmentedControl ────────────────────────────────────────────────────
-
-class BloomSegmentedControl extends StatelessWidget {
-  final List<String> tabs;
-  final int selected;
-  final ValueChanged<int> onSelect;
-
-  const BloomSegmentedControl({
-    super.key,
-    required this.tabs,
-    required this.selected,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.darkSurface,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.all(3),
-      child: Row(
-        children: List.generate(tabs.length, (i) {
-          final active = i == selected;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => onSelect(i),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: active ? AppColors.darkGhost : Colors.transparent,
-                  borderRadius: BorderRadius.circular(9),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  tabs[i],
-                  style: TextStyle(fontFamily: 'Inter', 
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: active
-                        ? Colors.white
-                        : const Color(0x80FFFFFF),
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-}
-
-// ─── BloomQuickActionTile ─────────────────────────────────────────────────────
-
-class BloomQuickActionTile extends StatelessWidget {
-  final String category;
-  final String label;
-  final IconData? icon;
-  final VoidCallback? onTap;
-  final bool isEmergency;
-
-  const BloomQuickActionTile({
-    super.key,
-    required this.category,
-    required this.label,
-    this.icon,
-    this.onTap,
-    this.isEmergency = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(11),
-        decoration: BoxDecoration(
-          color: isEmergency ? AppColors.error : AppColors.darkSurface,
-          borderRadius: BorderRadius.circular(AppRadius.tile),
-          border: isEmergency
-              ? null
-              : const Border(
-                  left: BorderSide(color: AppColors.primary, width: 3),
-                  top: BorderSide(color: AppColors.darkBorder, width: 1),
-                  right: BorderSide(color: AppColors.darkBorder, width: 1),
-                  bottom: BorderSide(color: AppColors.darkBorder, width: 1),
-                ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  category.toUpperCase(),
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 8.5,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.05,
-                    color: isEmergency
-                        ? Colors.white.withValues(alpha: 0.8)
-                        : const Color(0x80FFFFFF),
-                  ),
-                ),
-                if (icon != null) ...[
-                  const Spacer(),
-                  Icon(
-                    icon,
-                    size: 15,
-                    color: isEmergency
-                        ? Colors.white.withValues(alpha: 0.9)
-                        : AppColors.primaryLight,
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 5),
-            Text(
-              label,
-              style: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 11.5,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─── BloomTimelineItem ────────────────────────────────────────────────────────
-
-class BloomTimelineItem extends StatelessWidget {
-  final Widget card;
-  final bool isLast;
-
-  const BloomTimelineItem({
-    super.key,
-    required this.card,
-    this.isLast = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 18,
-            child: Column(
-              children: [
-                const SizedBox(height: 3),
-                Container(
-                  width: 9,
-                  height: 9,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                        color: AppColors.darkScreenBg, width: 2),
-                  ),
-                ),
-                if (!isLast)
-                  Expanded(
-                    child: Container(
-                      width: 1.5,
-                      color: const Color(0x1FFFFFFF),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 0),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: isLast ? 0 : 14),
-              child: card,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -710,7 +495,7 @@ class BloomDivider extends StatelessWidget {
     return const Divider(
       height: 1,
       thickness: 1,
-      color: AppColors.darkBorder,
+      color: AppColors.border,
     );
   }
 }
@@ -738,7 +523,7 @@ class BloomMonoText extends StatelessWidget {
       style: TextStyle(fontFamily: 'IBM Plex Mono', 
         fontSize: size,
         fontWeight: weight,
-        color: color ?? AppColors.darkTextPrimary,
+        color: color ?? AppColors.textPrimary,
       ),
     );
   }
@@ -821,7 +606,7 @@ class BloomListItem extends StatelessWidget {
             ? const BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                      color: AppColors.darkBorder, width: 1),
+                      color: AppColors.border, width: 1),
                 ),
               )
             : null,
@@ -833,16 +618,16 @@ class BloomListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: const TextStyle(fontFamily: 'Inter', 
+                      style: TextStyle(fontFamily: 'Inter', 
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.darkTextPrimary)),
+                          color: AppColors.textPrimary)),
                   if (subtitle != null) ...[
                     const SizedBox(height: 1),
                     Text(subtitle!,
-                        style: const TextStyle(fontFamily: 'Inter', 
+                        style: TextStyle(fontFamily: 'Inter', 
                             fontSize: 10.5,
-                            color: AppColors.darkTextMuted)),
+                            color: AppColors.textMuted)),
                   ],
                 ],
               ),
@@ -871,9 +656,11 @@ class BloomMapPlaceholder extends StatelessWidget {
     return Container(
       height: height,
       decoration: BoxDecoration(
+        // Dark map canvas — this widget draws a night-mode map, not a
+        // light surface, so it does not take a surface token.
         color: const Color(0xFF1A3037),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: AppColors.border),
       ),
       child: CustomPaint(
         painter: _GridPainter(),
@@ -945,245 +732,6 @@ class _GridPainter extends CustomPainter {
 
 // ─── BloomBottomNav ───────────────────────────────────────────────────────────
 
-class BloomStudentBottomNav extends StatelessWidget {
-  final int currentIndex;
-  final ValueChanged<int> onTap;
-
-  static const _labels = ['Home', 'AI Check', 'Book', 'Visits', 'Profile'];
-  static const _icons = [
-    Icons.home_outlined,
-    Icons.psychology_outlined,
-    Icons.calendar_today_outlined,
-    Icons.event_note_outlined,
-    Icons.person_outline,
-  ];
-
-  const BloomStudentBottomNav({
-    super.key,
-    required this.currentIndex,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.darkSurface,
-        border: Border(top: BorderSide(color: AppColors.darkBorder, width: 1)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            children: List.generate(_labels.length, (i) {
-              final active = i == currentIndex;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => onTap(i),
-                  behavior: HitTestBehavior.opaque,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (active)
-                        Container(
-                          width: 20,
-                          height: 3,
-                          margin: const EdgeInsets.only(bottom: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.lime,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        )
-                      else
-                        const SizedBox(height: 7),
-                      Icon(
-                        _icons[i],
-                        size: 18,
-                        color: active
-                            ? AppColors.lime
-                            : AppColors.darkTextMuted,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _labels[i],
-                        style: TextStyle(fontFamily: 'Inter', 
-                          fontSize: 8.5,
-                          fontWeight:
-                              active ? FontWeight.w700 : FontWeight.w600,
-                          color: active
-                              ? AppColors.lime
-                              : AppColors.darkTextMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class BloomDoctorBottomNav extends StatelessWidget {
-  final int currentIndex;
-  final ValueChanged<int> onTap;
-
-  static const _labels = ['Dashboard', 'Schedule', 'Patients', 'Profile'];
-  static const _icons = [
-    Icons.grid_view_outlined,
-    Icons.calendar_month_outlined,
-    Icons.people_outline,
-    Icons.person_outline,
-  ];
-
-  const BloomDoctorBottomNav({
-    super.key,
-    required this.currentIndex,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.darkSurface,
-        border: Border(top: BorderSide(color: AppColors.darkBorder, width: 1)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            children: List.generate(_labels.length, (i) {
-              final active = i == currentIndex;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => onTap(i),
-                  behavior: HitTestBehavior.opaque,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (active)
-                        Container(
-                          width: 20,
-                          height: 3,
-                          margin: const EdgeInsets.only(bottom: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.lime,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        )
-                      else
-                        const SizedBox(height: 7),
-                      Icon(
-                        _icons[i],
-                        size: 18,
-                        color: active
-                            ? AppColors.lime
-                            : AppColors.darkTextMuted,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _labels[i],
-                        style: TextStyle(fontFamily: 'Inter', 
-                          fontSize: 8.5,
-                          fontWeight:
-                              active ? FontWeight.w700 : FontWeight.w600,
-                          color: active
-                              ? AppColors.lime
-                              : AppColors.darkTextMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── BloomInputField ─────────────────────────────────────────────────────────
-
-class BloomInputField extends StatelessWidget {
-  final String label;
-  final String? hint;
-  final TextEditingController? controller;
-  final bool obscureText;
-  final TextInputType? keyboardType;
-  final Widget? suffix;
-  final int? maxLines;
-
-  const BloomInputField({
-    super.key,
-    required this.label,
-    this.hint,
-    this.controller,
-    this.obscureText = false,
-    this.keyboardType,
-    this.suffix,
-    this.maxLines = 1,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label.toUpperCase(),
-          style: const TextStyle(fontFamily: 'Inter', 
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            color: AppColors.darkTextMuted,
-            letterSpacing: 0.04,
-          ),
-        ),
-        const SizedBox(height: 5),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.darkSurface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.darkBorder, width: 1),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  obscureText: obscureText,
-                  keyboardType: keyboardType,
-                  maxLines: obscureText ? 1 : maxLines,
-                  style: const TextStyle(fontFamily: 'Inter', 
-                    fontSize: 12,
-                    color: AppColors.darkTextPrimary,
-                  ),
-                  decoration: InputDecoration.collapsed(
-                    hintText: hint,
-                    hintStyle: const TextStyle(fontFamily: 'Inter', 
-                      fontSize: 12,
-                      color: AppColors.darkTextMuted,
-                    ),
-                  ),
-                ),
-              ),
-              ?suffix,
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 // ─── BloomPaymentMethodTile ───────────────────────────────────────────────────
 
 class BloomPaymentMethodTile extends StatelessWidget {
@@ -1211,7 +759,7 @@ class BloomPaymentMethodTile extends StatelessWidget {
         decoration: showBorder
             ? const BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(color: AppColors.darkBorder, width: 1),
+                  bottom: BorderSide(color: AppColors.border, width: 1),
                 ),
               )
             : null,
@@ -1229,8 +777,8 @@ class BloomPaymentMethodTile extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(fontFamily: 'Inter', 
-                    fontSize: 12, color: AppColors.darkTextPrimary),
+                style: TextStyle(fontFamily: 'Inter', 
+                    fontSize: 12, color: AppColors.textPrimary),
               ),
             ),
             AnimatedContainer(
@@ -1242,7 +790,7 @@ class BloomPaymentMethodTile extends StatelessWidget {
                 border: selected
                     ? Border.all(color: AppColors.primary, width: 5)
                     : Border.all(
-                        color: AppColors.darkBorder, width: 1.5),
+                        color: AppColors.border, width: 1.5),
               ),
             ),
           ],

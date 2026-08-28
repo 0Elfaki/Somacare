@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'ai_result_screen.dart';
+import '../../../theme/app_theme.dart';
 
 // The API key is injected at build/run time instead of hardcoded in source.
 // A key committed directly into Dart code ships inside the built app (APK/IPA)
@@ -293,12 +294,13 @@ no commentary) in exactly this shape:
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.pageBg,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
+          tooltip: 'Back',
+          icon: const Icon(Icons.arrow_back, color: AppColors.surfaceInverse),
           onPressed: () => context.canPop()
               ? context.pop()
               : context.go('/student-dashboard'),
@@ -310,7 +312,7 @@ no commentary) in exactly this shape:
               height: 36,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF9333EA), Color(0xFF5B8CFF)],
+                  colors: [AppColors.accent, AppColors.primaryLight],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -329,7 +331,7 @@ no commentary) in exactly this shape:
                 Text(
                   'AI Symptom Checker',
                   style: TextStyle(
-                    color: Color(0xFF0F172A),
+                    color: AppColors.surfaceInverse,
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
                   ),
@@ -337,7 +339,7 @@ no commentary) in exactly this shape:
                 Text(
                   'Powered by Llama 3',
                   style: TextStyle(
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                   ),
@@ -355,18 +357,18 @@ no commentary) in exactly this shape:
                       height: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Color(0xFF9333EA),
+                        color: AppColors.accent,
                       ),
                     )
                   : const Icon(
                       Icons.assignment_turned_in_outlined,
-                      color: Color(0xFF9333EA),
+                      color: AppColors.accent,
                     ),
               tooltip: 'Get my result',
               onPressed: _getResult,
             ),
           IconButton(
-            icon: const Icon(Icons.refresh, color: Color(0xFF64748B)),
+            icon: const Icon(Icons.refresh, color: AppColors.textSecondary),
             tooltip: 'New conversation',
             onPressed: () {
               setState(() {
@@ -384,7 +386,7 @@ no commentary) in exactly this shape:
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: const Color(0xFFF1F5F9)),
+          child: Container(height: 1, color: AppColors.surfaceMuted),
         ),
       ),
       body: Column(
@@ -393,17 +395,17 @@ no commentary) in exactly this shape:
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            color: const Color(0xFFFFFBEB),
+            color: AppColors.warningSurface,
             child: const Row(
               children: [
-                Icon(Icons.info_outline, size: 14, color: Color(0xFFD97706)),
+                Icon(Icons.info_outline, size: 14, color: AppColors.warningDark),
                 SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     'AI assistant only — not a substitute for professional medical advice.',
                     style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFFD97706),
+                      color: AppColors.warningDark,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -524,16 +526,16 @@ no commentary) in exactly this shape:
             ),
             decoration: const BoxDecoration(
               color: Colors.white,
-              border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
+              border: Border(top: BorderSide(color: AppColors.surfaceMuted)),
             ),
             child: Row(
               children: [
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      color: AppColors.pageBg,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: TextField(
                       controller: _ctrl,
@@ -542,7 +544,7 @@ no commentary) in exactly this shape:
                       textCapitalization: TextCapitalization.sentences,
                       decoration: const InputDecoration(
                         hintText: 'Describe your symptoms…',
-                        hintStyle: TextStyle(color: Color(0xFF94A3B8)),
+                        hintStyle: TextStyle(color: AppColors.textMuted),
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 16,
@@ -561,7 +563,7 @@ no commentary) in exactly this shape:
                     height: 46,
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Color(0xFF9333EA), Color(0xFF5B8CFF)],
+                        colors: [AppColors.accent, AppColors.primaryLight],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -607,7 +609,7 @@ class _ChatBubble extends StatelessWidget {
               margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF9333EA), Color(0xFF5B8CFF)],
+                  colors: [AppColors.accent, AppColors.primaryLight],
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -622,7 +624,7 @@ class _ChatBubble extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: isUser ? const Color(0xFF5B8CFF) : Colors.white,
+                color: isUser ? AppColors.primaryLight : Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(18),
                   topRight: const Radius.circular(18),
@@ -640,7 +642,7 @@ class _ChatBubble extends StatelessWidget {
               child: Text(
                 msg.text,
                 style: TextStyle(
-                  color: isUser ? Colors.white : const Color(0xFF0F172A),
+                  color: isUser ? Colors.white : AppColors.surfaceInverse,
                   fontSize: 13,
                   height: 1.5,
                 ),
@@ -653,12 +655,12 @@ class _ChatBubble extends StatelessWidget {
               height: 30,
               margin: const EdgeInsets.only(left: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFFE0E7FF),
+                color: AppColors.accentSurface,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
                 Icons.person,
-                color: Color(0xFF5B8CFF),
+                color: AppColors.primaryLight,
                 size: 16,
               ),
             ),
@@ -686,7 +688,7 @@ class _TypingBubble extends StatelessWidget {
             margin: const EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF9333EA), Color(0xFF5B8CFF)],
+                colors: [AppColors.accent, AppColors.primaryLight],
               ),
               borderRadius: BorderRadius.circular(8),
             ),
@@ -764,7 +766,7 @@ class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
         width: 7,
         height: 7,
         decoration: const BoxDecoration(
-          color: Color(0xFF9333EA),
+          color: AppColors.accent,
           shape: BoxShape.circle,
         ),
       ),
@@ -790,7 +792,7 @@ class _SuggestionChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: AppColors.border),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -803,7 +805,7 @@ class _SuggestionChip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 14, color: const Color(0xFF5B8CFF)),
+              Icon(icon, size: 14, color: AppColors.primaryLight),
               const SizedBox(width: 6),
             ],
             Text(
@@ -811,7 +813,7 @@ class _SuggestionChip extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF0F172A),
+                color: AppColors.surfaceInverse,
               ),
             ),
           ],
@@ -844,7 +846,7 @@ class _SymptomChecklistBubble extends StatelessWidget {
             margin: const EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF9333EA), Color(0xFF5B8CFF)],
+                colors: [AppColors.accent, AppColors.primaryLight],
               ),
               borderRadius: BorderRadius.circular(8),
             ),
@@ -853,9 +855,9 @@ class _SymptomChecklistBubble extends StatelessWidget {
           Flexible(
             child: Container(
               padding: const EdgeInsets.all(14),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: AppColors.surfaceMuted,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(18),
                   topRight: Radius.circular(18),
                   bottomLeft: Radius.circular(4),
@@ -871,7 +873,7 @@ class _SymptomChecklistBubble extends StatelessWidget {
                       fontSize: 13,
                       height: 1.4,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF0F172A),
+                      color: AppColors.surfaceInverse,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -906,7 +908,7 @@ class _SymptomChecklistBubble extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12.5,
                       height: 1.4,
-                      color: Color(0xFF334155),
+                      color: AppColors.textStrong,
                     ),
                   ),
                 ],
@@ -936,7 +938,7 @@ class _SymptomRow extends StatelessWidget {
       decoration: BoxDecoration(
         border: showDivider
             ? const Border(
-                bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1),
+                bottom: BorderSide(color: AppColors.surfaceMuted, width: 1),
               )
             : null,
       ),
@@ -947,16 +949,16 @@ class _SymptomRow extends StatelessWidget {
             height: 32,
             decoration: BoxDecoration(
               color: isPresent
-                  ? const Color(0xFFDCFCE7)
-                  : const Color(0xFFF1F5F9),
+                  ? AppColors.successSurface
+                  : AppColors.surfaceMuted,
               borderRadius: BorderRadius.circular(999),
             ),
             child: Icon(
               tracker.icon,
               size: 16,
               color: isPresent
-                  ? const Color(0xFF16A34A)
-                  : const Color(0xFF94A3B8),
+                  ? AppColors.success
+                  : AppColors.textMuted,
             ),
           ),
           const SizedBox(width: 10),
@@ -969,7 +971,7 @@ class _SymptomRow extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF0F172A),
+                    color: AppColors.surfaceInverse,
                   ),
                 ),
                 Text(
@@ -977,8 +979,8 @@ class _SymptomRow extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     color: isPresent
-                        ? const Color(0xFF16A34A)
-                        : const Color(0xFF94A3B8),
+                        ? AppColors.success
+                        : AppColors.textMuted,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -990,10 +992,10 @@ class _SymptomRow extends StatelessWidget {
             height: 22,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isPresent ? const Color(0xFF22C55E) : Colors.transparent,
+              color: isPresent ? AppColors.success : Colors.transparent,
               border: isPresent
                   ? null
-                  : Border.all(color: const Color(0xFFCBD5E1), width: 1.5),
+                  : Border.all(color: AppColors.borderStrong, width: 1.5),
             ),
             child: isPresent
                 ? const Icon(Icons.check, size: 14, color: Colors.white)
@@ -1032,7 +1034,7 @@ class _RiskAssessmentPanel extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
+        border: Border(top: BorderSide(color: AppColors.surfaceMuted)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1042,8 +1044,11 @@ class _RiskAssessmentPanel extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF7ED),
+                color: AppColors.warningSurface,
                 borderRadius: BorderRadius.circular(14),
+                // A three-step orange ramp specific to the moderate-risk
+                // callout; flattening it to one warning token would lose
+                // the border/heading/body separation.
                 border: Border.all(color: const Color(0xFFFED7AA)),
               ),
               child: Row(
@@ -1051,15 +1056,15 @@ class _RiskAssessmentPanel extends StatelessWidget {
                 children: [
                   const Icon(
                     Icons.warning_amber_rounded,
-                    color: Color(0xFFEA580C),
+                    color: AppColors.warningDark,
                     size: 22,
                   ),
                   const SizedBox(width: 10),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Moderate Risk - Consultation Recommended',
                           style: TextStyle(
                             fontSize: 12.5,
@@ -1067,8 +1072,8 @@ class _RiskAssessmentPanel extends StatelessWidget {
                             color: Color(0xFFC2410C),
                           ),
                         ),
-                        SizedBox(height: 2),
-                        Text(
+                        const SizedBox(height: 2),
+                        const Text(
                           'Based on the symptoms provided, we recommend consulting a healthcare professional.',
                           style: TextStyle(
                             fontSize: 11,
@@ -1086,13 +1091,13 @@ class _RiskAssessmentPanel extends StatelessWidget {
                       height: 16,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Color(0xFFEA580C),
+                        color: AppColors.warningDark,
                       ),
                     )
                   else
                     const Icon(
                       Icons.chevron_right,
-                      color: Color(0xFFEA580C),
+                      color: AppColors.warningDark,
                       size: 20,
                     ),
                 ],
@@ -1106,7 +1111,7 @@ class _RiskAssessmentPanel extends StatelessWidget {
                 child: _PanelButton(
                   label: 'Book Appointment',
                   icon: Icons.calendar_month,
-                  background: const Color(0xFF5B8CFF),
+                  background: AppColors.primaryLight,
                   foreground: Colors.white,
                   onTap: onBookAppointment,
                 ),
@@ -1116,7 +1121,7 @@ class _RiskAssessmentPanel extends StatelessWidget {
                 child: _PanelButton(
                   label: 'Emergency SOS',
                   icon: Icons.phone_in_talk,
-                  background: const Color(0xFFDC2626),
+                  background: AppColors.error,
                   foreground: Colors.white,
                   onTap: onEmergency,
                 ),
@@ -1127,8 +1132,8 @@ class _RiskAssessmentPanel extends StatelessWidget {
                   label: 'Save Report',
                   icon: Icons.description_outlined,
                   background: Colors.white,
-                  foreground: const Color(0xFF0F172A),
-                  border: const Color(0xFFE2E8F0),
+                  foreground: AppColors.surfaceInverse,
+                  border: AppColors.border,
                   onTap: isBusy ? null : onSaveReport,
                 ),
               ),

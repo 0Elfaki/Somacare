@@ -8,6 +8,7 @@ import '../providers/medical_history_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import '../../../theme/app_theme.dart';
 
 /// Comprehensive Medical History Template
 ///
@@ -125,26 +126,26 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
 
     if (state.isLoading) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
+        backgroundColor: AppColors.pageBg,
         appBar: AppBar(
           title: const Text('Medical History'),
-          backgroundColor: const Color(0xFF3A86FF),
+          backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
         ),
         body: const Center(
-          child: CircularProgressIndicator(color: Color(0xFF3A86FF)),
+          child: CircularProgressIndicator(color: AppColors.primary),
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.pageBg,
       appBar: AppBar(
         title: const Text(
           'Medical History',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
-        backgroundColor: const Color(0xFF3A86FF),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
@@ -173,7 +174,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
                   'This information helps healthcare providers deliver better care. '
                   'Fields marked with * are required.',
               icon: Icons.medical_information,
-              color: const Color(0xFF3A86FF),
+              color: AppColors.primary,
             ),
 
             const SizedBox(height: 16),
@@ -412,7 +413,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
               icon: Icons.warning_amber,
               isExpanded: _sectionExpanded['allergies'] ?? false,
               onToggle: () => _toggleSection('allergies'),
-              color: const Color(0xFFFF4D4F),
+              color: AppColors.error,
               children: [
                 _buildAllergyField(
                   label: 'Drug Allergies',
@@ -679,7 +680,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
               ElevatedButton(
                 onPressed: _saveMedicalHistory,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3A86FF),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     vertical: 16,
@@ -710,12 +711,12 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
                 icon: const Icon(Icons.picture_as_pdf),
                 label: const Text('Download Approved PDF'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF3A86FF),
+                  foregroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(
                     vertical: 14,
                     horizontal: 24,
                   ),
-                  side: const BorderSide(color: Color(0xFF3A86FF)),
+                  side: const BorderSide(color: AppColors.primary),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -728,7 +729,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
                   padding: EdgeInsets.all(16.0),
                   child: Text(
                     'Your medical history is pending doctor approval to be downloaded as a PDF.',
-                    style: TextStyle(color: Colors.orange, fontStyle: FontStyle.italic),
+                    style: TextStyle(color: AppColors.warning, fontStyle: FontStyle.italic),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -838,19 +839,19 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
               hintText: hint,
               helperText: helperText,
               filled: true,
-              fillColor: !_canEdit ? Colors.grey.shade100 : Colors.white,
+              fillColor: !_canEdit ? AppColors.surfaceMuted : Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Colors.grey),
+                borderSide: const BorderSide(color: AppColors.textMuted),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderSide: BorderSide(color: AppColors.border),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: Color(0xFF3A86FF),
+                  color: AppColors.primary,
                   width: 2,
                 ),
               ),
@@ -861,10 +862,10 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF3A86FF).withValues(alpha: 0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: const Color(0xFF3A86FF).withValues(alpha: 0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -873,7 +874,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
                   const Icon(
                     Icons.lightbulb_outline,
                     size: 18,
-                    color: Color(0xFF3A86FF),
+                    color: AppColors.primary,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -882,7 +883,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
                       style: const TextStyle(
                         fontSize: 13,
                         fontStyle: FontStyle.italic,
-                        color: Color(0xFF3A86FF),
+                        color: AppColors.primary,
                       ),
                     ),
                   ),
@@ -896,7 +897,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
               title: 'Follow-up Questions to Consider',
               items: followUp,
               icon: Icons.help_outline,
-              color: Colors.blue,
+              color: AppColors.primary,
             ),
           ],
           if (warningSigns != null) ...[
@@ -905,7 +906,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
               title: 'Warning Signs to Watch For',
               items: warningSigns,
               icon: Icons.warning_amber,
-              color: Colors.orange,
+              color: AppColors.warning,
             ),
           ],
         ],
@@ -949,7 +950,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
               padding: const EdgeInsets.only(left: 26, bottom: 4),
               child: Text(
                 '• $item',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
             ),
           ),
@@ -1059,9 +1060,9 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
                   );
                 },
                 backgroundColor: Colors.white,
-                selectedColor: const Color(0xFF3A86FF).withValues(alpha: 0.2),
-                checkmarkColor: const Color(0xFF3A86FF),
-                side: BorderSide(color: Colors.grey.shade300),
+                selectedColor: AppColors.primary.withValues(alpha: 0.2),
+                checkmarkColor: AppColors.primary,
+                side: BorderSide(color: AppColors.border),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -1082,11 +1083,11 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderSide: BorderSide(color: AppColors.border),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderSide: BorderSide(color: AppColors.border),
               ),
             ),
           ),
@@ -1140,7 +1141,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Medical history saved successfully!'),
-              backgroundColor: Color(0xFF2ECC71),
+              backgroundColor: AppColors.success,
             ),
           );
           context.pop();
@@ -1150,7 +1151,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
               content: Text(
                 'Failed to save medical history. Please try again.',
               ),
-              backgroundColor: Color(0xFFE74C3C),
+              backgroundColor: AppColors.error,
             ),
           );
         }
@@ -1162,7 +1163,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Generating Approved PDF...'),
-        backgroundColor: Color(0xFF3A86FF),
+        backgroundColor: AppColors.primary,
       ),
     );
 
@@ -1227,7 +1228,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
       builder: (context) => AlertDialog(
         title: const Row(
           children: [
-            Icon(Icons.help_outline, color: Color(0xFF3A86FF)),
+            Icon(Icons.help_outline, color: AppColors.primary),
             SizedBox(width: 8),
             Text('How to Use This Form'),
           ],
@@ -1310,21 +1311,21 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF2ECC71).withValues(alpha: 0.1),
+              color: AppColors.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: const Color(0xFF2ECC71).withValues(alpha: 0.3),
+                color: AppColors.success.withValues(alpha: 0.3),
               ),
             ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.verified, color: Color(0xFF2ECC71), size: 20),
+                Icon(Icons.verified, color: AppColors.success, size: 20),
                 SizedBox(width: 8),
                 Text(
                   'Approved',
                   style: TextStyle(
-                    color: Color(0xFF2ECC71),
+                    color: AppColors.success,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -1349,7 +1350,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context, true),
-                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                      style: TextButton.styleFrom(foregroundColor: AppColors.error),
                       child: const Text('Revoke'),
                     ),
                   ],
@@ -1365,7 +1366,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Approval revoked'),
-                      backgroundColor: Color(0xFFE74C3C),
+                      backgroundColor: AppColors.error,
                     ),
                   );
                 }
@@ -1374,8 +1375,8 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
             icon: const Icon(Icons.cancel, size: 18),
             label: const Text('Revoke Approval'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.red,
-              side: const BorderSide(color: Colors.red),
+              foregroundColor: AppColors.error,
+              side: const BorderSide(color: AppColors.error),
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -1404,7 +1405,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context, true),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2ECC71),
+                    backgroundColor: AppColors.success,
                   ),
                   child: const Text('Approve'),
                 ),
@@ -1419,7 +1420,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Medical history approved!'),
-                  backgroundColor: Color(0xFF2ECC71),
+                  backgroundColor: AppColors.success,
                 ),
               );
             }
@@ -1428,7 +1429,7 @@ class _MedicalHistoryScreenState extends ConsumerState<MedicalHistoryScreen> {
         icon: const Icon(Icons.verified, size: 20),
         label: const Text('Approve Medical History'),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF2ECC71),
+          backgroundColor: AppColors.success,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
           shape: RoundedRectangleBorder(
@@ -1462,7 +1463,7 @@ class _MedicalHistorySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sectionColor = color ?? const Color(0xFF3A86FF);
+    final sectionColor = color ?? AppColors.primary;
 
     return Card(
       elevation: 2,

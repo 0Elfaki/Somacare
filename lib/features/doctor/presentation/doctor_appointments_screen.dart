@@ -137,40 +137,23 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
     debugPrint('BUILD: All appointments: ${_appointments.length}');
 
     return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.pageBg,
         appBar: AppBar(
-          backgroundColor: AppColors.surface,
-          elevation: 0,
-          scrolledUnderElevation: 1,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+            icon: const Icon(Icons.arrow_back_rounded),
+            tooltip: 'Back to dashboard',
             onPressed: () => context.go('/doctor-dashboard'),
           ),
-          title: const Text(
-            'Appointments',
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w800,
-              fontSize: AppTypography.headlineSmall,
-            ),
-          ),
+          title: const Text('Appointments'),
           actions: [
             IconButton(
-              icon: const Icon(Icons.refresh, color: AppColors.primary),
+              icon: const Icon(Icons.refresh_rounded),
               onPressed: _loadAppointments,
               tooltip: 'Refresh',
             ),
           ],
           bottom: TabBar(
             controller: _tab,
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.textTertiary,
-            indicatorColor: AppColors.primary,
-            indicatorWeight: 3,
-            labelStyle: const TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: AppTypography.labelMedium,
-            ),
             tabs: [
               Tab(text: 'All (${_appointments.length})'),
               const Tab(text: 'Upcoming'),
@@ -219,11 +202,11 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.event_busy, size: 64, color: Colors.grey.shade400),
+            Icon(Icons.event_busy, size: 64, color: AppColors.textMuted),
             const SizedBox(height: 16),
             Text(
               'No appointments in $label',
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -276,15 +259,15 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
   Color _getStatusColor(String status) {
     switch (status) {
       case 'pending':
-        return Colors.orange;
+        return AppColors.warning;
       case 'confirmed':
-        return Colors.green;
+        return AppColors.success;
       case 'completed':
-        return Colors.blue;
+        return AppColors.primary;
       case 'cancelled':
-        return Colors.red;
+        return AppColors.error;
       default:
-        return Colors.grey;
+        return AppColors.textMuted;
     }
   }
 }

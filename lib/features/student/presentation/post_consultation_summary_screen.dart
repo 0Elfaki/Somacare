@@ -87,7 +87,7 @@ class _PostConsultationSummaryScreenState
                 style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
             if (_recent.isEmpty) pw.Text('No prescriptions issued yet for this visit.'),
             if (_recent.isNotEmpty)
-              pw.TableHelper.fromTextArray(
+              pw.Table.fromTextArray(
                 headers: ['Medication', 'Dosage', 'Frequency'],
                 data: _recent
                     .map((r) => [r.medicationName, r.dosage, r.frequency])
@@ -111,7 +111,7 @@ class _PostConsultationSummaryScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -127,7 +127,7 @@ class _PostConsultationSummaryScreenState
                       padding:
                           const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.darkGhost,
+                        color: AppColors.surfaceMuted,
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
@@ -135,7 +135,7 @@ class _PostConsultationSummaryScreenState
                         style: BloomTextStyles.inter(
                           size: 10,
                           weight: FontWeight.w600,
-                          color: AppColors.darkTextSecondary,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ),
@@ -148,7 +148,7 @@ class _PostConsultationSummaryScreenState
                             style: BloomTextStyles.inter(
                               size: 10,
                               weight: FontWeight.w700,
-                              color: AppColors.darkTextMuted,
+                              color: AppColors.textMuted,
                               letterSpacing: 0.06,
                             ),
                           ),
@@ -158,7 +158,7 @@ class _PostConsultationSummaryScreenState
                             'notes to your medical history shortly.',
                             style: BloomTextStyles.inter(
                               size: 13,
-                              color: AppColors.darkTextPrimary,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ],
@@ -188,7 +188,7 @@ class _PostConsultationSummaryScreenState
                                     'No prescriptions issued yet for this visit.',
                                     style: BloomTextStyles.inter(
                                       size: 12,
-                                      color: AppColors.darkTextMuted,
+                                      color: AppColors.textMuted,
                                     ),
                                   ),
                                 )
@@ -212,7 +212,7 @@ class _PostConsultationSummaryScreenState
                         'History once your doctor finalizes it.',
                         style: BloomTextStyles.inter(
                           size: 12,
-                          color: AppColors.darkTextSecondary,
+                          color: AppColors.textSecondary,
                           height: 1.5,
                         ),
                       ),

@@ -1,6 +1,9 @@
 name: somacare
 
-description: "A new Flutter project."
+description: >-
+  SomaCare — student telemedicine. Book and attend video consultations,
+  keep a medical history, manage prescriptions and medications, and reach
+  an on-call doctor in an emergency.
 publish_to: 'none'
 
 version: 2.0.0+1

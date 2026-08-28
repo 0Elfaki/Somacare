@@ -8,14 +8,26 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
 
-    <!-- ✅ Phone calls (Emergency screen) -->
-    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <!-- The emergency screen opens the dialler with a `tel:` intent, which
+         needs no permission. CALL_PHONE (placing a call directly) is a
+         dangerous permission and a Play Store policy flag — do not add it
+         back unless the app really places the call itself. -->
+
+    <!-- Agora needs these to pick the right audio route and to notice when
+         the network changes mid-call. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+
+    <!-- Camera and mic are used only in a consultation; declare them as
+         optional so the app still installs on devices without them. -->
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.microphone" android:required="false"/>
 
     <application
         android:label="SOMACARE"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="false">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -24,7 +36,8 @@
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            android:enableOnBackInvokedCallback="true">
             <meta-data
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"

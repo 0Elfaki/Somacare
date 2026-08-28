@@ -123,7 +123,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
     final isDoctor = _role == 'doctor';
 
     return Scaffold(
-      backgroundColor: AppColors.medBg,
+      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -143,8 +143,8 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [
-                            AppColors.medPrimaryBlue,
-                            AppColors.medPurple,
+                            AppColors.primary,
+                            AppColors.accent,
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -166,7 +166,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                       fontFamily: 'Fraunces',
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.medTextPrimary,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 28),
@@ -175,9 +175,9 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.medCard,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.medBorder),
+                      border: Border.all(color: AppColors.border),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.04),
@@ -221,7 +221,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                             fontFamily: 'Fraunces',
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.medTextPrimary,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -232,7 +232,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                           style: const TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 12.5,
-                            color: AppColors.medTextSecondary,
+                            color: AppColors.textSecondary,
                           ),
                         ),
 
@@ -251,9 +251,9 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.medBg,
+                                color: AppColors.pageBg,
                                 borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: AppColors.medBorder),
+                                border: Border.all(color: AppColors.border),
                               ),
                               child: Row(
                                 children: [
@@ -262,14 +262,14 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                                     height: 38,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
-                                      color: AppColors.medPrimaryBlue
+                                      color: AppColors.primary
                                           .withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(11),
                                     ),
                                     child: const Icon(
                                       Icons.school_rounded,
                                       size: 19,
-                                      color: AppColors.medPrimaryBlue,
+                                      color: AppColors.primary,
                                     ),
                                   ),
                                   const SizedBox(width: 11),
@@ -284,7 +284,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                                             fontFamily: 'Inter',
                                             fontSize: 10,
                                             fontWeight: FontWeight.w600,
-                                            color: AppColors.medTextSecondary,
+                                            color: AppColors.textSecondary,
                                             letterSpacing: 0.3,
                                           ),
                                         ),
@@ -296,8 +296,8 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600,
                                             color: _selectedSchool != null
-                                                ? AppColors.medTextPrimary
-                                                : AppColors.medTextSecondary,
+                                                ? AppColors.textPrimary
+                                                : AppColors.textSecondary,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -307,7 +307,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                                   ),
                                   const Icon(
                                     Icons.chevron_right_rounded,
-                                    color: AppColors.medTextSecondary,
+                                    color: AppColors.textSecondary,
                                     size: 20,
                                   ),
                                 ],
@@ -341,7 +341,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                                   ? Icons.visibility_outlined
                                   : Icons.visibility_off_outlined,
                               size: 18,
-                              color: AppColors.medTextSecondary,
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ),
@@ -367,7 +367,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                                 fontFamily: 'Inter',
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.medPrimaryBlue,
+                                color: AppColors.primary,
                               ),
                             ),
                           ),
@@ -381,10 +381,10 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _login,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.medPrimaryBlue,
+                              backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
                               disabledBackgroundColor:
-                                  AppColors.medPrimaryBlue.withValues(alpha: 0.5),
+                                  AppColors.primary.withValues(alpha: 0.5),
                               elevation: 0,
                               padding: const EdgeInsets.symmetric(vertical: 15),
                               shape: RoundedRectangleBorder(
@@ -453,15 +453,15 @@ class _LoginField extends StatelessWidget {
             fontFamily: 'Inter',
             fontSize: 12.5,
             fontWeight: FontWeight.w600,
-            color: AppColors.medTextPrimary,
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 6),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.medBg,
+            color: AppColors.pageBg,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.medBorder),
+            border: Border.all(color: AppColors.border),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
           child: Row(
@@ -474,7 +474,7 @@ class _LoginField extends StatelessWidget {
                   style: const TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 14,
-                    color: AppColors.medTextPrimary,
+                    color: AppColors.textPrimary,
                   ),
                   decoration: InputDecoration(
                     isDense: true,
@@ -483,13 +483,13 @@ class _LoginField extends StatelessWidget {
                     hintStyle: const TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 14,
-                      color: AppColors.medTextSecondary,
+                      color: AppColors.textSecondary,
                     ),
                     contentPadding: const EdgeInsets.symmetric(vertical: 13),
                   ),
                 ),
               ),
-              ?suffix,
+              if (suffix != null) suffix!,
             ],
           ),
         ),
@@ -514,11 +514,11 @@ class _RoleChip extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? AppColors.medPrimaryBlue : AppColors.medBg,
+          color: selected ? AppColors.primary : AppColors.pageBg,
           borderRadius: BorderRadius.circular(999),
           border: selected
               ? null
-              : Border.all(color: AppColors.medBorder, width: 1),
+              : Border.all(color: AppColors.border, width: 1),
         ),
         child: Text(
           label,
@@ -526,7 +526,7 @@ class _RoleChip extends StatelessWidget {
             fontFamily: 'Inter',
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : AppColors.medTextSecondary,
+            color: selected ? Colors.white : AppColors.textSecondary,
           ),
         ),
       ),

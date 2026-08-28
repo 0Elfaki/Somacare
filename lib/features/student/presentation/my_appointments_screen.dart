@@ -145,12 +145,13 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen>
     );
 
     return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.pageBg,
         appBar: AppBar(
           backgroundColor: AppColors.surface,
           elevation: 0,
           scrolledUnderElevation: 1,
           leading: IconButton(
+            tooltip: 'Back',
             icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
             onPressed: () => context.go('/student-dashboard'),
           ),
@@ -172,7 +173,7 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen>
         bottom: TabBar(
           controller: _tab,
           labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.textTertiary,
+          unselectedLabelColor: AppColors.textMuted,
           indicatorColor: AppColors.primary,
           indicatorWeight: 3,
           labelStyle: const TextStyle(
@@ -314,10 +315,10 @@ class _EmptyState extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(AppSpacing.xl),
             decoration: const BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: AppColors.surfaceMuted,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 56, color: AppColors.textTertiary),
+            child: Icon(icon, size: 56, color: AppColors.textMuted),
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
@@ -332,7 +333,7 @@ class _EmptyState extends StatelessWidget {
           const Text(
             'Book an appointment to get started',
             style: TextStyle(
-              color: AppColors.textTertiary,
+              color: AppColors.textMuted,
               fontSize: AppTypography.bodyMedium,
             ),
           ),
@@ -470,7 +471,7 @@ class _AppointmentCard extends StatelessWidget {
                           const Icon(
                             Icons.notes_outlined,
                             size: 16,
-                            color: AppColors.textTertiary,
+                            color: AppColors.textMuted,
                           ),
                           const SizedBox(width: AppSpacing.xs),
                           Expanded(
@@ -557,7 +558,7 @@ class _AppointmentCard extends StatelessWidget {
                 vertical: AppSpacing.md,
               ),
               decoration: const BoxDecoration(
-                color: AppColors.surfaceVariant,
+                color: AppColors.surfaceMuted,
                 borderRadius: AppRadius.mdAll,
               ),
               child: const Row(
@@ -568,14 +569,14 @@ class _AppointmentCard extends StatelessWidget {
                     height: 16,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppColors.textTertiary,
+                      color: AppColors.textMuted,
                     ),
                   ),
                   SizedBox(width: AppSpacing.sm),
                   Text(
                     'Waiting',
                     style: TextStyle(
-                      color: AppColors.textTertiary,
+                      color: AppColors.textMuted,
                       fontWeight: FontWeight.w600,
                       fontSize: AppTypography.labelMedium,
                     ),
@@ -599,22 +600,22 @@ class _AppointmentCard extends StatelessWidget {
       case 'cancelled':
         return AppColors.error;
       default:
-        return AppColors.textTertiary;
+        return AppColors.textMuted;
     }
   }
 
   Color _getStatusBackgroundColor(String? status) {
     switch (status) {
       case 'confirmed':
-        return AppColors.successLight;
+        return AppColors.successTint;
       case 'pending':
-        return AppColors.warningLight;
+        return AppColors.warningTint;
       case 'completed':
-        return AppColors.infoLight;
+        return AppColors.infoTint;
       case 'cancelled':
-        return AppColors.errorLight;
+        return AppColors.errorTint;
       default:
-        return AppColors.surfaceVariant;
+        return AppColors.surfaceMuted;
     }
   }
 }
@@ -667,7 +668,7 @@ class _InfoChip extends StatelessWidget {
         vertical: AppSpacing.sm,
       ),
       decoration: const BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: AppColors.surfaceMuted,
         borderRadius: AppRadius.smAll,
       ),
       child: Row(

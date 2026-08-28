@@ -151,7 +151,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
       case 'cancelled':
         return AppColors.error;
       default:
-        return AppColors.darkTextMuted;
+        return AppColors.textMuted;
     }
   }
 
@@ -182,7 +182,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.darkScreenBg,
+        backgroundColor: AppColors.pageBg,
         body: SafeArea(
           child: Column(
             children: [
@@ -215,7 +215,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                                           style: BloomTextStyles.inter(
                                             size: 13,
                                             weight: FontWeight.w600,
-                                            color: AppColors.darkTextPrimary,
+                                            color: AppColors.textPrimary,
                                           ),
                                         ),
                                         if (school.isNotEmpty)
@@ -223,7 +223,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                                             school,
                                             style: BloomTextStyles.inter(
                                               size: 11,
-                                              color: AppColors.darkTextMuted,
+                                              color: AppColors.textMuted,
                                             ),
                                           ),
                                       ],
@@ -260,7 +260,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                                     style: BloomTextStyles.inter(
                                       size: 11.5,
                                       weight: FontWeight.w600,
-                                      color: AppColors.lime,
+                                      color: AppColors.success,
                                     ),
                                   ),
                                 ),
@@ -292,7 +292,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                                       const Icon(
                                         Icons.info_outline,
                                         size: 16,
-                                        color: AppColors.darkTextMuted,
+                                        color: AppColors.textMuted,
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
@@ -300,14 +300,14 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                                         style: BloomTextStyles.inter(
                                           size: 12,
                                           weight: FontWeight.w600,
-                                          color: AppColors.darkTextSecondary,
+                                          color: AppColors.textSecondary,
                                         ),
                                       ),
                                       const Spacer(),
                                       DropdownButton<String>(
                                         value: status,
                                         underline: const SizedBox(),
-                                        dropdownColor: AppColors.darkSurface,
+                                        dropdownColor: AppColors.surface,
                                         style: BloomTextStyles.inter(
                                           size: 12,
                                           weight: FontWeight.w700,
@@ -343,9 +343,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                             const BloomSectionTitle('Reason for visit'),
                             Container(
                               decoration: BoxDecoration(
-                                color: AppColors.darkSurface,
+                                color: AppColors.surface,
                                 borderRadius: AppRadius.cardAll,
-                                border: Border.all(color: AppColors.darkBorder),
+                                border: Border.all(color: AppColors.border),
                               ),
                               child: Container(
                                 padding: const EdgeInsets.all(15),
@@ -353,7 +353,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                                   borderRadius: AppRadius.cardAll,
                                   border: Border(
                                     left: BorderSide(
-                                      color: AppColors.lime,
+                                      color: AppColors.success,
                                       width: 3,
                                     ),
                                   ),
@@ -364,7 +364,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                                       : reason,
                                   style: BloomTextStyles.inter(
                                     size: 12.5,
-                                    color: AppColors.darkTextSecondary,
+                                    color: AppColors.textSecondary,
                                     height: 1.5,
                                   ),
                                 ),
@@ -374,9 +374,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                             const BloomSectionTitle('Doctor notes'),
                             Container(
                               decoration: BoxDecoration(
-                                color: AppColors.darkSurface,
+                                color: AppColors.surface,
                                 borderRadius: AppRadius.mdAll,
-                                border: Border.all(color: AppColors.darkBorder),
+                                border: Border.all(color: AppColors.border),
                               ),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
@@ -387,14 +387,14 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                                 maxLines: 4,
                                 style: BloomTextStyles.inter(
                                   size: 12,
-                                  color: AppColors.darkTextPrimary,
+                                  color: AppColors.textPrimary,
                                 ),
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                   hintText: 'Add clinical notes, observations…',
                                   hintStyle: BloomTextStyles.inter(
                                     size: 12,
-                                    color: AppColors.darkTextMuted,
+                                    color: AppColors.textMuted,
                                   ),
                                 ),
                               ),
@@ -450,7 +450,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                               label: 'Write Prescription',
                               subtitle:
                                   'Issue medication prescription for patient',
-                              color: AppColors.lime,
+                              color: AppColors.success,
                               onTap: () => context.push(
                                 '/prescription-writer',
                                 extra: <String, dynamic>{
@@ -507,14 +507,14 @@ class _InfoRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: AppColors.darkTextMuted),
+        Icon(icon, size: 16, color: AppColors.textMuted),
         const SizedBox(width: 8),
         Text(
           '$label: ',
           style: BloomTextStyles.inter(
             size: 12,
             weight: FontWeight.w600,
-            color: AppColors.darkTextSecondary,
+            color: AppColors.textSecondary,
           ),
         ),
         Expanded(
@@ -523,7 +523,7 @@ class _InfoRow extends StatelessWidget {
             style: BloomTextStyles.inter(
               size: 12,
               weight: FontWeight.w600,
-              color: AppColors.darkTextPrimary,
+              color: AppColors.textPrimary,
             ),
           ),
         ),
@@ -588,7 +588,7 @@ class _ActionTile extends StatelessWidget {
                     subtitle,
                     style: BloomTextStyles.inter(
                       size: 11,
-                      color: AppColors.darkTextMuted,
+                      color: AppColors.textMuted,
                     ),
                   ),
                 ],

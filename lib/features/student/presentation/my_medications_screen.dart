@@ -79,11 +79,11 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
   Color _getStatusColor(MedicationStatus status) {
     switch (status) {
       case MedicationStatus.active:
-        return const Color(0xFF22C55E);
+        return AppColors.success;
       case MedicationStatus.completed:
-        return const Color(0xFF3B82F6);
+        return AppColors.primaryLight;
       case MedicationStatus.paused:
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
     }
   }
 
@@ -103,7 +103,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Medication marked as taken!'),
-        backgroundColor: Color(0xFF22C55E),
+        backgroundColor: AppColors.success,
       ),
     );
   }
@@ -136,7 +136,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE2E8F0),
+                      color: AppColors.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -149,7 +149,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                 const SizedBox(height: 8),
                 Text(
                   'For ${medication.name} ${medication.dosage}',
-                  style: const TextStyle(color: Color(0xFF64748B)),
+                  style: const TextStyle(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 24),
 
@@ -174,7 +174,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: AppColors.border),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -208,7 +208,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                           content: Text(
                             'Reminder set for ${selectedTime.format(context)}',
                           ),
-                          backgroundColor: const Color(0xFF22C55E),
+                          backgroundColor: AppColors.success,
                         ),
                       );
                     },
@@ -236,7 +236,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
     final medicationState = ref.watch(medicationProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: medicationState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : medicationState.medications.isEmpty
@@ -253,6 +253,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                   pinned: true,
                   backgroundColor: AppColors.primary,
                   leading: IconButton(
+                    tooltip: 'Back',
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () => context.pop(),
                   ),
@@ -265,6 +266,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                   ),
                   actions: [
                     IconButton(
+                      tooltip: 'Add a reminder',
                       icon: const Icon(Icons.add_alert, color: Colors.white),
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -329,7 +331,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [AppColors.primaryDark, Color(0xFFA855F7)],
+          colors: [AppColors.primaryDark, AppColors.accent],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -447,11 +449,12 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
         },
         decoration: InputDecoration(
           hintText: 'Search medications...',
-          hintStyle: TextStyle(color: Colors.grey[400]),
+          hintStyle: TextStyle(color: AppColors.textMuted),
           prefixIcon: const Icon(Icons.search, color: AppColors.primary),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear, color: Colors.grey),
+                  tooltip: 'Clear',
+                  icon: const Icon(Icons.clear, color: AppColors.textMuted),
                   onPressed: () {
                     _searchController.clear();
                     setState(() {
@@ -560,14 +563,14 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       Text(
                         medication.dosage,
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF64748B),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -628,7 +631,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.darkScreenBg,
+                    color: AppColors.pageBg,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -639,13 +642,13 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                           const Icon(
                             Icons.refresh,
                             size: 20,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                           ),
                           const SizedBox(width: 8),
                           Text(
                             'Refills: ${medication.refillsRemaining} of ${medication.refillsTotal}',
                             style: const TextStyle(
-                              color: Color(0xFF64748B),
+                              color: AppColors.textSecondary,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -657,8 +660,8 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                           height: 8,
                           decoration: BoxDecoration(
                             color: medication.refillsRemaining > 1
-                                ? const Color(0xFF22C55E)
-                                : const Color(0xFFF59E0B),
+                                ? AppColors.success
+                                : AppColors.warning,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -673,7 +676,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
+                      color: AppColors.warningSurface,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -682,14 +685,14 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                         const Icon(
                           Icons.info_outline,
                           size: 18,
-                          color: Color(0xFFD97706),
+                          color: AppColors.warningDark,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             medication.instructions!,
                             style: const TextStyle(
-                              color: Color(0xFF92400E),
+                              color: AppColors.warningDark,
                               fontSize: 13,
                             ),
                           ),
@@ -723,7 +726,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                               size: 14,
                               color: reminder.isEnabled
                                   ? AppColors.primary
-                                  : const Color(0xFF94A3B8),
+                                  : AppColors.textMuted,
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -732,7 +735,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                                 fontSize: 12,
                                 color: reminder.isEnabled
                                     ? AppColors.primary
-                                    : const Color(0xFF94A3B8),
+                                    : AppColors.textMuted,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -750,7 +753,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: const BoxDecoration(
-              border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
+              border: Border(top: BorderSide(color: AppColors.surfaceMuted)),
             ),
             child: Column(
               children: [
@@ -774,7 +777,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: medication.isTakenToday
-                            ? const Color(0xFF22C55E)
+                            ? AppColors.success
                             : AppColors.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -801,7 +804,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                                     content: Text(
                                       'Refill request submitted for ${medication.name}',
                                     ),
-                                    backgroundColor: const Color(0xFF22C55E),
+                                    backgroundColor: AppColors.success,
                                   ),
                                 );
                               }
@@ -840,11 +843,12 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                     // View Details
                     Expanded(
                       child: IconButton(
+                        tooltip: 'View details',
                         onPressed: () => _showMedicationDetails(medication),
                         icon: const Icon(Icons.visibility),
                         style: IconButton.styleFrom(
-                          backgroundColor: const Color(0xFFF1F5F9),
-                          foregroundColor: const Color(0xFF64748B),
+                          backgroundColor: AppColors.surfaceMuted,
+                          foregroundColor: AppColors.textSecondary,
                         ),
                       ),
                     ),
@@ -862,18 +866,18 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: AppColors.surfaceMuted,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: const Color(0xFF64748B)),
+          Icon(icon, size: 16, color: AppColors.textSecondary),
           const SizedBox(width: 6),
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -889,17 +893,17 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
   }) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: const Color(0xFF94A3B8)),
+        Icon(icon, size: 16, color: AppColors.textMuted),
         const SizedBox(width: 8),
         Text(
           '$label: ',
-          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+          style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
         ),
         Expanded(
           child: Text(
             value,
             style: const TextStyle(
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -919,13 +923,13 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: AppColors.surfaceMuted,
               borderRadius: BorderRadius.circular(50),
             ),
             child: const Icon(
               Icons.medication_outlined,
               size: 48,
-              color: Color(0xFF94A3B8),
+              color: AppColors.textMuted,
             ),
           ),
           const SizedBox(height: 20),
@@ -934,13 +938,13 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            style: TextStyle(fontSize: 14, color: AppColors.textMuted),
           ),
         ],
       ),
@@ -966,7 +970,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFE2E8F0),
+                color: AppColors.border,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -1001,14 +1005,14 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                           style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         Text(
                           medication.dosage,
                           style: const TextStyle(
                             fontSize: 16,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -1094,7 +1098,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           ),
                         ),
                       ),
@@ -1104,7 +1108,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                           margin: const EdgeInsets.only(bottom: 8),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F9),
+                            color: AppColors.surfaceMuted,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -1114,8 +1118,8 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                                     ? Icons.alarm_on
                                     : Icons.alarm_off,
                                 color: reminder.isEnabled
-                                    ? const Color(0xFF22C55E)
-                                    : const Color(0xFF94A3B8),
+                                    ? AppColors.success
+                                    : AppColors.textMuted,
                               ),
                               const SizedBox(width: 12),
                               Text(
@@ -1128,7 +1132,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                               Text(
                                 reminder.days.join(', '),
                                 style: const TextStyle(
-                                  color: Color(0xFF64748B),
+                                  color: AppColors.textSecondary,
                                   fontSize: 13,
                                 ),
                               ),
@@ -1209,10 +1213,10 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: AppColors.surfaceMuted,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, size: 20, color: const Color(0xFF64748B)),
+            child: Icon(icon, size: 20, color: AppColors.textSecondary),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1223,7 +1227,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                   title,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF94A3B8),
+                    color: AppColors.textMuted,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -1232,7 +1236,7 @@ class _MyMedicationsScreenState extends ConsumerState<MyMedicationsScreen>
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ],

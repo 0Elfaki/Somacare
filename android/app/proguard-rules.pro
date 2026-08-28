@@ -51,3 +51,22 @@
 
 # Keep model classes
 -keep class com.example.telemedicine101.** { *; }
+
+# ── Agora RTC engine ────────────────────────────────────────────────────────
+# The engine is reached over JNI, so R8 cannot see the references and will
+# strip it. Without these rules video calls fail ONLY in release builds.
+-keep class io.agora.**  { *; }
+-keep class com.agora.**  { *; }
+-dontwarn io.agora.**
+
+# ── permission_handler / url_launcher ───────────────────────────────────────
+-keep class com.baseflow.permissionhandler.** { *; }
+-dontwarn com.baseflow.permissionhandler.**
+
+# ── printing / pdf ──────────────────────────────────────────────────────────
+-keep class net.nfet.flutter.printing.** { *; }
+-dontwarn net.nfet.flutter.printing.**
+
+# Model classes are matched against the Kotlin package, which is unchanged
+# even though the applicationId is now com.somacare.app.
+-keep class com.somacare.app.** { *; }

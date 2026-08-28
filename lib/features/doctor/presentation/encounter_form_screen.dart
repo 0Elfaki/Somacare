@@ -103,7 +103,7 @@ class _EncounterFormScreenState extends State<EncounterFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -155,7 +155,7 @@ class _EncounterFormScreenState extends State<EncounterFormScreen> {
                               style: BloomTextStyles.inter(
                                 size: 12,
                                 weight: FontWeight.w600,
-                                color: AppColors.darkTextPrimary,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                           ),
@@ -174,8 +174,8 @@ class _EncounterFormScreenState extends State<EncounterFormScreen> {
             Container(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
               decoration: const BoxDecoration(
-                color: AppColors.darkSurface,
-                border: Border(top: BorderSide(color: AppColors.darkBorder)),
+                color: AppColors.surface,
+                border: Border(top: BorderSide(color: AppColors.border)),
               ),
               child: BloomButton(
                 label: 'Save encounter',
@@ -203,7 +203,7 @@ class _FieldLabel extends StatelessWidget {
         style: BloomTextStyles.inter(
           size: 10,
           weight: FontWeight.w600,
-          color: AppColors.darkTextMuted,
+          color: AppColors.textMuted,
           letterSpacing: 0.04,
         ),
       ),
@@ -221,9 +221,9 @@ class _BloomTextArea extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: AppColors.surface,
         borderRadius: AppRadius.mdAll,
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: AppColors.border),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       child: TextField(
@@ -232,7 +232,7 @@ class _BloomTextArea extends StatelessWidget {
         maxLines: minLines + 2,
         style: BloomTextStyles.inter(
           size: 12,
-          color: AppColors.darkTextPrimary,
+          color: AppColors.textPrimary,
         ),
         decoration: const InputDecoration(border: InputBorder.none),
       ),
@@ -250,20 +250,20 @@ class _MonoField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: AppColors.surface,
         borderRadius: AppRadius.mdAll,
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: AppColors.border),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       child: TextField(
         controller: controller,
-        style: BloomTextStyles.mono(size: 11, color: AppColors.darkTextPrimary),
+        style: BloomTextStyles.mono(size: 11, color: AppColors.textPrimary),
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: hint,
           hintStyle: BloomTextStyles.mono(
             size: 11,
-            color: AppColors.darkTextMuted,
+            color: AppColors.textMuted,
           ),
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/message_model.dart';
 import '../data/message_repository.dart';
+import '../../../theme/app_theme.dart';
 
 /// Text-messaging screen between a student and their doctor, matching the
 /// "Dr. Sarah Martinez" chat design — bubbles, an attached image, a voice
@@ -249,12 +250,13 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.pageBg,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
+          tooltip: 'Back',
+          icon: const Icon(Icons.arrow_back, color: AppColors.surfaceInverse),
           onPressed: () => context.canPop()
               ? context.pop()
               : context.go('/student-dashboard'),
@@ -270,7 +272,7 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
                   height: 40,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Color(0xFF5B8CFF), Color(0xFF9333EA)],
+                      colors: [AppColors.primaryLight, AppColors.accent],
                     ),
                     shape: BoxShape.circle,
                   ),
@@ -283,7 +285,7 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
                     width: 12,
                     height: 12,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF22C55E),
+                      color: AppColors.success,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 2),
                     ),
@@ -300,7 +302,7 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
                     widget.doctorName,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      color: Color(0xFF0F172A),
+                      color: AppColors.surfaceInverse,
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
                     ),
@@ -312,7 +314,7 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
                         width: 7,
                         height: 7,
                         decoration: const BoxDecoration(
-                          color: Color(0xFF22C55E),
+                          color: AppColors.success,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -320,7 +322,7 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
                       const Text(
                         'Online',
                         style: TextStyle(
-                          color: Color(0xFF16A34A),
+                          color: AppColors.success,
                           fontSize: 11.5,
                           fontWeight: FontWeight.w600,
                         ),
@@ -334,7 +336,7 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.videocam_outlined, color: Color(0xFF64748B)),
+            icon: const Icon(Icons.videocam_outlined, color: AppColors.textSecondary),
             tooltip: 'Start video call',
             onPressed: () => context.push(
               '/consult',
@@ -342,13 +344,14 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Color(0xFF64748B)),
+            tooltip: 'More options',
+            icon: const Icon(Icons.more_vert, color: AppColors.textSecondary),
             onPressed: () {},
           ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: const Color(0xFFF1F5F9)),
+          child: Container(height: 1, color: AppColors.surfaceMuted),
         ),
       ),
       body: Column(
@@ -356,7 +359,7 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
           Expanded(
             child: _isLoading
                 ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF5B8CFF)),
+                    child: CircularProgressIndicator(color: AppColors.primaryLight),
                   )
                 : ListView.builder(
                     controller: _scrollCtrl,
@@ -381,7 +384,7 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
             ),
             decoration: const BoxDecoration(
               color: Colors.white,
-              border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
+              border: Border(top: BorderSide(color: AppColors.surfaceMuted)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -390,9 +393,9 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      color: AppColors.pageBg,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: Row(
                       children: [
@@ -404,7 +407,7 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
                             textCapitalization: TextCapitalization.sentences,
                             decoration: const InputDecoration(
                               hintText: 'Type a message...',
-                              hintStyle: TextStyle(color: Color(0xFF94A3B8)),
+                              hintStyle: TextStyle(color: AppColors.textMuted),
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 10,
@@ -415,17 +418,19 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
                           ),
                         ),
                         IconButton(
+                          tooltip: 'Attach a file',
                           icon: const Icon(
                             Icons.attach_file,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                             size: 20,
                           ),
                           onPressed: () {},
                         ),
                         IconButton(
+                          tooltip: 'Take a photo',
                           icon: const Icon(
                             Icons.camera_alt_outlined,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                             size: 20,
                           ),
                           onPressed: () {},
@@ -441,7 +446,7 @@ class _MessagingChatScreenState extends State<MessagingChatScreen> {
                     width: 46,
                     height: 46,
                     decoration: const BoxDecoration(
-                      color: Color(0xFF5B8CFF),
+                      color: AppColors.primaryLight,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -535,7 +540,7 @@ class _MessageBubble extends StatelessWidget {
         content = Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
-            color: isMe ? const Color(0xFF5B8CFF) : Colors.white,
+            color: isMe ? AppColors.primaryLight : Colors.white,
             borderRadius: BorderRadius.only(
               topLeft: const Radius.circular(18),
               topRight: const Radius.circular(18),
@@ -553,7 +558,7 @@ class _MessageBubble extends StatelessWidget {
           child: Text(
             msg.text ?? '',
             style: TextStyle(
-              color: isMe ? Colors.white : const Color(0xFF0F172A),
+              color: isMe ? Colors.white : AppColors.surfaceInverse,
               fontSize: 13,
               height: 1.4,
             ),
@@ -576,7 +581,7 @@ class _MessageBubble extends StatelessWidget {
                     msg.attachmentUrl!,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
-                      color: const Color(0xFF1E293B),
+                      color: AppColors.textPrimary,
                       child: const Center(
                         child: Icon(
                           Icons.broken_image_outlined,
@@ -587,7 +592,7 @@ class _MessageBubble extends StatelessWidget {
                     ),
                   )
                 : Container(
-                    color: const Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                     child: const Center(
                       child: Icon(
                         Icons.image_outlined,
@@ -603,7 +608,7 @@ class _MessageBubble extends StatelessWidget {
         content = Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: isMe ? const Color(0xFF5B8CFF) : Colors.white,
+            color: isMe ? AppColors.primaryLight : Colors.white,
             borderRadius: BorderRadius.only(
               topLeft: const Radius.circular(18),
               topRight: const Radius.circular(18),
@@ -625,24 +630,24 @@ class _MessageBubble extends StatelessWidget {
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: isMe ? Colors.white : const Color(0xFF5B8CFF),
+                  color: isMe ? Colors.white : AppColors.primaryLight,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.play_arrow_rounded,
-                  color: isMe ? const Color(0xFF5B8CFF) : Colors.white,
+                  color: isMe ? AppColors.primaryLight : Colors.white,
                   size: 20,
                 ),
               ),
               const SizedBox(width: 10),
-              _Waveform(color: isMe ? Colors.white : const Color(0xFF94A3B8)),
+              _Waveform(color: isMe ? Colors.white : AppColors.textMuted),
               const SizedBox(width: 10),
               Text(
                 msg.durationLabel ?? '0:00',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: isMe ? Colors.white : const Color(0xFF64748B),
+                  color: isMe ? Colors.white : AppColors.textSecondary,
                 ),
               ),
             ],
@@ -668,7 +673,7 @@ class _MessageBubble extends StatelessWidget {
               padding: const EdgeInsets.only(top: 4, left: 4, right: 4),
               child: Text(
                 msg.time,
-                style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
               ),
             ),
         ],
@@ -742,7 +747,7 @@ class _DoctorTypingRow extends StatelessWidget {
                   '$doctorName is typing…',
                   style: const TextStyle(
                     fontSize: 11.5,
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -800,7 +805,7 @@ class _PulsingDotsState extends State<_PulsingDots>
                   width: 6,
                   height: 6,
                   decoration: const BoxDecoration(
-                    color: Color(0xFF5B8CFF),
+                    color: AppColors.primaryLight,
                     shape: BoxShape.circle,
                   ),
                 ),

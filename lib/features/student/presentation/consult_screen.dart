@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../theme/app_theme.dart';
 
 const String _appId = String.fromEnvironment(
   'AGORA_APP_ID',
@@ -250,7 +251,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
                           width: 80,
                           height: 80,
                           decoration: const BoxDecoration(
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -291,7 +292,9 @@ class _ConsultScreenState extends State<ConsultScreen> {
                       width: 6,
                       height: 6,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFD8FF4A),
+                        // The in-call surface is black, so it keeps the legacy lime
+                        // accent rather than the light-theme tokens.
+                        color: LegacyDarkColors.lime,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -353,6 +356,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
                 child: Row(
                   children: [
                     IconButton(
+                      tooltip: 'Back',
                       icon: const Icon(Icons.arrow_back, color: Colors.white),
                       onPressed: _endCall, // ✅ always cleans up Agora
                     ),
@@ -384,10 +388,10 @@ class _ConsultScreenState extends State<ConsultScreen> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF22C55E).withValues(alpha: 0.2),
+                        color: AppColors.success.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(999),
                         border: Border.all(
-                          color: const Color(0xFF22C55E).withValues(alpha: 0.4),
+                          color: AppColors.success.withValues(alpha: 0.4),
                         ),
                       ),
                       child: Row(
@@ -396,7 +400,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
                             width: 6,
                             height: 6,
                             decoration: const BoxDecoration(
-                              color: Color(0xFF22C55E),
+                              color: AppColors.success,
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -404,7 +408,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
                           const Text(
                             'Live',
                             style: TextStyle(
-                              color: Color(0xFF22C55E),
+                              color: AppColors.success,
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
                             ),
@@ -454,7 +458,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
                         width: 64,
                         height: 64,
                         decoration: const BoxDecoration(
-                          color: Color(0xFFDC2626),
+                          color: AppColors.error,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -509,7 +513,7 @@ class _ControlBtn extends StatelessWidget {
             decoration: BoxDecoration(
               color: active
                   ? Colors.white.withValues(alpha: 0.15)
-                  : const Color(0xFF475569),
+                  : AppColors.textStrong,
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: Colors.white, size: 24),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../theme/app_theme.dart';
 
 /// A smooth shimmer / skeleton-loading placeholder for the profile screen.
 ///
@@ -87,7 +88,7 @@ class _HeaderShimmer extends StatelessWidget {
         32,
       ),
       decoration: const BoxDecoration(
-        color: Color(0xFFE8EDF4),
+        color: AppColors.border,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(32),
           bottomRight: Radius.circular(32),
@@ -128,7 +129,7 @@ class _ShimmerCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppColors.surfaceMuted),
       ),
       child: Column(
         children: List.generate(lineCount, (i) {
@@ -192,9 +193,9 @@ class ShimmerBox extends StatelessWidget {
           begin: Alignment(-1.0 + 2.0 * progress, 0),
           end: Alignment(-1.0 + 2.0 * progress + 1.0, 0),
           colors: const [
-            Color(0xFFE8EDF4),
-            Color(0xFFF3F6FB),
-            Color(0xFFE8EDF4),
+            AppColors.border,
+            AppColors.surfaceMuted,
+            AppColors.border,
           ],
         ),
       ),
@@ -218,9 +219,9 @@ class ShimmerCircle extends StatelessWidget {
           begin: Alignment(-1.0 + 2.0 * progress, 0),
           end: Alignment(-1.0 + 2.0 * progress + 1.0, 0),
           colors: const [
-            Color(0xFFE8EDF4),
-            Color(0xFFF3F6FB),
-            Color(0xFFE8EDF4),
+            AppColors.border,
+            AppColors.surfaceMuted,
+            AppColors.border,
           ],
         ),
       ),

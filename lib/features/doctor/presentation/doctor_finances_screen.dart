@@ -114,20 +114,20 @@ class _DoctorFinancesScreenState extends State<DoctorFinancesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.pageBg,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        title: const Text(
-          'Doctor Finances',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
+        title: const Text('Earnings'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_rounded),
+          tooltip: 'Back to dashboard',
           onPressed: () => context.go('/doctor-dashboard'),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadFinances),
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh',
+            onPressed: _loadFinances,
+          ),
         ],
       ),
       body: _isLoading
@@ -196,7 +196,7 @@ class _SummarySection extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.xl),
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [AppColors.primary, AppColors.secondary],
+              colors: [AppColors.primary, AppColors.success],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -401,7 +401,7 @@ class _AppointmentsListSection extends StatelessWidget {
                 Icon(
                   Icons.inbox_outlined,
                   size: 40,
-                  color: AppColors.textTertiary.withValues(alpha: 0.5),
+                  color: AppColors.textMuted.withValues(alpha: 0.5),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 const Text(

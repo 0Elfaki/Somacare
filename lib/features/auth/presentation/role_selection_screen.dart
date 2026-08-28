@@ -9,7 +9,7 @@ class RoleSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -43,7 +43,7 @@ class RoleSelectionScreen extends StatelessWidget {
                   style: BloomTextStyles.fraunces(
                     size: 22,
                     weight: FontWeight.w500,
-                    color: AppColors.darkTextPrimary,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ),
@@ -54,7 +54,7 @@ class RoleSelectionScreen extends StatelessWidget {
                   style: BloomTextStyles.inter(
                     size: 12.5,
                     weight: FontWeight.w500,
-                    color: AppColors.darkTextSecondary,
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ),
@@ -76,7 +76,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 title: 'Doctor',
                 subtitle:
                     'Manage appointments,\nview patient records & consult',
-                color: AppColors.lime,
+                color: AppColors.success,
                 onTap: () => context.push(
                   '/doctor-login',
                   extra: const {'role': 'doctor'},
@@ -90,7 +90,7 @@ class RoleSelectionScreen extends StatelessWidget {
                   style: BloomTextStyles.inter(
                     size: 11,
                     weight: FontWeight.w500,
-                    color: AppColors.darkTextMuted,
+                    color: AppColors.textMuted,
                   ),
                 ),
               ),
@@ -152,7 +152,7 @@ class _RoleCard extends StatelessWidget {
                   subtitle,
                   style: BloomTextStyles.inter(
                     size: 12,
-                    color: AppColors.darkTextSecondary,
+                    color: AppColors.textSecondary,
                     height: 1.4,
                   ),
                 ),

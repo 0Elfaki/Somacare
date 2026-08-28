@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 
 class DoctorPatientsScreen extends StatefulWidget {
   const DoctorPatientsScreen({super.key});
@@ -100,61 +101,45 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.pageBg,
       appBar: AppBar(
-        title: const Text('My Patients'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 0,
+        title: const Text('My patients'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh',
             onPressed: _loadPatients,
-          )
+          ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          // A skeleton keeps the page from jumping when the rows arrive, and
+          // tells the doctor what is coming rather than just that something is.
+          ? ListView.separated(
+              padding: const EdgeInsets.all(AppSpacing.gutter),
+              itemCount: 5,
+              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+              itemBuilder: (_, __) => const AppSkeletonRow(),
+            )
           : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(_error!, style: const TextStyle(color: Colors.red)),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _loadPatients,
-                        child: const Text('Retry'),
-                      )
-                    ],
+              ? Padding(
+                  padding: const EdgeInsets.all(AppSpacing.gutter),
+                  child: AppErrorState(
+                    message: _error!,
+                    onRetry: _loadPatients,
                   ),
                 )
               : _patients.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.group_off_rounded,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No patients found',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Patients will appear here once you have appointments with them.',
-                            style: TextStyle(color: Colors.grey[500]),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                  ? Padding(
+                      padding: const EdgeInsets.all(AppSpacing.gutter),
+                      child: AppEmptyState(
+                        icon: Icons.groups_outlined,
+                        title: 'No patients yet',
+                        message:
+                            'Once a student books a consultation with you, '
+                            'they will appear here with their visit history.',
+                        actionLabel: 'Open my schedule',
+                        onAction: () => context.go('/doctor-appointments'),
                       ),
                     )
                   : ListView.separated(
@@ -173,7 +158,7 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen> {
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(color: Colors.grey.shade200),
+                            side: BorderSide(color: AppColors.border),
                           ),
                           child: ListTile(
                             contentPadding: const EdgeInsets.symmetric(
@@ -200,12 +185,12 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen> {
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
-                                    const Icon(Icons.school, size: 14, color: Colors.grey),
+                                    const Icon(Icons.school, size: 14, color: AppColors.textMuted),
                                     const SizedBox(width: 4),
                                     Expanded(
                                       child: Text(
                                         school,
-                                        style: const TextStyle(color: Colors.grey),
+                                        style: const TextStyle(color: AppColors.textMuted),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
@@ -225,7 +210,7 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen> {
                             trailing: const Icon(
                               Icons.arrow_forward_ios_rounded,
                               size: 16,
-                              color: Colors.grey,
+                              color: AppColors.textMuted,
                             ),
                             onTap: () {
                               context.push(

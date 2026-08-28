@@ -197,7 +197,7 @@ Prescribed: ${now.toIso8601String().split('T').first}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkScreenBg,
+      backgroundColor: AppColors.pageBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -222,7 +222,7 @@ Prescribed: ${now.toIso8601String().split('T').first}
                                   'Prescribing for',
                                   style: BloomTextStyles.inter(
                                     size: 10.5,
-                                    color: AppColors.darkTextMuted,
+                                    color: AppColors.textMuted,
                                   ),
                                 ),
                                 Text(
@@ -230,7 +230,7 @@ Prescribed: ${now.toIso8601String().split('T').first}
                                   style: BloomTextStyles.inter(
                                     size: 13,
                                     weight: FontWeight.w700,
-                                    color: AppColors.darkTextPrimary,
+                                    color: AppColors.textPrimary,
                                   ),
                                 ),
                               ],
@@ -340,9 +340,9 @@ Prescribed: ${now.toIso8601String().split('T').first}
                       const SizedBox(height: 6),
                       Container(
                         decoration: BoxDecoration(
-                          color: AppColors.darkSurface,
+                          color: AppColors.surface,
                           borderRadius: AppRadius.mdAll,
-                          border: Border.all(color: AppColors.darkBorder),
+                          border: Border.all(color: AppColors.border),
                         ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -353,14 +353,14 @@ Prescribed: ${now.toIso8601String().split('T').first}
                           maxLines: 3,
                           style: BloomTextStyles.inter(
                             size: 12,
-                            color: AppColors.darkTextPrimary,
+                            color: AppColors.textPrimary,
                           ),
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: 'Take with food, avoid alcohol…',
                             hintStyle: BloomTextStyles.inter(
                               size: 12,
-                              color: AppColors.darkTextMuted,
+                              color: AppColors.textMuted,
                             ),
                           ),
                         ),
@@ -373,8 +373,8 @@ Prescribed: ${now.toIso8601String().split('T').first}
             Container(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
               decoration: const BoxDecoration(
-                color: AppColors.darkSurface,
-                border: Border(top: BorderSide(color: AppColors.darkBorder)),
+                color: AppColors.surface,
+                border: Border(top: BorderSide(color: AppColors.border)),
               ),
               child: BloomButton(
                 label: 'Submit prescription',
@@ -402,7 +402,7 @@ class _FieldLabel extends StatelessWidget {
       style: BloomTextStyles.inter(
         size: 10,
         weight: FontWeight.w600,
-        color: AppColors.darkTextMuted,
+        color: AppColors.textMuted,
         letterSpacing: 0.04,
       ),
     );
@@ -426,9 +426,9 @@ class _BloomFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: AppColors.surface,
         borderRadius: AppRadius.mdAll,
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: AppColors.border),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       child: TextFormField(
@@ -436,14 +436,14 @@ class _BloomFormField extends StatelessWidget {
         validator: validator,
         style: BloomTextStyles.inter(
           size: 12,
-          color: AppColors.darkTextPrimary,
+          color: AppColors.textPrimary,
         ),
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: hint,
           hintStyle: BloomTextStyles.inter(
             size: 12,
-            color: AppColors.darkTextMuted,
+            color: AppColors.textMuted,
           ),
           errorStyle: BloomTextStyles.inter(size: 10, color: AppColors.error),
         ),
@@ -471,19 +471,19 @@ class _BloomDropdown<T> extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: AppColors.surface,
         borderRadius: AppRadius.mdAll,
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: AppColors.border),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
           value: value,
           isExpanded: true,
-          dropdownColor: AppColors.darkSurface,
+          dropdownColor: AppColors.surface,
           style: BloomTextStyles.inter(
             size: 12,
             weight: FontWeight.w600,
-            color: AppColors.darkTextPrimary,
+            color: AppColors.textPrimary,
           ),
           items: items
               .map((i) => DropdownMenuItem(value: i, child: Text(labelOf(i))))
@@ -512,10 +512,10 @@ class _StepperButton extends StatelessWidget {
         height: 32,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: AppColors.darkGhost,
+          color: AppColors.surfaceMuted,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, size: 16, color: AppColors.darkTextPrimary),
+        child: Icon(icon, size: 16, color: AppColors.textPrimary),
       ),
     );
   }

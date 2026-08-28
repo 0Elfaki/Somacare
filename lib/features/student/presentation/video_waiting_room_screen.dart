@@ -108,7 +108,7 @@ class _VideoWaitingRoomScreenState extends State<VideoWaitingRoomScreen> {
                   style: BloomTextStyles.mono(
                     size: 26,
                     weight: FontWeight.w600,
-                    color: AppColors.lime,
+                    color: AppColors.success,
                   ),
                 ),
                 const SizedBox(height: 26),

@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../theme/app_theme.dart';
-import '../../../widgets/bloom_components.dart';
 
+import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
+
+/// The student side's persistent chrome.
+///
+/// Shares [AppBottomNav] with the doctor shell so both halves of the app move
+/// and look the same; only the accent colour and destinations differ.
 class StudentShell extends StatelessWidget {
-  final Widget child;
   const StudentShell({super.key, required this.child});
+
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -15,51 +21,75 @@ class StudentShell extends StatelessWidget {
     return PopScope(
       canPop: isHome,
       onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && !isHome) {
-          context.go('/student-dashboard');
-        }
+        if (!didPop && !isHome) context.go('/student-dashboard');
       },
       child: Scaffold(
-        backgroundColor: AppColors.darkScreenBg,
+        backgroundColor: AppColors.pageBg,
         body: child,
-        bottomNavigationBar: const _BloomStudentNav(),
+        bottomNavigationBar: const _StudentBottomNav(),
       ),
     );
   }
 }
 
-class _BloomStudentNav extends StatelessWidget {
-  const _BloomStudentNav();
+class _StudentBottomNav extends StatelessWidget {
+  const _StudentBottomNav();
 
-  int _index(BuildContext context) {
-    final loc = GoRouterState.of(context).matchedLocation;
-    if (loc.startsWith('/student-dashboard')) return 0;
-    if (loc.startsWith('/symptom-check')) return 1;
-    if (loc.startsWith('/book-appointment')) return 2;
-    if (loc.startsWith('/my-appointments')) return 3;
-    if (loc.startsWith('/profile')) return 4;
+  static const _tabs = <String>[
+    '/student-dashboard',
+    '/symptom-check',
+    '/book-appointment',
+    '/my-appointments',
+    '/profile',
+  ];
+
+  int _indexFor(String location) {
+    for (var i = 0; i < _tabs.length; i++) {
+      if (location.startsWith(_tabs[i])) return i;
+    }
     return 0;
   }
 
   @override
   Widget build(BuildContext context) {
-    final idx = _index(context);
-    return BloomStudentBottomNav(
-      currentIndex: idx,
-      onTap: (i) {
-        switch (i) {
-          case 0:
-            context.go('/student-dashboard');
-          case 1:
-            context.go('/symptom-check');
-          case 2:
-            context.push('/book-appointment');
-          case 3:
-            context.go('/my-appointments');
-          case 4:
-            context.go('/profile');
-        }
-      },
+    final loc = GoRouterState.of(context).matchedLocation;
+    final index = _indexFor(loc);
+
+    return AppBottomNav(
+      currentIndex: index,
+      accent: AppColors.studentAccent,
+      destinations: [
+        AppNavDestination(
+          icon: Icons.grid_view_outlined,
+          activeIcon: Icons.grid_view_rounded,
+          label: 'Home',
+          onTap: () => context.go('/student-dashboard'),
+        ),
+        AppNavDestination(
+          icon: Icons.psychology_outlined,
+          activeIcon: Icons.psychology_rounded,
+          label: 'AI Check',
+          onTap: () => context.go('/symptom-check'),
+        ),
+        AppNavDestination(
+          icon: Icons.add_circle_outline_rounded,
+          activeIcon: Icons.add_circle_rounded,
+          label: 'Book',
+          onTap: () => context.push('/book-appointment'),
+        ),
+        AppNavDestination(
+          icon: Icons.event_note_outlined,
+          activeIcon: Icons.event_note_rounded,
+          label: 'Visits',
+          onTap: () => context.go('/my-appointments'),
+        ),
+        AppNavDestination(
+          icon: Icons.person_outline_rounded,
+          activeIcon: Icons.person_rounded,
+          label: 'Profile',
+          onTap: () => context.go('/profile'),
+        ),
+      ],
     );
   }
 }
