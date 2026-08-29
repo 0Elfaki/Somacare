@@ -25,8 +25,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // ── Settings state ──
   bool _notificationsEnabled = true;
-  bool _darkMode = false;
-  String _language = 'English';
+
+  /// Shown in the footer. Single source of truth for the version string, which
+  /// used to be inlined in a tile label.
+  static const String _appVersion = '2.0.0';
 
   final _allergiesCtrl = TextEditingController();
 
@@ -868,14 +870,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fontWeight: FontWeight.w900,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              email,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
+                            // The name falls back to the email when no
+                            // full_name is set, so printing the email again
+                            // here rendered the same string twice. Show it
+                            // only when it is genuinely extra information.
+                            if (email.isNotEmpty && email != name) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                email,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
                               ),
-                            ),
+                            ],
                             const SizedBox(height: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -1166,50 +1174,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ),
                                 ),
-                                const _HDivider(),
-                                _SettingsTile(
-                                  icon: Icons.dark_mode_outlined,
-                                  label: 'Dark Mode',
-                                  color: AppColors.success,
-                                  trailing: Switch(
-                                    value: _darkMode,
-                                    activeThumbColor: AppColors.success,
-                                    onChanged: (v) =>
-                                        setState(() => _darkMode = v),
-                                  ),
-                                ),
-                                const _HDivider(),
-                                _SettingsTile(
-                                  icon: Icons.language_outlined,
-                                  label: 'Language',
-                                  color: AppColors.success,
-                                  trailing: DropdownButton<String>(
-                                    value: _language,
-                                    underline: const SizedBox(),
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.textPrimary,
-                                    ),
-                                    items: const [
-                                      DropdownMenuItem(
-                                        value: 'English',
-                                        child: Text('English'),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 'Luganda',
-                                        child: Text('Luganda'),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 'Swahili',
-                                        child: Text('Swahili'),
-                                      ),
-                                    ],
-                                    onChanged: (v) => setState(
-                                      () => _language = v ?? 'English',
-                                    ),
-                                  ),
-                                ),
+                                // Dark Mode and Language are removed, not
+                                // badged: neither is wired to anything, and a
+                                // switch that silently does nothing is worse
+                                // in a shipped app than an absent one. Restore
+                                // these rows in the same place once the
+                                // theme controller and localisation land.
                                 const _HDivider(),
                                 _SettingsTile(
                                   icon: Icons.lock_outline,
@@ -1223,7 +1193,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   icon: Icons.info_outline,
                                   label: 'About SOMA CARE',
                                   color: AppColors.info,
-                                  labelColor: AppColors.info,
+                                  // Was tinted blue, which read as a link
+                                  // among plain tiles. Matches every other
+                                  // row now.
+                                  labelColor: AppColors.textPrimary,
                                   onTap: () => _showAboutSheet(context),
                                 ),
                               ],
@@ -1291,13 +1264,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ),
                                       ),
                                 ),
-                                const _HDivider(),
-                                _MenuTile(
-                                  icon: Icons.info_outline,
-                                  color: AppColors.textMuted,
-                                  label: 'App Version 2.0.0',
-                                  onTap: () {},
-                                ),
                               ],
                             ),
                           ),
@@ -1319,33 +1285,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               isTablet ? 24 : 16,
                               32,
                             ),
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 56,
-                              child: OutlinedButton.icon(
-                                onPressed: _logout,
-                                icon: const Icon(
-                                  Icons.logout,
-                                  color: AppColors.error,
-                                ),
-                                label: const Text(
-                                  'Sign Out',
-                                  style: TextStyle(
-                                    color: AppColors.error,
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 16,
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 48,
+                                  child: OutlinedButton.icon(
+                                    onPressed: _logout,
+                                    icon: const Icon(
+                                      Icons.logout,
+                                      size: 20,
+                                      color: AppColors.error,
+                                    ),
+                                    label: const Text(
+                                      'Sign Out',
+                                      style: TextStyle(
+                                        color: AppColors.error,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    style: OutlinedButton.styleFrom(
+                                      // Tinted rather than outlined-on-white:
+                                      // destructive, but not shouting at the
+                                      // student from the bottom of the page.
+                                      backgroundColor: AppColors.errorSurface,
+                                      side: const BorderSide(
+                                        color: AppColors.errorBorder,
+                                        width: 1,
+                                      ),
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: AppRadius.mdAll,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(
-                                    color: AppColors.error,
-                                    width: 1.5,
-                                  ),
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: AppRadius.mdAll,
+                                const SizedBox(height: 24),
+                                // Static footer, not a tappable row. It was a
+                                // _MenuTile with an empty onTap, so it looked
+                                // interactive and did nothing.
+                                Text(
+                                  'App Version $_appVersion',
+                                  textAlign: TextAlign.center,
+                                  style: BloomTextStyles.inter(
+                                    size: 12,
+                                    color: AppColors.textMuted,
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
                         ),
@@ -1398,11 +1385,13 @@ class _Card extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: AppRadius.lgAll,
+        // 16px radius, 1px #F1F5F9 hairline — the group container the audit
+        // specifies for Quick Access, Payment Methods, Settings and Help.
+        borderRadius: AppRadius.cardAll,
         border: Border.all(color: AppColors.surfaceMuted),
         boxShadow: AppShadows.card,
       ),
-      child: ClipRRect(borderRadius: AppRadius.lgAll, child: child),
+      child: ClipRRect(borderRadius: AppRadius.cardAll, child: child),
     );
   }
 }
@@ -1678,17 +1667,17 @@ class _MenuTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.md),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: color, size: 22),
+                child: Icon(icon, color: color, size: 20),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -1817,17 +1806,19 @@ class _SettingsTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.md),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          // 40px icon + 8px above and below = a 56px row, matching every
+          // other tile group on the screen.
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: color, size: 22),
+                child: Icon(icon, color: color, size: 20),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -1862,6 +1853,6 @@ class _HDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(height: 1, thickness: 1, indent: 76, endIndent: 16);
+    return const Divider(height: 1, thickness: 1, indent: 72, endIndent: 16);
   }
 }
