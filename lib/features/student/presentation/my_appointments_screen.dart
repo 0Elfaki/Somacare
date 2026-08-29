@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/errors/app_error_messages.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 
 class MyAppointmentsScreen extends StatefulWidget {
   const MyAppointmentsScreen({super.key});
@@ -15,6 +17,11 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen>
   late final TabController _tab;
   List<Map<String, dynamic>> _appointments = [];
   bool _isLoading = true;
+
+  /// True when the last load threw. Distinguishes "you have no appointments"
+  /// from "we could not fetch your appointments" — the empty state used to
+  /// claim the former for both.
+  bool _loadFailed = false;
   RealtimeChannel? _channel;
 
   @override
@@ -52,7 +59,10 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen>
   }
 
   Future<void> _loadAppointments() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadFailed = false;
+    });
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) {
@@ -74,14 +84,29 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen>
       if (mounted) {
         setState(() => _appointments = List<Map<String, dynamic>>.from(data));
       }
-    } catch (e) {
-      debugPrint('StudentAppointments: Error loading appointments: $e');
+    } on PostgrestException catch (e) {
+      // The database refused the read — an RLS policy, a missing column, a
+      // recursion. None of that is the student's problem to read about, and
+      // the raw text leaks table and policy names.
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to load appointments: $e'),
-            backgroundColor: AppColors.error,
+        setState(() => _loadFailed = true);
+        showAppSnack(
+          context,
+          friendlyErrorMessage(
+            e,
+            context: 'my_appointments.load',
+            fallback: kAppointmentsLoadError,
           ),
+          tone: AppStatusTone.danger,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _loadFailed = true);
+        showAppSnack(
+          context,
+          friendlyErrorMessage(e, context: 'my_appointments.load'),
+          tone: AppStatusTone.danger,
         );
       }
     } finally {
@@ -105,13 +130,28 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen>
           ),
         );
       }
+    } on PostgrestException catch (e) {
+      if (mounted) {
+        showAppSnack(
+          context,
+          friendlyErrorMessage(
+            e,
+            context: 'my_appointments.cancel',
+            fallback: 'We could not cancel that appointment. Please try again.',
+          ),
+          tone: AppStatusTone.danger,
+        );
+      }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to cancel: $e'),
-            backgroundColor: AppColors.error,
+        showAppSnack(
+          context,
+          friendlyErrorMessage(
+            e,
+            context: 'my_appointments.cancel',
+            fallback: 'We could not cancel that appointment. Please try again.',
           ),
+          tone: AppStatusTone.danger,
         );
       }
     }
@@ -190,6 +230,25 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen>
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
+            )
+          // A failed load is not an empty list. Showing "No upcoming
+          // appointments yet" when the request actually errored tells the
+          // student their bookings are gone.
+          : _loadFailed && _appointments.isEmpty
+          ? RefreshIndicator(
+              onRefresh: _loadAppointments,
+              color: AppColors.primary,
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                children: [
+                  const SizedBox(height: AppSpacing.xxxl),
+                  AppInlineError(
+                    message: kAppointmentsLoadError,
+                    onRetry: _loadAppointments,
+                  ),
+                ],
+              ),
             )
           : TabBarView(
               controller: _tab,

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/errors/app_error_messages.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 import '../../../widgets/bloom_components.dart';
 
 class SchoolSelectionScreen extends StatefulWidget {
@@ -56,11 +58,14 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to load schools: $e'),
-            backgroundColor: AppColors.error,
+        showAppSnack(
+          context,
+          friendlyErrorMessage(
+            e,
+            context: 'school_selection.load',
+            fallback: 'Unable to load schools right now. Please try again.',
           ),
+          tone: AppStatusTone.danger,
         );
       }
     }
@@ -93,11 +98,14 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isSaving = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Failed: $e'),
-            backgroundColor: AppColors.error,
+        showAppSnack(
+          context,
+          friendlyErrorMessage(
+            e,
+            context: 'school_selection.confirm',
+            fallback: 'We could not save your school. Please try again.',
           ),
+          tone: AppStatusTone.danger,
         );
       }
     }
@@ -140,9 +148,9 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'All schools',
-                  style: BloomTextStyles.fraunces(
-                    size: 15,
-                    weight: FontWeight.w400,
+                  style: BloomTextStyles.inter(
+                    size: 16,
+                    weight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
                 ),
@@ -180,77 +188,81 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
                             final selected = s == _selectedSchool;
                             final color =
                                 _avatarColors[i % _avatarColors.length];
-                            return GestureDetector(
-                              onTap: () => setState(() => _selectedSchool = s),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 11,
-                                ),
-                                decoration: i < _filtered.length - 1
-                                    ? const BoxDecoration(
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color: AppColors.border,
-                                            width: 1,
-                                          ),
-                                        ),
-                                      )
-                                    : null,
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 36,
-                                      height: 36,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        color: color,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Icon(
-                                        Icons.school_outlined,
-                                        size: 18,
-                                        color: Colors.white,
-                                      ),
+                            return Semantics(
+                              button: true,
+                              selected: selected,
+                              label: s,
+                              excludeSemantics: true,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () =>
+                                    setState(() => _selectedSchool = s),
+                                child: AnimatedContainer(
+                                  duration: AppMotion.fast,
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 3,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    // Selected rows get the tint and outline
+                                    // rather than only a small check: the row
+                                    // itself now reads as chosen.
+                                    color: selected
+                                        ? AppColors.primarySurface
+                                        : Colors.transparent,
+                                    borderRadius: AppRadius.mdAll,
+                                    border: Border.all(
+                                      color: selected
+                                          ? AppColors.primary
+                                          : Colors.transparent,
+                                      width: 1,
                                     ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            s,
-                                            style: BloomTextStyles.inter(
-                                              size: 12.5,
-                                              weight: FontWeight.w600,
-                                              color: AppColors.textPrimary,
-                                            ),
-                                          ),
-                                          Text(
-                                            'Tap to select',
-                                            style: BloomTextStyles.inter(
-                                              size: 10.5,
-                                              color: AppColors.textMuted,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    if (selected)
+                                  ),
+                                  child: Row(
+                                    children: [
                                       Container(
-                                        width: 18,
-                                        height: 18,
-                                        decoration: const BoxDecoration(
-                                          color: AppColors.primary,
-                                          shape: BoxShape.circle,
+                                        width: 40,
+                                        height: 40,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: color,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
                                         child: const Icon(
-                                          Icons.check,
-                                          size: 12,
+                                          Icons.school_outlined,
+                                          size: 20,
                                           color: Colors.white,
                                         ),
                                       ),
-                                  ],
+                                      const SizedBox(width: 12),
+                                      // No "Tap to select" subtitle: it was
+                                      // repeated under every row and said
+                                      // nothing the list does not already
+                                      // convey.
+                                      Expanded(
+                                        child: Text(
+                                          s,
+                                          style: BloomTextStyles.inter(
+                                            size: 14,
+                                            weight: FontWeight.w600,
+                                            color: AppColors.textPrimary,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      if (selected)
+                                        const Icon(
+                                          Icons.check_circle_rounded,
+                                          size: 20,
+                                          color: AppColors.primary,
+                                        ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
@@ -260,21 +272,56 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
               ),
             ),
 
-            // Continue CTA
+            // Continue CTA — sticky, and inside a SafeArea so it clears the
+            // Android gesture bar.
             Container(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
               decoration: const BoxDecoration(
                 color: AppColors.surface,
                 border: Border(
                   top: BorderSide(color: AppColors.border, width: 1),
                 ),
               ),
-              child: BloomButton(
-                label: _isSaving ? 'Saving…' : 'Continue',
-                isLoading: _isSaving,
-                onPressed: _selectedSchool != null && !_isSaving
-                    ? _confirmSchool
-                    : null,
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                  child: SizedBox(
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: _selectedSchool != null && !_isSaving
+                          ? _confirmSchool
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.onPrimary,
+                        disabledBackgroundColor: AppColors.borderStrong,
+                        disabledForegroundColor: AppColors.surface,
+                        elevation: 0,
+                        minimumSize: const Size.fromHeight(52),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: _isSaving
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.onPrimary,
+                              ),
+                            )
+                          : Text(
+                              'Continue',
+                              style: BloomTextStyles.inter(
+                                size: 15,
+                                weight: FontWeight.w700,
+                                color: AppColors.onPrimary,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

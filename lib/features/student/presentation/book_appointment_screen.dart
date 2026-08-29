@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../doctor/data/notification_service.dart';
+import '../../../core/errors/app_error_messages.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 import '../../../widgets/bloom_components.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
@@ -16,6 +18,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   final _reasonCtrl = TextEditingController();
   bool _isLoading = false;
   bool _loadingDoctors = true;
+
+  /// True when the doctor fetch threw. Without it, an RLS failure rendered as
+  /// "No doctors available" — which reads as a real, empty roster rather than
+  /// a request that never succeeded.
+  bool _doctorsLoadFailed = false;
   List<Map<String, dynamic>> _doctors = [];
   Map<String, dynamic>? _selectedDoctor;
   DateTime _selectedDate = DateTime.now();
@@ -50,6 +57,15 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   }
 
   Future<void> _loadDoctors() async {
+    // Re-enter the loading state on retry as well as first load. Without the
+    // `_loadingDoctors = true`, a retry fell straight through to the empty
+    // branch and showed "No doctors available" for the whole round trip.
+    if (mounted) {
+      setState(() {
+        _loadingDoctors = true;
+        _doctorsLoadFailed = false;
+      });
+    }
     try {
       // Fetch doctors from profiles table with role='doctor' to get the correct profile IDs
       final response = await Supabase.instance.client
@@ -66,16 +82,36 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           }
         });
       }
+    } on PostgrestException catch (e) {
+      // Reading `profiles` is exactly where the RLS recursion surfaced. Log the
+      // real exception, show the student something they can act on.
+      if (mounted) {
+        setState(() {
+          _loadingDoctors = false;
+          _doctorsLoadFailed = true;
+        });
+        showAppSnack(
+          context,
+          friendlyErrorMessage(
+            e,
+            context: 'book_appointment.loadDoctors',
+            fallback:
+                'Unable to load doctors right now. Please pull down to refresh.',
+          ),
+          tone: AppStatusTone.danger,
+        );
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
           _loadingDoctors = false;
+          _doctorsLoadFailed = true;
         });
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Failed to load doctors: $e')));
-        }
+        showAppSnack(
+          context,
+          friendlyErrorMessage(e, context: 'book_appointment.loadDoctors'),
+          tone: AppStatusTone.danger,
+        );
       }
     }
   }
@@ -191,13 +227,29 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         ),
       );
       context.go('/student-dashboard');
+    } on PostgrestException catch (e) {
+      if (!mounted) return;
+      showAppSnack(
+        context,
+        friendlyErrorMessage(
+          e,
+          context: 'book_appointment.confirm',
+          fallback:
+              'We could not book that appointment. Please try again in a moment.',
+        ),
+        tone: AppStatusTone.danger,
+      );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ Failed to book: $e'),
-          backgroundColor: AppColors.error,
+      showAppSnack(
+        context,
+        friendlyErrorMessage(
+          e,
+          context: 'book_appointment.confirm',
+          fallback:
+              'We could not book that appointment. Please check your connection and try again.',
         ),
+        tone: AppStatusTone.danger,
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -234,6 +286,23 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     ? const Center(
                         child: CircularProgressIndicator(
                           color: AppColors.primary,
+                        ),
+                      )
+                    : _doctorsLoadFailed
+                    ? RefreshIndicator(
+                        onRefresh: _loadDoctors,
+                        color: AppColors.primary,
+                        child: ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(AppSpacing.lg),
+                          children: [
+                            const SizedBox(height: AppSpacing.xxxl),
+                            AppInlineError(
+                              message:
+                                  'Unable to load doctors right now. Please pull down to refresh.',
+                              onRetry: _loadDoctors,
+                            ),
+                          ],
                         ),
                       )
                     : _doctors.isEmpty
