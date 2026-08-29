@@ -338,7 +338,7 @@ class BloomScreenHeader extends StatelessWidget {
               ),
             ),
           ),
-          if (trailing != null) ...trailing!,
+          ...?trailing,
         ],
       ),
     );
