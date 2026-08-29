@@ -39,6 +39,27 @@ class LegacyDarkColors {
 }
 
 /// Every colour in the app. Nothing outside this class may declare a `Color(0x…)`.
+///
+/// ## Mapping from the UI audit's token names
+///
+/// The audit guide names its tokens differently, and two of the names collide
+/// with ours in a way that is easy to get wrong. Match on the **hex**, not the
+/// name:
+///
+/// | Audit name          | Hex       | Token here        |
+/// |---------------------|-----------|-------------------|
+/// | `primaryBlue`       | `#2563EB` | [primary]         |
+/// | `primaryBlueSubtle` | `#EFF6FF` | [primarySurface]  |
+/// | `primaryDark`       | `#0F172A` | [textHeading]     |
+/// | `textMain`          | `#1E293B` | [textPrimary]     |
+/// | `textMuted`         | `#64748B` | [textSecondary] ← |
+/// | `textPlaceholder`   | `#94A3B8` | [textMuted]     ← |
+/// | `borderLight`       | `#E2E8F0` | [border]          |
+/// | `redMain`           | `#DC2626` | [error]           |
+/// | `redSubtle`         | `#FEF2F2` | [errorSurface]    |
+///
+/// The two arrowed rows are the trap: the audit's `textMuted` is our
+/// [textSecondary], and our [textMuted] is the audit's `textPlaceholder`.
 class AppColors {
   // ── Brand ────────────────────────────────────────────────────────────────
   /// The one blue. Headers, primary buttons, active states, links.
@@ -94,6 +115,14 @@ class AppColors {
   static const Color scrim = Color(0x660F172A);
 
   // ── Text ─────────────────────────────────────────────────────────────────
+  /// The darkest text tone. Screen titles, page headings and the greeting —
+  /// anywhere the UI audit calls for `primaryDark` / `#0F172A`. One step
+  /// heavier than [textPrimary], which stays the default for body copy.
+  ///
+  /// Same hue as [surfaceInverse]; named separately because one is a text
+  /// colour and the other is a background, and they must stay free to diverge.
+  static const Color textHeading = Color(0xFF0F172A);
+
   /// 15.8:1 on [surface] — passes WCAG AAA.
   static const Color textPrimary = Color(0xFF1E293B);
 
@@ -125,6 +154,10 @@ class AppColors {
   /// A heavier rule than [border], for dashed drop zones and dividers that
   /// must read against a tinted card.
   static const Color borderStrong = Color(0xFFCBD5E1);
+
+  /// Outline for destructive surfaces — the sign-out button's 1px border on
+  /// [errorSurface]. [error] itself is too heavy for a 1px rule at that size.
+  static const Color errorBorder = Color(0xFFFCA5A5);
 
   // ── Solid tile fills ─────────────────────────────────────────────────────
   // The quick-action grid puts white text and icons directly on a saturated

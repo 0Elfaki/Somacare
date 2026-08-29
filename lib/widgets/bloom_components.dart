@@ -331,8 +331,11 @@ class BloomScreenHeader extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(fontFamily: 'Inter', 
-                fontSize: 13.5,
+              // 16px per the audit — the old 13.5px read as a label rather
+              // than the screen's title.
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
@@ -403,27 +406,36 @@ class BloomSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 48px tall, #F8FAFC fill, 1px #E2E8F0 rule, 12px radius — the search
+    // bar the UI audit specifies.
     return Container(
+      height: 48,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.pageBg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border, width: 1),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
         children: [
-          const Icon(Icons.search, size: 16, color: AppColors.textMuted),
-          const SizedBox(width: 8),
+          const Icon(Icons.search, size: 20, color: AppColors.textMuted),
+          const SizedBox(width: 10),
           Expanded(
             child: TextField(
               controller: controller,
               onChanged: onChanged,
-              style: const TextStyle(fontFamily: 'Inter', 
-                  fontSize: 12, color: AppColors.textPrimary),
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                color: AppColors.textPrimary,
+              ),
               decoration: InputDecoration.collapsed(
                 hintText: hint,
-                hintStyle: const TextStyle(fontFamily: 'Inter', 
-                    fontSize: 12, color: AppColors.textMuted),
+                hintStyle: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 14,
+                  color: AppColors.textMuted,
+                ),
               ),
             ),
           ),

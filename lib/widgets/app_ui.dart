@@ -165,9 +165,12 @@ class AppPageHeader extends StatelessWidget {
                 if (eyebrow != null) const SizedBox(height: 2),
                 Text(
                   title,
-                  style: BloomTextStyles.fraunces(
-                    size: AppTypography.displaySmall,
-                    weight: FontWeight.w600,
+                  // Sans-serif, not Fraunces: the serif read as decorative
+                  // against the sans-serif body copy directly beneath it.
+                  style: BloomTextStyles.inter(
+                    size: 22,
+                    weight: FontWeight.w700,
+                    color: AppColors.textHeading,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -496,7 +499,7 @@ class AppStatCard extends StatelessWidget {
     final shown = loading ? '—' : value;
     return AppCard(
       onTap: onTap,
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       semanticLabel: '$shown ${label.replaceAll('\n', ' ')}',
       child: Row(
         children: [
@@ -509,9 +512,10 @@ class AppStatCard extends StatelessWidget {
               children: [
                 Text(
                   shown,
-                  style: BloomTextStyles.fraunces(
-                    size: AppTypography.displaySmall,
-                    weight: FontWeight.w600,
+                  style: BloomTextStyles.inter(
+                    size: 24,
+                    weight: FontWeight.w700,
+                    color: AppColors.textHeading,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -664,7 +668,15 @@ class AppHeroBanner extends StatelessWidget {
                       backgroundColor: Colors.white,
                       foregroundColor: gradient.first,
                       elevation: 0,
+                      // The audit asks for 44px. We hold at
+                      // [AppTouch.minTarget] (48px): this is the button a
+                      // student taps when they need urgent care, and 44px is
+                      // under both the WCAG 2.2 target-size minimum and
+                      // Material's. Radius follows the audit exactly.
                       minimumSize: const Size.fromHeight(AppTouch.minTarget),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     child: Text(primaryLabel),
                   ),
@@ -681,6 +693,9 @@ class AppHeroBanner extends StatelessWidget {
                           color: Colors.white.withValues(alpha: 0.45),
                         ),
                         minimumSize: const Size.fromHeight(AppTouch.minTarget),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                       child: Text(
                         secondaryLabel!,
@@ -1472,4 +1487,223 @@ Future<bool> showAppConfirm(
     ),
   );
   return result ?? false;
+}
+
+// ─── Form fields ─────────────────────────────────────────────────────────────
+
+/// The one input decoration every text field in the app should use.
+///
+/// Screens used to wrap [TextField] / [TextFormField] in their own bordered
+/// [Container] *and* let the field draw its own border, which rendered two
+/// stacked outlines. Passing this decoration and dropping the wrapper fixes
+/// that: the border belongs to the field, not to a box around it.
+///
+/// Hint text is [AppColors.textMuted] (`#94A3B8`) — deliberately lighter than
+/// [AppColors.textSecondary], so a placeholder can never be mistaken for a
+/// value the user actually typed.
+InputDecoration appInputDecoration({
+  required String hintText,
+  String? labelText,
+  String? errorText,
+  Widget? prefixIcon,
+  Widget? suffixIcon,
+  bool enabled = true,
+  Color? fillColor,
+}) {
+  return InputDecoration(
+    filled: true,
+    // Defaults to white per the audit. Pass [AppColors.pageBg] for a field
+    // sitting on an already-white card, where white-on-white leaves only the
+    // 1px border to separate the two.
+    fillColor: enabled ? (fillColor ?? AppColors.surface) : AppColors.surfaceMuted,
+    hintText: hintText,
+    labelText: labelText,
+    errorText: errorText,
+    prefixIcon: prefixIcon,
+    suffixIcon: suffixIcon,
+    isDense: true,
+    hintStyle: const TextStyle(
+      fontFamily: AppTypography.ui,
+      color: AppColors.textMuted,
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+    ),
+    labelStyle: const TextStyle(
+      fontFamily: AppTypography.ui,
+      color: AppColors.textSecondary,
+      fontSize: 13,
+      fontWeight: FontWeight.w600,
+    ),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderSide: const BorderSide(color: AppColors.border, width: 1.0),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+    ),
+    disabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderSide: const BorderSide(color: AppColors.border, width: 1.0),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderSide: const BorderSide(color: AppColors.error, width: 1.0),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+    ),
+  );
+}
+
+/// A full-width segmented control — two or more options sharing the row in
+/// equal parts.
+///
+/// Replaces the hug-width pill chips the login screen used, where "Student"
+/// and "Doctor" were different widths and neither filled the card.
+class AppSegmentedControl extends StatelessWidget {
+  const AppSegmentedControl({
+    super.key,
+    required this.segments,
+    required this.selectedIndex,
+    required this.onChanged,
+    this.height = 44,
+  });
+
+  final List<String> segments;
+  final int selectedIndex;
+  final ValueChanged<int> onChanged;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Row(
+        children: [
+          for (var i = 0; i < segments.length; i++)
+            Expanded(
+              child: Semantics(
+                button: true,
+                selected: i == selectedIndex,
+                label: segments[i],
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onChanged(i),
+                  child: AnimatedContainer(
+                    duration: AppMotion.fast,
+                    curve: AppMotion.standard,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: i == selectedIndex
+                          ? AppColors.primary
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                    ),
+                    child: Text(
+                      segments[i],
+                      style: TextStyle(
+                        fontFamily: AppTypography.ui,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: i == selectedIndex
+                            ? AppColors.onPrimary
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A compact inline failure notice for a single section of a screen.
+///
+/// Distinct from [AppErrorState], which owns the whole viewport. Use this when
+/// one feed failed and the rest of the page is still usable — the dashboard's
+/// care plan, for instance, must never blank out Urgent Care alongside it.
+class AppInlineError extends StatelessWidget {
+  const AppInlineError({
+    super.key,
+    required this.message,
+    this.onRetry,
+  });
+
+  final String message;
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.errorSurface,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: AppColors.errorBorder),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.cloud_off_rounded,
+            size: 20,
+            color: AppColors.error,
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  message,
+                  style: const TextStyle(
+                    fontFamily: AppTypography.ui,
+                    fontSize: AppTypography.bodyMedium,
+                    color: AppColors.textStrong,
+                    height: 1.4,
+                  ),
+                ),
+                if (onRetry != null) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  SizedBox(
+                    height: AppTouch.minTarget,
+                    child: TextButton.icon(
+                      onPressed: onRetry,
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.error,
+                        padding: EdgeInsets.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        alignment: Alignment.centerLeft,
+                      ),
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: const Text(
+                        'Try again',
+                        style: TextStyle(
+                          fontFamily: AppTypography.ui,
+                          fontSize: AppTypography.labelLarge,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
