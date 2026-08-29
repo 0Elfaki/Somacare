@@ -79,7 +79,16 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
       return;
     }
 
-    if (mounted && _error != null) setState(() => _error = null);
+    // Clear the error *and* re-enter loading. Clearing alone left
+    // `_loading == false` with `_error == null`, so the stat cards printed
+    // "0" for the length of the refetch — the exact claim the em-dash below
+    // exists to avoid.
+    if (mounted) {
+      setState(() {
+        _error = null;
+        _loading = true;
+      });
+    }
 
     try {
       final results = await Future.wait<dynamic>([
@@ -228,94 +237,109 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
           ),
         ),
 
+        // ── Care plan (isolated) ───────────────────────────────────────────
+        //
+        // Everything below this block renders unconditionally. The care plan
+        // is the only part that depends on the appointments/medications
+        // fetch, so it is the only part a failed fetch is allowed to affect —
+        // previously one thrown exception replaced the entire dashboard with
+        // a full-screen error, taking Urgent Care and every quick action with
+        // it, which is precisely when a student most needs them.
         if (_error != null)
-          appSection(AppErrorState(message: _error!, onRetry: _load))
-        else ...[
           appSection(
-            AppStatRow(
-              cards: [
-                AppStatCard(
-                  icon: Icons.event_available_rounded,
-                  value: '$_upcomingCount',
-                  label: 'Upcoming\nappointments',
-                  color: AppColors.primary,
-                  loading: _loading,
-                  onTap: () => context.go('/my-appointments'),
-                ),
-                AppStatCard(
-                  icon: Icons.medication_outlined,
-                  value: '$_medicationsCount',
-                  label: 'Active\nmedications',
-                  color: AppColors.success,
-                  loading: _loading,
-                  onTap: () => context.push('/my-medications'),
-                ),
-              ],
-            ),
-          ),
-
-          if (_nextAppointment != null)
-            appSection(
-              _UpcomingVisitCard(
-                appointment: _nextAppointment!,
-                onJoin: () => context.push(
-                  '/video-waiting-room',
-                  extra: {
-                    'doctorName':
-                        _nextAppointment!['doctor_name'] as String? ??
-                        'your doctor',
-                    'channelId': 'appointment_${_nextAppointment!['id']}',
-                  },
-                ),
-                onReschedule: () => context.go('/my-appointments'),
-              ),
-            ),
-
-          appSection(
-            AppHeroBanner(
-              icon: Icons.emergency_outlined,
-              eyebrow: 'URGENT CARE',
-              title: 'Talk to a doctor in minutes',
-              subtitle:
-                  'For symptoms that need attention now — connect with an '
-                  'on-call doctor right away.',
-              gradient: const [AppColors.error, AppColors.errorDark],
-              primaryLabel: 'CONNECT NOW',
-              onPrimary: () => context.push('/emergency'),
-              secondaryLabel: 'My requests',
-              onSecondary: () => context.go('/my-appointments'),
-            ),
+            AppInlineError(message: _error!, onRetry: _loadDashboardData),
             bottom: AppSpacing.md,
           ),
 
-          appSection(
-            AppHeroBanner(
-              icon: Icons.psychology_outlined,
-              eyebrow: 'AI SYMPTOM CHECKER',
-              title: 'Describe your symptoms',
-              subtitle:
-                  "Get instant AI-guided insight into what you're feeling and "
-                  'what to do next.',
-              gradient: const [AppColors.accent, AppColors.primary],
-              primaryLabel: 'START CHECK',
-              onPrimary: () => context.go('/symptom-check'),
-            ),
-          ),
-
-          if (!_loading && _medicationsCount > 0)
-            appSection(
-              _MedicationReminderCard(
-                count: _medicationsCount,
+        appSection(
+          AppStatRow(
+            cards: [
+              AppStatCard(
+                icon: Icons.event_available_rounded,
+                // An em dash, not a zero: we do not know the count, and "0"
+                // would be a claim we cannot support. The card stays tappable
+                // either way, so the real list is always one tap away.
+                value: _error != null ? '—' : '$_upcomingCount',
+                label: 'Upcoming\nappointments',
+                color: AppColors.primary,
+                loading: _loading,
+                onTap: () => context.go('/my-appointments'),
+              ),
+              AppStatCard(
+                icon: Icons.medication_outlined,
+                value: _error != null ? '—' : '$_medicationsCount',
+                label: 'Active\nmedications',
+                color: AppColors.success,
+                loading: _loading,
                 onTap: () => context.push('/my-medications'),
               ),
-            ),
-
-          appSection(
-            const AppSectionTitle(title: 'Quick actions'),
-            bottom: AppSpacing.md,
+            ],
           ),
-          appSection(AppQuickActionGrid(actions: _quickActions)),
-        ],
+        ),
+
+        if (_nextAppointment != null)
+          appSection(
+            _UpcomingVisitCard(
+              appointment: _nextAppointment!,
+              onJoin: () => context.push(
+                '/video-waiting-room',
+                extra: {
+                  'doctorName':
+                      _nextAppointment!['doctor_name'] as String? ??
+                      'your doctor',
+                  'channelId': 'appointment_${_nextAppointment!['id']}',
+                },
+              ),
+              onReschedule: () => context.go('/my-appointments'),
+            ),
+          ),
+
+        // ── Always available, whatever the care plan did ───────────────────
+
+        appSection(
+          AppHeroBanner(
+            icon: Icons.emergency_outlined,
+            eyebrow: 'URGENT CARE',
+            title: 'Talk to a doctor in minutes',
+            subtitle:
+                'For symptoms that need attention now. Connect with an '
+                'on-call doctor right away.',
+            gradient: const [AppColors.error, AppColors.errorDark],
+            primaryLabel: 'CONNECT NOW',
+            onPrimary: () => context.push('/emergency'),
+            secondaryLabel: 'My requests',
+            onSecondary: () => context.go('/my-appointments'),
+          ),
+          bottom: AppSpacing.md,
+        ),
+
+        appSection(
+          AppHeroBanner(
+            icon: Icons.psychology_outlined,
+            eyebrow: 'AI SYMPTOM CHECKER',
+            title: 'Describe your symptoms',
+            subtitle:
+                "Get instant AI-guided insight into what you're feeling and "
+                'what to do next.',
+            gradient: const [AppColors.accent, AppColors.primary],
+            primaryLabel: 'START CHECK',
+            onPrimary: () => context.go('/symptom-check'),
+          ),
+        ),
+
+        if (!_loading && _error == null && _medicationsCount > 0)
+          appSection(
+            _MedicationReminderCard(
+              count: _medicationsCount,
+              onTap: () => context.push('/my-medications'),
+            ),
+          ),
+
+        appSection(
+          const AppSectionTitle(title: 'Quick actions'),
+          bottom: AppSpacing.md,
+        ),
+        appSection(AppQuickActionGrid(actions: _quickActions)),
       ],
     );
   }
