@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 
 class StudentLoginScreen extends StatefulWidget {
   const StudentLoginScreen({super.key});
@@ -80,9 +81,11 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
             .from('profiles')
             .upsert({'id': userId, 'school': _selectedSchool}).select('id');
       }
-      await Supabase.instance.client
-          .from('profiles')
-          .upsert({'id': userId, 'role': _role}).select('id');
+      // The role is deliberately NOT written back here. It was redundant —
+      // the check above has already established that the row's role equals
+      // `_role` — and a client-writable role column is a privilege-escalation
+      // path. The migration now pins profiles.role with a BEFORE UPDATE
+      // trigger, so this write would silently no-op anyway.
       if (!mounted) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
@@ -189,39 +192,28 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // ── Role tab chips ─────────────────────────────────────
-                        Row(
-                          children: [
-                            _RoleChip(
-                              label: 'Student',
-                              selected: !isDoctor,
-                              onTap: () => setState(() {
-                                _role = 'student';
-                                _selectedSchool = null;
-                              }),
-                            ),
-                            const SizedBox(width: 8),
-                            _RoleChip(
-                              label: 'Doctor',
-                              selected: isDoctor,
-                              onTap: () => setState(() {
-                                _role = 'doctor';
-                                _selectedSchool = null;
-                              }),
-                            ),
-                          ],
+                        // ── Role switcher ──────────────────────────────────────
+                        // Full width, two equal halves. The old pill chips hugged
+                        // their labels, so "Student" and "Doctor" were different
+                        // widths and the pair floated at the card's left edge.
+                        AppSegmentedControl(
+                          segments: const ['Student', 'Doctor'],
+                          selectedIndex: isDoctor ? 1 : 0,
+                          onChanged: (i) => setState(() {
+                            _role = i == 1 ? 'doctor' : 'student';
+                            _selectedSchool = null;
+                          }),
                         ),
 
                         const SizedBox(height: 16),
 
                         // ── Greeting ────────────────────────────────────────────
-                        const Text(
+                        Text(
                           'Welcome back',
-                          style: TextStyle(
-                            fontFamily: 'Fraunces',
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                          style: BloomTextStyles.inter(
+                            size: 22,
+                            weight: FontWeight.w700,
+                            color: AppColors.textHeading,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -444,6 +436,9 @@ class _LoginField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Local copy: `suffix` is a public field, so it does not get null
+    // promotion inside the conditional below.
+    final Widget? suffixWidget = suffix;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -457,79 +452,31 @@ class _LoginField extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.pageBg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
+        // One border, drawn by the field itself. This used to be a bordered
+        // Container wrapping a field that drew its own outline on focus —
+        // two stacked rounded rectangles, slightly out of register.
+        TextFormField(
+          controller: controller,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          style: BloomTextStyles.inter(
+            size: 14,
+            color: AppColors.textPrimary,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  obscureText: obscureText,
-                  keyboardType: keyboardType,
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    color: AppColors.textPrimary,
+          decoration: appInputDecoration(
+            hintText: hint ?? '',
+            // The login card is already white; a white field on it reads as
+            // one flat surface.
+            fillColor: AppColors.pageBg,
+            suffixIcon: suffixWidget == null
+                ? null
+                : Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: suffixWidget,
                   ),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    border: InputBorder.none,
-                    hintText: hint,
-                    hintStyle: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 13),
-                  ),
-                ),
-              ),
-              ?suffix,
-            ],
           ),
         ),
       ],
-    );
-  }
-}
-
-class _RoleChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _RoleChip(
-      {required this.label, required this.selected, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.primary : AppColors.pageBg,
-          borderRadius: BorderRadius.circular(999),
-          border: selected
-              ? null
-              : Border.all(color: AppColors.border, width: 1),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : AppColors.textSecondary,
-          ),
-        ),
-      ),
     );
   }
 }

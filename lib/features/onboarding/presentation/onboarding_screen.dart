@@ -17,7 +17,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _Slide(
       title: 'Instant Doctor Access',
       subtitle:
-          'Talk to a real doctor from school in minutes — no clinic visit needed.',
+          'Talk to a real doctor from school in minutes. No clinic visit needed.',
       icon: Icons.medical_services_outlined,
     ),
     _Slide(
@@ -139,87 +139,96 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
 
           // ── Bottom panel ──────────────────────────────────────────────────
+          // SafeArea(bottom: true): without it the Skip / Next row sat under
+          // the Android gesture bar on tall devices.
           Container(
             width: double.infinity,
             color: LegacyDarkColors.surface,
-            child: Center(
-              child: ConstrainedBox(
-                // Keeps the text/button row from stretching edge-to-edge on
-                // wide screens (tablets), matching the phone-card design
-                // this content was written for, without touching the
-                // gradient hero area above (which stays full width).
-                constraints: const BoxConstraints(maxWidth: 480),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 26),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Progress dots
-                      Row(
-                        children: List.generate(_slides.length, (i) {
-                          final active = i == _index;
-                          return AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: active ? 20 : 20,
-                            height: 4,
-                            margin: const EdgeInsets.only(right: 5),
-                            decoration: BoxDecoration(
-                              color: active
-                                  ? LegacyDarkColors.lime
-                                  : Colors.white.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          );
-                        }),
-                      ),
-                      const SizedBox(height: 14),
-
-                      // Title
-                      Text(
-                        _slides[_index].title,
-                        style: const TextStyle(fontFamily: 'Fraunces', 
-                          fontSize: 19,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
+            child: SafeArea(
+              top: false,
+              child: Center(
+                child: ConstrainedBox(
+                  // Keeps the text/button row from stretching edge-to-edge on
+                  // wide screens (tablets), matching the phone-card design
+                  // this content was written for, without touching the
+                  // gradient hero area above (which stays full width).
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 26),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Progress dots
+                        Row(
+                          children: List.generate(_slides.length, (i) {
+                            final active = i == _index;
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: active ? 20 : 20,
+                              height: 4,
+                              margin: const EdgeInsets.only(right: 5),
+                              decoration: BoxDecoration(
+                                // Solid white. The lime accent belongs to the
+                                // retired dark palette and clashed with the
+                                // blue the rest of onboarding now uses.
+                                color: active
+                                    ? Colors.white
+                                    : Colors.white.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            );
+                          }),
                         ),
-                      ),
-                      const SizedBox(height: 7),
+                        const SizedBox(height: 14),
 
-                      // Subtitle
-                      Text(
-                        _slides[_index].subtitle,
-                        style: TextStyle(fontFamily: 'Inter', 
-                          fontSize: 12,
-                          color: Colors.white.withValues(alpha: 0.55),
-                          height: 1.5,
+                        // Title
+                        Text(
+                          _slides[_index].title,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 18),
+                        const SizedBox(height: 7),
 
-                      // Buttons
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _OnboardingButton(
-                              label: 'Skip',
-                              isGhost: true,
-                              onPressed: () => context.go('/role-selection'),
-                            ),
+                        // Subtitle
+                        Text(
+                          _slides[_index].subtitle,
+                          style: TextStyle(fontFamily: 'Inter', 
+                            fontSize: 12,
+                            color: Colors.white.withValues(alpha: 0.55),
+                            height: 1.5,
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            flex: 2,
-                            child: _OnboardingButton(
-                              label: _index == _slides.length - 1
-                                  ? 'Get Started'
-                                  : 'Next',
-                              onPressed: _nextOrFinish,
+                        ),
+                        const SizedBox(height: 18),
+
+                        // Buttons
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _OnboardingButton(
+                                label: 'Skip',
+                                isGhost: true,
+                                onPressed: () => context.go('/role-selection'),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                            const SizedBox(width: 8),
+                            Expanded(
+                              flex: 2,
+                              child: _OnboardingButton(
+                                label: _index == _slides.length - 1
+                                    ? 'Get Started'
+                                    : 'Next',
+                                onPressed: _nextOrFinish,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
