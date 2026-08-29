@@ -149,3 +149,11 @@ lib/
 
 `DESIGN_SYSTEM.md` describes the tokens and components, and the rules a new
 screen has to follow to look like the rest of the app.
+
+---
+
+## License
+
+**Copyright (c) 2026 Megdad Elfaki / SomaCare. All Rights Reserved.**
+
+This repository is **source-available for viewing only**. No permission is granted to copy, modify, distribute, or deploy any portion of this code. See [LICENSE.md](LICENSE.md) for full terms.
