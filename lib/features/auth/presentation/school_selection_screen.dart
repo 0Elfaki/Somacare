@@ -140,9 +140,9 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'All schools',
-                  style: BloomTextStyles.fraunces(
+                  style: BloomTextStyles.inter(
                     size: 15,
-                    weight: FontWeight.w400,
+                    weight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
                 ),

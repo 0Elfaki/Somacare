@@ -40,10 +40,11 @@ class RoleSelectionScreen extends StatelessWidget {
               Center(
                 child: Text(
                   'Welcome to SomaCare',
-                  style: BloomTextStyles.fraunces(
+                  style: BloomTextStyles.inter(
                     size: 22,
-                    weight: FontWeight.w500,
+                    weight: FontWeight.w700,
                     color: AppColors.textPrimary,
+                    letterSpacing: -0.4,
                   ),
                 ),
               ),
