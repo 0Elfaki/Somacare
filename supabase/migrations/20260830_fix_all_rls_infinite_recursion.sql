@@ -1,36 +1,31 @@
 -- ============================================================================
 -- SomaCare Database Migration: Fix PostgreSQL RLS Infinite Recursion (Code 42P17)
 -- ============================================================================
---
--- ROOT CAUSE (PostgreSQL Error 42P17):
--- When Row Level Security (RLS) policies on `public.profiles` or related tables
--- query `profiles` within their `USING` clause (e.g. `(SELECT role FROM profiles WHERE id = auth.uid()) = 'doctor'`),
--- PostgreSQL evaluates the `profiles` SELECT policy on the inner subquery, which triggers
--- the policy again recursively, causing:
--- "infinite recursion detected in policy for relation profiles" (SQLSTATE 42P17).
---
--- FIX STRATEGY:
--- 1. Define SECURITY DEFINER helper functions (`current_user_role()`, `is_doctor()`, `is_student()`, `is_admin()`).
---    Because `SECURITY DEFINER` functions run with the privileges of the database owner,
---    internal SELECT queries on `profiles` bypass RLS checks, breaking the recursive loop completely.
--- 2. Drop all recursive policies on `profiles`, `appointments`, `medical_histories`, `lab_results`, `doctor_patients`.
--- 3. Re-create clean, optimized, non-recursive RLS policies using these helper functions.
--- ============================================================================
 
 -- ── 1. Helper Functions (SECURITY DEFINER to break recursion) ─────────────────
 
-CREATE OR REPLACE FUNCTION public.current_user_role()
-RETURNS TEXT
+CREATE OR REPLACE FUNCTION public.get_user_role(user_id uuid)
+RETURNS text
 LANGUAGE sql
 SECURITY DEFINER
 SET search_path = public
 STABLE
 AS $$
-  SELECT role FROM public.profiles WHERE id = auth.uid();
+  SELECT role FROM public.profiles WHERE id = user_id LIMIT 1;
+$$;
+
+CREATE OR REPLACE FUNCTION public.current_user_role()
+RETURNS text
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT role FROM public.profiles WHERE id = auth.uid() LIMIT 1;
 $$;
 
 CREATE OR REPLACE FUNCTION public.is_doctor()
-RETURNS BOOLEAN
+RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 SET search_path = public
@@ -43,7 +38,7 @@ AS $$
 $$;
 
 CREATE OR REPLACE FUNCTION public.is_student()
-RETURNS BOOLEAN
+RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 SET search_path = public
@@ -56,7 +51,7 @@ AS $$
 $$;
 
 CREATE OR REPLACE FUNCTION public.is_admin()
-RETURNS BOOLEAN
+RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 SET search_path = public
@@ -68,6 +63,7 @@ AS $$
   );
 $$;
 
+GRANT EXECUTE ON FUNCTION public.get_user_role(uuid) TO authenticated, anon;
 GRANT EXECUTE ON FUNCTION public.current_user_role() TO authenticated, anon;
 GRANT EXECUTE ON FUNCTION public.is_doctor() TO authenticated, anon;
 GRANT EXECUTE ON FUNCTION public.is_student() TO authenticated, anon;
@@ -77,6 +73,7 @@ GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated, anon;
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow user to read profiles" ON public.profiles;
 DROP POLICY IF EXISTS "Doctors can view student profiles" ON public.profiles;
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Public can view doctor profiles" ON public.profiles;
@@ -84,22 +81,19 @@ DROP POLICY IF EXISTS "Students can view doctors" ON public.profiles;
 DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
 
--- Anyone authenticated can view their own profile
-CREATE POLICY "Users can view their own profile"
-  ON public.profiles FOR SELECT
-  USING (id = auth.uid());
-
--- Doctors can view student profiles (uses SECURITY DEFINER helper -> NO recursion)
-CREATE POLICY "Doctors can view student profiles"
-  ON public.profiles FOR SELECT
-  USING (
-    public.is_doctor() AND role = 'student'
-  );
-
--- Any authenticated user can view doctor profiles (for booking, messaging, consultations)
-CREATE POLICY "Public can view doctor profiles"
-  ON public.profiles FOR SELECT
-  USING (role = 'doctor');
+-- Unified non-recursive SELECT policy:
+-- 1. Users can read their own profile
+-- 2. Doctors/admins can read student profiles
+-- 3. Students can read doctor profiles for appointment booking & discovery
+CREATE POLICY "Allow user to read profiles"
+ON public.profiles
+FOR SELECT
+TO authenticated
+USING (
+  auth.uid() = id 
+  OR public.get_user_role(auth.uid()) IN ('doctor', 'admin')
+  OR role = 'doctor'
+);
 
 -- Users can insert and update their own profile
 CREATE POLICY "Users can insert own profile"
@@ -119,6 +113,7 @@ DROP POLICY IF EXISTS "Users can view own appointments" ON public.appointments;
 DROP POLICY IF EXISTS "Students can create appointments" ON public.appointments;
 DROP POLICY IF EXISTS "Doctors can update appointments" ON public.appointments;
 DROP POLICY IF EXISTS "Students can update own appointments" ON public.appointments;
+DROP POLICY IF EXISTS "Users can update own appointments" ON public.appointments;
 
 -- Students view their own, doctors view appointments assigned to them or emergencies
 CREATE POLICY "Users can view own appointments"
