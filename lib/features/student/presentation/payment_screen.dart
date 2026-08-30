@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 import '../../../widgets/bloom_components.dart';
 
 /// Payment method options mirrored from the Bloom spec (screen 9).
@@ -54,21 +55,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
     try {
       await widget.onConfirm();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✅ Payment successful — appointment booked!'),
-          backgroundColor: AppColors.success,
-        ),
+      showAppSnack(
+        context,
+        'Payment successful — appointment booked!',
+        tone: AppStatusTone.success,
       );
       context.go('/my-appointments');
     } catch (e) {
       if (!mounted) return;
       setState(() => _isPaying = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Payment failed: $e'),
-          backgroundColor: AppColors.error,
+      showAppSnack(
+        context,
+        userFriendlyErrorMessage(
+          e,
+          defaultMessage:
+              'Payment processing could not be completed. Please try again.',
         ),
+        tone: AppStatusTone.danger,
       );
     }
   }

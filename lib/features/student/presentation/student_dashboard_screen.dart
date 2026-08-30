@@ -22,7 +22,8 @@ class StudentDashboardScreen extends StatefulWidget {
 class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   String _studentName = '';
   bool _loading = true;
-  String? _error;
+  String? _authError;
+  bool _carePlanError = false;
 
   int _upcomingCount = 0;
   int _medicationsCount = 0;
@@ -36,21 +37,43 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
 
   // ── Data ───────────────────────────────────────────────────────────────────
 
+  /// Loads all dashboard streams in parallel and with isolated failure boundaries.
+  /// If one stream (such as appointments or medications) fails, the rest of the
+  /// dashboard remains completely interactive.
   Future<void> _load() async {
-    await Future.wait([_loadName(), _loadDashboardData()]);
+    final client = Supabase.instance.client;
+    final userId = client.auth.currentUser?.id;
+
+    if (userId == null) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _authError = 'You are signed out. Sign in again to access your care plan.';
+        });
+      }
+      return;
+    }
+
+    if (mounted && _authError != null) setState(() => _authError = null);
+
+    await Future.wait([
+      _loadName(client, userId),
+      _loadAppointments(client, userId),
+      _loadMedications(client, userId),
+    ]);
+
+    if (mounted) {
+      setState(() => _loading = false);
+    }
   }
 
-  Future<void> _loadName() async {
-    final client = Supabase.instance.client;
-    final user = client.auth.currentUser;
-    if (user == null) return;
-
+  Future<void> _loadName(SupabaseClient client, String userId) async {
     String name = '';
     try {
       final data = await client
           .from('profiles')
           .select('full_name')
-          .eq('id', user.id)
+          .eq('id', userId)
           .maybeSingle()
           .timeout(const Duration(seconds: 6), onTimeout: () => null);
       name = (data?['full_name'] as String?)?.trim() ?? '';
@@ -59,57 +82,26 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     }
 
     if (name.isEmpty) {
-      final email = user.email ?? '';
+      final email = client.auth.currentUser?.email ?? '';
       name = email.isNotEmpty ? email.split('@').first : '';
     }
 
     if (mounted) setState(() => _studentName = name);
   }
 
-  Future<void> _loadDashboardData() async {
-    final client = Supabase.instance.client;
-    final userId = client.auth.currentUser?.id;
-    if (userId == null) {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-          _error = 'You are signed out. Sign in again to see your care plan.';
-        });
-      }
-      return;
-    }
-
-    if (mounted && _error != null) setState(() => _error = null);
-
+  Future<void> _loadAppointments(SupabaseClient client, String userId) async {
     try {
-      final results = await Future.wait<dynamic>([
-        client
-            .from('appointments')
-            .select()
-            .eq('student_id', userId)
-            .order('date', ascending: true)
-            .timeout(
-              const Duration(seconds: 8),
-              onTimeout: () => <Map<String, dynamic>>[],
-            ),
-        client
-            .from('medications')
-            .select('id')
-            .eq('student_id', userId)
-            .eq('status', 'active')
-            .timeout(
-              const Duration(seconds: 8),
-              onTimeout: () => <Map<String, dynamic>>[],
-            ),
-      ], eagerError: false);
+      final data = await client
+          .from('appointments')
+          .select()
+          .eq('student_id', userId)
+          .order('date', ascending: true)
+          .timeout(
+            const Duration(seconds: 8),
+            onTimeout: () => <Map<String, dynamic>>[],
+          );
 
-      final appointments = List<Map<String, dynamic>>.from(
-        (results[0] as List?) ?? const [],
-      );
-      final medications = List<Map<String, dynamic>>.from(
-        (results[1] as List?) ?? const [],
-      );
-
+      final appointments = List<Map<String, dynamic>>.from(data);
       final upcoming = appointments
           .where(
             (a) => const ['pending', 'confirmed']
@@ -121,21 +113,46 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
               .compareTo((b['date'] as String?) ?? ''),
         );
 
-      if (!mounted) return;
-      setState(() {
-        _upcomingCount = upcoming.length;
-        _medicationsCount = medications.length;
-        _nextAppointment = upcoming.isNotEmpty ? upcoming.first : null;
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _upcomingCount = upcoming.length;
+          _nextAppointment = upcoming.isNotEmpty ? upcoming.first : null;
+          _carePlanError = false;
+        });
+      }
     } catch (e) {
-      debugPrint('Student dashboard load failed: $e');
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = "We couldn't load your care plan. Check your connection and "
-            'try again.';
-      });
+      debugPrint('Student appointments fetch failed: $e');
+      if (mounted) {
+        setState(() {
+          _carePlanError = true;
+          _upcomingCount = 0;
+          _nextAppointment = null;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadMedications(SupabaseClient client, String userId) async {
+    try {
+      final data = await client
+          .from('medications')
+          .select('id')
+          .eq('student_id', userId)
+          .eq('status', 'active')
+          .timeout(
+            const Duration(seconds: 8),
+            onTimeout: () => <Map<String, dynamic>>[],
+          );
+
+      final medications = List<Map<String, dynamic>>.from(data);
+      if (mounted) {
+        setState(() => _medicationsCount = medications.length);
+      }
+    } catch (e) {
+      debugPrint('Student medications fetch failed: $e');
+      if (mounted) {
+        setState(() => _medicationsCount = 0);
+      }
     }
   }
 
@@ -228,9 +245,10 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
           ),
         ),
 
-        if (_error != null)
-          appSection(AppErrorState(message: _error!, onRetry: _load))
+        if (_authError != null)
+          appSection(AppErrorState(message: _authError!, onRetry: _load))
         else ...[
+          // ── Stat Row ───────────────────────────────────────────────────────
           appSection(
             AppStatRow(
               cards: [
@@ -254,6 +272,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             ),
           ),
 
+          // ── Care Plan / Upcoming Visit Section ─────────────────────────────
           if (_nextAppointment != null)
             appSection(
               _UpcomingVisitCard(
@@ -269,8 +288,19 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 ),
                 onReschedule: () => context.go('/my-appointments'),
               ),
+            )
+          else if (_carePlanError)
+            appSection(
+              _CarePlanErrorCard(onRetry: _load),
+            )
+          else if (!_loading)
+            appSection(
+              _CarePlanEmptyCard(
+                onBook: () => context.push('/book-appointment'),
+              ),
             ),
 
+          // ── Urgent Care Hero Banner ────────────────────────────────────────
           appSection(
             AppHeroBanner(
               icon: Icons.emergency_outlined,
@@ -288,6 +318,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             bottom: AppSpacing.md,
           ),
 
+          // ── AI Symptom Checker ─────────────────────────────────────────────
           appSection(
             AppHeroBanner(
               icon: Icons.psychology_outlined,
@@ -302,6 +333,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             ),
           ),
 
+          // ── Medication Reminder (if active) ────────────────────────────────
           if (!_loading && _medicationsCount > 0)
             appSection(
               _MedicationReminderCard(
@@ -310,6 +342,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
               ),
             ),
 
+          // ── Quick Actions Grid ─────────────────────────────────────────────
           appSection(
             const AppSectionTitle(title: 'Quick actions'),
             bottom: AppSpacing.md,
@@ -428,6 +461,120 @@ class _UpcomingVisitCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Inline card shown when upcoming visits could not be loaded, allowing
+/// the rest of the home screen to remain fully functional.
+class _CarePlanErrorCard extends StatelessWidget {
+  const _CarePlanErrorCard({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      color: AppColors.errorWash,
+      borderColor: AppColors.errorTint,
+      child: Row(
+        children: [
+          const AppIconChip(
+            icon: Icons.sync_problem_rounded,
+            color: AppColors.error,
+            size: 38,
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Care plan offline',
+                  style: BloomTextStyles.inter(
+                    size: AppTypography.titleSmall,
+                    weight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                Text(
+                  'Unable to load scheduled visits. Pull down to refresh.',
+                  style: BloomTextStyles.inter(
+                    size: AppTypography.bodySmall,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.error),
+            tooltip: 'Retry',
+            onPressed: onRetry,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Inline card shown when no upcoming visits are scheduled.
+class _CarePlanEmptyCard extends StatelessWidget {
+  const _CarePlanEmptyCard({required this.onBook});
+
+  final VoidCallback onBook;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Row(
+        children: [
+          const AppIconChip(
+            icon: Icons.event_available_outlined,
+            color: AppColors.primary,
+            size: 40,
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'No upcoming visits',
+                  style: BloomTextStyles.inter(
+                    size: AppTypography.titleSmall,
+                    weight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                Text(
+                  'Schedule an appointment with a doctor anytime.',
+                  style: BloomTextStyles.inter(
+                    size: AppTypography.bodySmall,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: onBook,
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              textStyle: const TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
+            child: const Text('Book visit'),
           ),
         ],
       ),

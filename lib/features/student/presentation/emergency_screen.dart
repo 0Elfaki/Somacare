@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 import '../../../widgets/bloom_components.dart';
 
 // ─────────────────────────────────────────────────────────────────────
@@ -284,7 +285,16 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         );
       }
     } catch (e) {
-      if (mounted) _showSnackBar('Could not send alert: $e', isError: true);
+      if (mounted) {
+        _showSnackBar(
+          userFriendlyErrorMessage(
+            e,
+            defaultMessage:
+                'Could not send emergency alert. Please call campus emergency directly.',
+          ),
+          isError: true,
+        );
+      }
     } finally {
       if (mounted) setState(() => _sendingAlert = false);
     }

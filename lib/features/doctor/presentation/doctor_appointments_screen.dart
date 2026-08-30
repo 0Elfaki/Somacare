@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 
 class DoctorAppointmentsScreen extends StatefulWidget {
   const DoctorAppointmentsScreen({super.key});
@@ -122,11 +123,14 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to load appointments: $e'),
-            backgroundColor: AppColors.error,
+        showAppSnack(
+          context,
+          userFriendlyErrorMessage(
+            e,
+            defaultMessage:
+                'Unable to load appointments right now. Please pull down to refresh.',
           ),
+          tone: AppStatusTone.danger,
         );
       }
     }

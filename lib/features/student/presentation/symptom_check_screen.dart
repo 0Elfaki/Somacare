@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'ai_result_screen.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 
 // The API key is injected at build/run time instead of hardcoded in source.
 // A key committed directly into Dart code ships inside the built app (APK/IPA)
@@ -283,8 +284,14 @@ no commentary) in exactly this shape:
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not generate a result: $e')),
+      showAppSnack(
+        context,
+        userFriendlyErrorMessage(
+          e,
+          defaultMessage:
+              'Could not generate symptom assessment right now. Please try again.',
+        ),
+        tone: AppStatusTone.danger,
       );
     } finally {
       if (mounted) setState(() => _isAssessing = false);

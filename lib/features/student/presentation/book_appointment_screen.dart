@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../doctor/data/notification_service.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 import '../../../widgets/bloom_components.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
@@ -71,11 +72,15 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         setState(() {
           _loadingDoctors = false;
         });
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Failed to load doctors: $e')));
-        }
+        showAppSnack(
+          context,
+          userFriendlyErrorMessage(
+            e,
+            defaultMessage:
+                'Unable to load available doctors right now. Please pull down to refresh.',
+          ),
+          tone: AppStatusTone.danger,
+        );
       }
     }
   }
@@ -172,32 +177,22 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       // (which skip payment) drive their own UX here.
       if (!_isEmergency) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            '🚨 Emergency appointment started! Doctor has been notified.',
-          ),
-          backgroundColor: AppColors.success,
-          duration: Duration(seconds: 4),
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            '⏳ Emergency request sent! Waiting for doctor to accept.',
-          ),
-          backgroundColor: AppColors.warning,
-          duration: Duration(seconds: 4),
-        ),
+      showAppSnack(
+        context,
+        '🚨 Emergency appointment started! Doctor has been notified.',
+        tone: AppStatusTone.success,
       );
       context.go('/student-dashboard');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ Failed to book: $e'),
-          backgroundColor: AppColors.error,
+      showAppSnack(
+        context,
+        userFriendlyErrorMessage(
+          e,
+          defaultMessage:
+              'Unable to complete your appointment booking. Please try again.',
         ),
+        tone: AppStatusTone.danger,
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 
 class MyAppointmentsScreen extends StatefulWidget {
   const MyAppointmentsScreen({super.key});
@@ -27,7 +28,11 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen>
 
   @override
   void dispose() {
-    _channel?.unsubscribe();
+    final channel = _channel;
+    if (channel != null) {
+      Supabase.instance.client.removeChannel(channel);
+      _channel = null;
+    }
     _tab.dispose();
     super.dispose();
   }
@@ -77,11 +82,14 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen>
     } catch (e) {
       debugPrint('StudentAppointments: Error loading appointments: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to load appointments: $e'),
-            backgroundColor: AppColors.error,
+        showAppSnack(
+          context,
+          userFriendlyErrorMessage(
+            e,
+            defaultMessage:
+                'Unable to load appointments right now. Please pull down to refresh.',
           ),
+          tone: AppStatusTone.danger,
         );
       }
     } finally {
@@ -98,20 +106,21 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen>
       await _loadAppointments(); // ✅ refresh list
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Appointment cancelled successfully'),
-            backgroundColor: AppColors.success,
-          ),
+        showAppSnack(
+          context,
+          'Appointment cancelled successfully.',
+          tone: AppStatusTone.success,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to cancel: $e'),
-            backgroundColor: AppColors.error,
+        showAppSnack(
+          context,
+          userFriendlyErrorMessage(
+            e,
+            defaultMessage: 'Unable to cancel appointment. Please try again.',
           ),
+          tone: AppStatusTone.danger,
         );
       }
     }

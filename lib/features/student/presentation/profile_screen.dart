@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_ui.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -101,21 +102,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
       if (mounted) {
         setState(() => _isEditing = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Profile updated!'),
-            backgroundColor: AppColors.success,
-          ),
+        showAppSnack(
+          context,
+          'Profile updated successfully!',
+          tone: AppStatusTone.success,
         );
         _loadProfile();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Failed to save: $e'),
-            backgroundColor: AppColors.error,
+        showAppSnack(
+          context,
+          userFriendlyErrorMessage(
+            e,
+            defaultMessage: 'Unable to save profile changes. Please try again.',
           ),
+          tone: AppStatusTone.danger,
         );
       }
     }

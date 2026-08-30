@@ -1473,3 +1473,60 @@ Future<bool> showAppConfirm(
   );
   return result ?? false;
 }
+
+/// Converts raw database, network, or platform exceptions into human-friendly,
+/// reassuring messages that explain what the user can do, rather than leaking
+/// raw SQL/PostgreSQL/Postgrest errors or stack traces to the UI.
+String userFriendlyErrorMessage(
+  dynamic error, {
+  String defaultMessage = 'Something went wrong. Please try again.',
+}) {
+  if (error == null) return defaultMessage;
+  final errStr = error.toString().toLowerCase();
+
+  // PostgreSQL / Supabase RLS recursion (42P17) or policy violation
+  if (errStr.contains('42p17') || errStr.contains('infinite recursion')) {
+    return 'We had trouble verifying permissions. Please pull down to refresh or try again in a moment.';
+  }
+  if (errStr.contains('pgrst') ||
+      errStr.contains('postgrest') ||
+      errStr.contains('jwt')) {
+    if (errStr.contains('jwt expired') ||
+        errStr.contains('invalid claim') ||
+        errStr.contains('not authenticated')) {
+      return 'Your session has expired. Please sign in again.';
+    }
+    if (errStr.contains('row-level security') ||
+        errStr.contains('permission denied')) {
+      return 'You do not have permission to perform this action.';
+    }
+  }
+  // Network / connection errors
+  if (errStr.contains('socketexception') ||
+      errStr.contains('failed host lookup') ||
+      errStr.contains('connection refused') ||
+      errStr.contains('network is unreachable') ||
+      errStr.contains('clientexception') ||
+      errStr.contains('timeout')) {
+    return 'Unable to connect to SomaCare servers. Please check your internet connection.';
+  }
+  // Data constraints
+  if (errStr.contains('duplicate key') || errStr.contains('already exists')) {
+    return 'This record already exists.';
+  }
+  if (errStr.contains('foreign key') || errStr.contains('violates foreign key')) {
+    return 'Unable to complete this action because a required record was not found.';
+  }
+
+  // If the error message is already human-readable and clean
+  if (error is String &&
+      !error.contains('Exception') &&
+      !error.contains('Error:') &&
+      !error.contains('code:') &&
+      error.length < 90) {
+    return error;
+  }
+
+  return defaultMessage;
+}
+
